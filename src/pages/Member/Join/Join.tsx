@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
+import { useForm } from "react-hook-form";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -122,21 +123,89 @@ function Agree() {
     );
 }
 
+interface Inputs {
+    email: string;
+    password: string;
+    confirmPw: string;
+    name: string;
+    mobileNumber: number;
+    certNumber: number;
+}
+
 function Form() {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors }
+    } = useForm<Inputs>({ mode: "onChange" });
+
+    const onSubmit = data => {};
+
     return (
-        <form className="join-form" method="post" action="#">
+        <form className="join-form" method="post" onSubmit={handleSubmit(onSubmit)}>
             <div className="input-container">
-                <input type="text" placeholder="이메일" />
-                <input type="password" placeholder="비밀번호" />
-                <input type="password" placeholder="비밀번호 확인" />
-                <input type="text" placeholder="이름" />
+                <input
+                    type="text"
+                    placeholder="이메일"
+                    {...register("email", {
+                        required: true,
+                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/
+                    })}
+                />
+                {errors.email?.type === "required" && <p className="errorMsg">이메일을 입력해 주세요.</p>}
+                {errors.email?.type === "pattern" && <p className="errorMsg">유효하지 않은 이메일 형식입니다.</p>}
+                <input
+                    type="password"
+                    placeholder="비밀번호"
+                    {...register("password", {
+                        required: true,
+                        pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
+                        minLength: 8,
+                        maxLength: 16
+                    })}
+                />
+                {errors.password?.type === "required" && <p className="errorMsg">비밀번호를 입력해 주세요.</p>}
+                {(errors.password?.type === "pattern" || errors.password?.type === "minLength" || errors.password?.type === "maxLength") && (
+                    <p className="errorMsg">8~16자 이내로 영문, 숫자, 특수문자를 포함하여 입력해 주세요.</p>
+                )}
+                <input
+                    type="password"
+                    placeholder="비밀번호 확인"
+                    {...register("confirmPw", {
+                        validate: value => value === String(watch("password"))
+                    })}
+                />
+                {errors.confirmPw && <p className="errorMsg">비밀번호가 일치하지 않습니다.</p>}
+                <input
+                    type="text"
+                    placeholder="이름"
+                    {...register("name", {
+                        required: true
+                    })}
+                />
+                {errors.name && <p className="errorMsg">이름을 입력해 주세요.</p>}
                 <div className="flex">
-                    <input type="text" placeholder="핸드폰번호" />
+                    <input
+                        type="text"
+                        placeholder="핸드폰번호"
+                        {...register("mobileNumber", {
+                            required: true
+                        })}
+                    />
                     <button type="button" className="small-txt radius-style-btn">
                         인증번호 요청
                     </button>
                 </div>
-                <input type="text" placeholder="인증번호 6자리 입력" />
+                {errors.mobileNumber && <p className="errorMsg">핸드폰번호를 입력해주세요.</p>}
+                <input
+                    type="text"
+                    placeholder="인증번호 6자리 입력"
+                    {...register("certNumber", {
+                        required: true
+                    })}
+                />
+                {errors.certNumber && <p className="errorMsg">인증번호를 입력해주세요.</p>}
             </div>
             <Agree />
             <div className="join-btn-wrap">
