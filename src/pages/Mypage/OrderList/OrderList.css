@@ -1,0 +1,125 @@
+/* search-section */
+
+.order-list .search-section {
+    padding: 20px;
+    background: #FAFAFA;
+    border-radius: 5px;
+}
+
+.order-list .search-section > span {
+    margin-right: 20px;
+    font-weight: bold;
+    padding: 12px 0;
+}
+
+.order-list .section-inner-left, .order-list .section-inner-right {
+    flex: 1;
+}
+
+.order-list .section-inner-left .select-month .radius-style-btn {
+    border: 1px solid #E5E5E5;
+    font-weight: normal;
+    min-width: 3.75rem;
+    margin-right: 4px;
+}
+
+.order-list .section-inner-left .select-month .radius-style-btn.on-btn {
+    background: #555 !important;
+    color: white !important;
+}	
+
+.order-list .section-inner-left .select-month a {
+    margin-left: 10px;
+    color: #999999;
+}
+
+.order-list .section-inner-left .select-month a:hover {
+    font-weight: bold;
+    color: #363636;
+}
+
+.order-list .section-inner-right {
+    text-align: right;
+    padding-top: 5px;
+}	
+
+.order-list .section-inner-right input {
+    padding: 0 5px;
+    height: 2rem;
+    border: 1px solid #E8E8E8;
+    vertical-align: middle;
+}
+
+.order-list .section-inner-right .history-end-date {
+    margin-right: 8px;
+}	
+
+.order-list .section-inner-right .btn-wrap .search-btn {
+    width: 5rem;
+    height: 2rem;
+    vertical-align: middle;
+}
+
+/* order-wrap */
+
+.order-list .order-table {
+    margin-top: 20px;
+}
+
+.order-list .order-table .order-item {
+    text-align: center;
+}
+
+.order-list .order-table .order-item .order-date {
+    border-right: 1px solid #e5e5e5;
+    width: 15%;
+}
+
+.order-list .order-table .order-item .order-date a {
+    text-decoration: underline;
+}
+
+.order-list .order-table .order-item .order-item-thumb {
+    border-right: 0;
+    padding-left: 8px;
+    width: 10%;
+}
+
+.order-list .order-table .order-item .order-item-thumb a {
+    width: 80%;
+    max-width: 100px;
+    display: block;
+}
+
+.order-list .order-table .order-item .order-item-name {
+    text-align: left;
+    border-left: 0;
+    width: 35%;
+}
+
+.order-list .order-table .order-item .order-amount {
+    width: 10%;
+}
+
+.order-list .order-table .order-item .order-price, .order-list .order-table .order-item .order-status {
+    width: 15%;
+}
+
+@media(max-width: 900px) {
+    .order-list .search-section {
+        display: block;
+    }
+    
+    .order-list .section-inner-right {
+        text-align: left;
+        margin-top: 10px;
+    }
+    
+    .order-list .section-inner-right input {
+        width: 80px
+    }
+    
+    .order-list .order-table .order-item .order-item-thumb {
+        padding-left: 5px;
+    }
+}

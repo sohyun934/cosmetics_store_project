@@ -1,0 +1,16 @@
+.modify-wrap {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.modify-wrap .input-container .flex {
+    align-items: center;
+}
+
+.modify-wrap .btn-wrap {
+    margin: 40px 0 20px;
+}
+
+.modify-wrap .member-leave {
+    text-align: right;
+}

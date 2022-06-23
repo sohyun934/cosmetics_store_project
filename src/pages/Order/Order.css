@@ -1,0 +1,75 @@
+.order-container .delivery-section,
+.order-container .check-out-section {
+    flex: 1;
+}
+
+.order-container .delivery-section,
+.order-container .check-out-section .section-inner {
+    background: #faf8f4;
+    padding: 30px;
+}
+
+/* delivery-section */
+
+.order-container .delivery-section .info-container {
+    margin-bottom: 20px;
+}
+
+.order-container .delivery-section .input-container .flex {
+    align-items: center;
+}
+
+.order-container .delivery-section .delivery-msg select {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.order-container .delivery-section .delivery-msg textarea {
+    resize: none;
+}
+
+/* check-out-section */
+
+@media (min-width: 900px) {
+    .order-container .check-out-section {
+        margin-left: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .order-container .section-container > .flex {
+        display: block;
+    }
+
+    .order-container .delivery-section {
+        margin-bottom: 30px;
+    }
+}
+
+.order-container .check-out-section .section-inner > div {
+    padding: 14px 0;
+}
+
+.order-container .check-out-section .section-inner > div > span {
+    flex: 1;
+}
+
+.order-container .check-out-section .section-inner .price,
+.fee {
+    text-align: right;
+}
+
+.order-container .check-out-section .btn-container {
+    margin-top: 40px;
+}
+
+.order-container .check-out-section .btn-container .cancel-btn,
+.order-container .check-out-section .btn-container .pay-btn {
+    flex: 1;
+}
+
+.order-container .check-out-section .btn-container .cancel-btn {
+    padding: 13px 0;
+    text-align: center;
+}

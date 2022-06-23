@@ -1,0 +1,145 @@
+.header {
+    height: 8vh;
+    padding: 0 20px;
+    background: rgba(255,255,255,0.4);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.header .logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background: transparent;
+}
+
+.logo img {
+	width: 10rem;
+	vertical-align: middle;
+}
+
+.header-gnb-left ul, .header-gnb-right ul, .side-gnb-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.header-gnb-left ul {
+    display: flex;
+    padding-bottom: 10px;
+}
+
+.header-gnb-left li {
+    padding: 0 16px;
+}
+
+.side-active .header-gnb-left {
+    display: none;
+}
+
+.header-gnb-right ul {
+    right: 20px;
+}
+
+.header-gnb-right li {
+    padding-right: 16px;
+}
+
+.header-gnb-right li img {
+    width: 1.8rem;
+}
+
+.side-gnb-btn {
+    display: none;
+    padding-left: 16px;
+    background: none;
+    width: auto;
+    margin: 0;
+}
+
+.side-gnb-btn div {
+    width: 1.5rem;
+    height: 1px;
+    background: #363636;
+    margin: 6px 0;
+    transition: all 0.4s ease;
+}
+
+.side-active .side-gnb-btn {
+    display: inline;
+    z-index: 4;
+}
+
+.side-active .side-gnb-btn .line1 {
+    transform: rotate(-45deg) translate(-5px, 5px);
+}
+
+.side-active .side-gnb-btn .line2 {
+    opacity: 0;
+}
+
+.side-active .side-gnb-btn .line3 {
+    transform: rotate(45deg) translate(-5px, -5px);
+}
+
+@media(max-width:1500px) {
+    .header-gnb-left {
+        display: none;
+    }
+    
+    .side-gnb-btn {
+        display: inline;
+    }
+}
+
+.side-gnb ul {
+    position: fixed;
+    top: 0;
+    left: -700px;
+    width: 350px;
+    height: 100%;
+    opacity: 0;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(50px);
+    padding: 70px 40px;
+    z-index: 3;
+}
+
+.side-gnb li {
+    line-height: 4em;
+    font-weight: bold;
+    padding-left: 16px;
+}
+
+.side-active .side-gnb ul{
+    left: 0;
+    opacity: 1;
+    transition: all .3s ease-in-out;
+}
+
+@media(max-width:900px) {
+    .side-gnb-btn {
+        padding-left: 0;
+    }
+    
+    .header-gnb-right li:nth-child(1) {
+        padding-right: 8px;
+    }
+    
+    .header-gnb-right li:nth-child(2) {
+        padding-right: 0;
+    } 	
+
+    .side-active .side-gnb ul {
+        width: 240px;
+    }
+    
+    .side-active .side-gnb ul li {
+        line-height: 3em;
+        font-size: 15px;
+    }
+}

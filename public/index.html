@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>THE NATURAL</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+      $(window).scroll(function() {
+        const location = ($(document).height() - $(window).height()) / 5;
+
+        // 최대 스크롤 높이의 1/5 이상 스크롤을 내리면 버튼이 나타나게 한다.
+        if (location <= $(window).scrollTop()) {
+          $(".move-top").css("opacity", "1");
+        }
+
+        // 최대 스크롤 높이의 1/5 미만으로 스크롤을 올리면 버튼이 사라지게 한다.
+        if (location > $(window).scrollTop()) {
+          $(".move-top").css("opacity", "0");
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/*.js", "src/routes/App.js"],
+  "compilerOptions": {
+    "target": "es2016",
+    "jsx": "react-jsx",
+    "module": "commonjs",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}

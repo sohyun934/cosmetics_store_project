@@ -1,0 +1,18 @@
+.policy-wrap {
+    padding: 48px 36px;
+}
+
+.policy-wrap {
+    max-width: 880px;
+    min-height: 80vh;
+    margin: 0 auto;
+    padding: 100px 20px 150px;
+}
+
+@media (max-width: 1000px) {
+    .policy-wrap {
+        width: 100%;
+        padding: 48px 20px;
+        box-sizing: border-box;
+    }
+}

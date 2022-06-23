@@ -1,0 +1,36 @@
+.join-container .input-container {
+    padding-bottom: 24px;
+}
+
+.join-container .input-container .flex input {
+    flex: 7.5 1;
+    margin-right: 10px;
+}
+
+.join-container .input-container .flex button {
+    flex: 2 1;
+    height: 2.3rem;
+}
+
+.join-container .agree-container {
+    padding: 20px 10px;
+    background: #faf8f4;
+}
+
+.join-container .agree-container > div {
+    padding: 2px 0;
+}
+
+.join-container .agree-container > div a {
+    text-decoration: underline;
+    color: #757575;
+    float: right;
+}
+
+.join-container .join-btn-wrap {
+    margin-top: 40px;
+}
+
+.join-container .popup-container {
+    height: 650px;
+}

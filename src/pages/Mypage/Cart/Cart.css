@@ -1,0 +1,123 @@
+.cart-section,
+.order-section {
+    flex: 1;
+}
+
+.cart-section,
+.order-section .section-inner {
+    background: #faf8f4;
+    padding: 30px;
+}
+
+/* cart-section */
+
+.cart-list {
+    border-spacing: 0 16px;
+    width: 100%;
+    border-top: 1px solid #e5e5e5;
+}
+
+.cart-list td {
+    vertical-align: top;
+    padding-top: 22px;
+}
+
+.cart-list .del-chk {
+    width: 8%;
+    padding-right: 10px;
+}
+
+.cart-list .thumb {
+    width: 20%;
+}
+
+.cart-list .thumb a {
+    width: 90%;
+    max-width: 100px;
+    display: block;
+}
+
+.cart-list .info {
+    width: 67%;
+    padding-left: 10px;
+    flex-direction: column;
+}
+
+.cart-list .info > div {
+    margin-bottom: 20px;
+}
+
+.cart-list .info .cnt-box button {
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.cart-list .info .cnt-box .minus,
+.cart-list .info .cnt-box .plus {
+    background-size: 0.5rem;
+}
+
+.cart-list .info .cnt-box .cnt {
+    width: 1.2rem;
+    font-size: 0.9rem;
+}
+
+.cart-list .del-util {
+    width: 5%;
+    text-align: right;
+    padding-left: 10px;
+}
+
+.cart-list .del-util .del-btn {
+    width: 1rem;
+    height: 1rem;
+    background: 1rem
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.227 4.227a.774.774 0 0 1 1.095 0L12 10.905l6.678-6.678a.774.774 0 1 1 1.095 1.095L13.095 12l6.678 6.678a.774.774 0 1 1-1.095 1.095L12 13.095l-6.678 6.678a.774.774 0 1 1-1.095-1.095L10.905 12 4.227 5.322a.774.774 0 0 1 0-1.095Z' fill='%23757575'/%3E%3C/svg%3E");
+}
+
+.cart-section .cart-del-wrap {
+    margin-top: 20px;
+}
+
+.cart-section .cart-del-wrap a {
+    padding-left: 10px;
+}
+
+/* order-section */
+
+@media (min-width: 900px) {
+    .order-section {
+        margin-left: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .section-container > .flex {
+        display: block;
+    }
+
+    .cart-section {
+        margin-bottom: 30px;
+    }
+}
+
+.order-section .section-inner > div {
+    padding: 14px 0;
+}
+
+.order-section .section-inner > div > span {
+    flex: 1;
+}
+
+.order-section .section-inner .price,
+.fee {
+    text-align: right;
+}
+
+.order-section .btn-wrap {
+    margin-top: 40px;
+}
+
+.order-section .btn-wrap button {
+    flex: 1;
+}

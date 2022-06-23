@@ -1,0 +1,15 @@
+.login-form .input-container {
+    padding-bottom: 24px;
+}
+
+.util-container {
+    padding-top: 24px;
+}
+
+.util-container > div {
+    flex: 1;
+}
+
+.util-container .find-join-wrap {
+    text-align: right;
+}

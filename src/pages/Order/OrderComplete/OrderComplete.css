@@ -1,0 +1,13 @@
+.notice-section {
+   padding-top: 50px !important;
+}
+
+.notice-section h2 {
+    text-align: center;
+}
+
+@media(max-width:900px) {
+    .notice-section {
+        padding-top: 20px !important;
+    }
+}
