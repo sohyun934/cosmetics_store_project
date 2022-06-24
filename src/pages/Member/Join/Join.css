@@ -4,7 +4,7 @@
 
 .join-container .input-container .errorMsg {
     color: #cd3333;
-    margin: 0 0 20px;
+    margin: 0 0 16px;
 }
 
 .join-container .input-container .flex input {
@@ -15,6 +15,7 @@
 .join-container .input-container .flex button {
     flex: 2 1;
     height: 2.3rem;
+    min-width: 6.5rem;
 }
 
 .join-container .agree-container {
@@ -36,6 +37,8 @@
     margin-top: 40px;
 }
 
-.join-container .popup-container {
-    height: 650px;
+@media (min-width: 900px) {
+    .join-container .popup-container {
+        height: 650px;
+    }
 }
