@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -12,6 +21,8 @@ const styled_components_1 = __importDefault(require("styled-components"));
 const PrivacyPolicy_1 = require("../../PrivacyPolicy/PrivacyPolicy");
 const TermsOfUse_1 = require("../../TermsOfUse/TermsOfUse");
 const react_hook_form_1 = require("react-hook-form");
+const firestore_1 = require("firebase/firestore");
+const firebase_1 = __importDefault(require("../../../firebase"));
 const StyledInput = styled_components_1.default.input `
     appearance: none;
     border: 1.5px solid #aaa;
@@ -61,20 +72,29 @@ function Agree() {
                         } }, { children: "\uBCF4\uAE30" }))] }), privacyPop] })));
 }
 function Form() {
-    var _a, _b, _c, _d, _e, _f;
-    const { register, handleSubmit, watch, formState: { errors } } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
-    const onSubmit = data => {
-        alert(JSON.stringify(data));
-    };
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+    const { register, handleSubmit, watch, formState: { errors, dirtyFields }, getValues } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
+    let display = "none";
+    if (dirtyFields.email)
+        display = "block";
+    function fetchUser() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.default, "users"), (0, firestore_1.where)("email", "==", getValues("email")));
+            const userSnapshot = yield (0, firestore_1.getDocs)(q);
+            return userSnapshot.size > 0;
+        });
+    }
+    const onSubmit = data => { };
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "join-form", method: "post", onSubmit: handleSubmit(onSubmit) }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uBA54\uC77C" }, register("email", {
                         required: true,
-                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/
-                    }))), ((_a = errors.email) === null || _a === void 0 ? void 0 : _a.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uBA54\uC77C\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), ((_b = errors.email) === null || _b === void 0 ? void 0 : _b.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC720\uD6A8\uD558\uC9C0 \uC54A\uC740 \uC774\uBA54\uC77C \uD615\uC2DD\uC785\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638" }, register("password", {
+                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                        validate: () => __awaiter(this, void 0, void 0, function* () { return (yield fetchUser()) === false; })
+                    }))), ((_a = errors.email) === null || _a === void 0 ? void 0 : _a.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uBA54\uC77C\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), ((_b = errors.email) === null || _b === void 0 ? void 0 : _b.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC720\uD6A8\uD558\uC9C0 \uC54A\uC740 \uC774\uBA54\uC77C \uD615\uC2DD\uC785\uB2C8\uB2E4." })), ((_c = errors.email) === null || _c === void 0 ? void 0 : _c.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uBBF8 \uC874\uC7AC\uD558\uB294 \uC774\uBA54\uC77C\uC785\uB2C8\uB2E4." })), ((_d = errors.email) === null || _d === void 0 ? void 0 : _d.type) !== "required" && ((_e = errors.email) === null || _e === void 0 ? void 0 : _e.type) !== "pattern" && ((_f = errors.email) === null || _f === void 0 ? void 0 : _f.type) !== "validate" && ((0, jsx_runtime_1.jsx)("p", Object.assign({ style: { marginTop: "0", color: "#008B00", display: display } }, { children: "\uC0AC\uC6A9 \uAC00\uB2A5\uD55C \uC774\uBA54\uC77C\uC785\uB2C8\uB2E4." }))), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638" }, register("password", {
                         required: true,
                         pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
                         minLength: 8,
                         maxLength: 16
-                    }))), ((_c = errors.password) === null || _c === void 0 ? void 0 : _c.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (((_d = errors.password) === null || _d === void 0 ? void 0 : _d.type) === "pattern" || ((_e = errors.password) === null || _e === void 0 ? void 0 : _e.type) === "minLength" || ((_f = errors.password) === null || _f === void 0 ? void 0 : _f.type) === "maxLength") && ((0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "8~16\uC790 \uC774\uB0B4\uB85C \uC601\uBB38, \uC22B\uC790, \uD2B9\uC218\uBB38\uC790\uB97C \uD3EC\uD568\uD558\uC5EC \uC785\uB825\uD574 \uC8FC\uC138\uC694." }))), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638 \uD655\uC778" }, register("confirmPw", {
+                    }))), ((_g = errors.password) === null || _g === void 0 ? void 0 : _g.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (((_h = errors.password) === null || _h === void 0 ? void 0 : _h.type) === "pattern" || ((_j = errors.password) === null || _j === void 0 ? void 0 : _j.type) === "minLength" || ((_k = errors.password) === null || _k === void 0 ? void 0 : _k.type) === "maxLength") && ((0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "8~16\uC790 \uC774\uB0B4\uB85C \uC601\uBB38, \uC22B\uC790, \uD2B9\uC218\uBB38\uC790\uB97C \uD3EC\uD568\uD558\uC5EC \uC785\uB825\uD574 \uC8FC\uC138\uC694." }))), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638 \uD655\uC778" }, register("confirmPw", {
                         validate: value => value === String(watch("password"))
                     }))), errors.confirmPw && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uB984" }, register("name", {
                         required: true

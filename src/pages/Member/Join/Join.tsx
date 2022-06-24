@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { useForm } from "react-hook-form";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import db from "../../../firebase";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -137,8 +139,18 @@ function Form() {
         register,
         handleSubmit,
         watch,
-        formState: { errors }
+        formState: { errors, dirtyFields },
+        getValues
     } = useForm<Inputs>({ mode: "onChange" });
+
+    let display = "none";
+    if (dirtyFields.email) display = "block";
+
+    async function fetchUser() {
+        const q = query(collection(db, "users"), where("email", "==", getValues("email")));
+        const userSnapshot = await getDocs(q);
+        return userSnapshot.size > 0;
+    }
 
     const onSubmit = data => {};
 
@@ -150,11 +162,16 @@ function Form() {
                     placeholder="이메일"
                     {...register("email", {
                         required: true,
-                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/
+                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                        validate: async () => (await fetchUser()) === false
                     })}
                 />
                 {errors.email?.type === "required" && <p className="errorMsg">이메일을 입력해 주세요.</p>}
                 {errors.email?.type === "pattern" && <p className="errorMsg">유효하지 않은 이메일 형식입니다.</p>}
+                {errors.email?.type === "validate" && <p className="errorMsg">이미 존재하는 이메일입니다.</p>}
+                {errors.email?.type !== "required" && errors.email?.type !== "pattern" && errors.email?.type !== "validate" && (
+                    <p style={{ marginTop: "0", color: "#008B00", display: display }}>사용 가능한 이메일입니다.</p>
+                )}
                 <input
                     type="password"
                     placeholder="비밀번호"
