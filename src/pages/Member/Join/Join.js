@@ -73,7 +73,7 @@ function Agree() {
 }
 function Form() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-    const { register, handleSubmit, watch, formState: { errors, dirtyFields }, getValues } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
+    const { register, handleSubmit, trigger, formState: { errors, dirtyFields }, getValues } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
     let display = "none";
     if (dirtyFields.email)
         display = "block";
@@ -93,9 +93,10 @@ function Form() {
                         required: true,
                         pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
                         minLength: 8,
-                        maxLength: 16
+                        maxLength: 16,
+                        validate: () => trigger("confirmPw")
                     }))), ((_g = errors.password) === null || _g === void 0 ? void 0 : _g.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (((_h = errors.password) === null || _h === void 0 ? void 0 : _h.type) === "pattern" || ((_j = errors.password) === null || _j === void 0 ? void 0 : _j.type) === "minLength" || ((_k = errors.password) === null || _k === void 0 ? void 0 : _k.type) === "maxLength") && ((0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "8~16\uC790 \uC774\uB0B4\uB85C \uC601\uBB38, \uC22B\uC790, \uD2B9\uC218\uBB38\uC790\uB97C \uD3EC\uD568\uD558\uC5EC \uC785\uB825\uD574 \uC8FC\uC138\uC694." }))), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638 \uD655\uC778" }, register("confirmPw", {
-                        validate: value => value === String(watch("password"))
+                        validate: value => value === getValues("password")
                     }))), errors.confirmPw && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uB984" }, register("name", {
                         required: true
                     }))), errors.name && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638" }, register("mobileNumber", {

@@ -138,7 +138,7 @@ function Form() {
     const {
         register,
         handleSubmit,
-        watch,
+        trigger,
         formState: { errors, dirtyFields },
         getValues
     } = useForm<Inputs>({ mode: "onChange" });
@@ -179,7 +179,8 @@ function Form() {
                         required: true,
                         pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
                         minLength: 8,
-                        maxLength: 16
+                        maxLength: 16,
+                        validate: () => trigger("confirmPw")
                     })}
                 />
                 {errors.password?.type === "required" && <p className="errorMsg">비밀번호를 입력해 주세요.</p>}
@@ -190,7 +191,7 @@ function Form() {
                     type="password"
                     placeholder="비밀번호 확인"
                     {...register("confirmPw", {
-                        validate: value => value === String(watch("password"))
+                        validate: value => value === getValues("password")
                     })}
                 />
                 {errors.confirmPw && <p className="errorMsg">비밀번호가 일치하지 않습니다.</p>}
