@@ -8,6 +8,7 @@ import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { useForm } from "react-hook-form";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import db from "../../../firebase";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -130,8 +131,15 @@ interface Inputs {
     password: string;
     confirmPw: string;
     name: string;
-    mobileNumber: number;
-    certNumber: number;
+    phoneNumber: string;
+    authCode: string;
+}
+
+declare global {
+    interface Window {
+        recaptchaVerifier: any;
+        confirmationResult: any;
+    }
 }
 
 function Form() {
@@ -140,9 +148,13 @@ function Form() {
         handleSubmit,
         trigger,
         formState: { errors, dirtyFields },
-        getValues
+        getValues,
+        setError,
+        setValue,
+        watch
     } = useForm<Inputs>({ mode: "onChange" });
 
+    // 이메일 중복 확인
     let display = "none";
     if (dirtyFields.email) display = "block";
 
@@ -151,6 +163,85 @@ function Form() {
         const userSnapshot = await getDocs(q);
         return userSnapshot.size > 0;
     }
+
+    // 휴대폰 인증 번호 전송
+    const [codeInputDisplay, setCodeInputDisplay] = useState("none");
+
+    function getAuthCode() {
+        const phoneNumber = getValues("phoneNumber");
+
+        if (!phoneNumber) {
+            trigger("phoneNumber");
+        } else if (!errors.phoneNumber?.type) {
+            const auth = getAuth();
+
+            if (!window.recaptchaVerifier) {
+                // 인증 번호 최초 요청 시
+                window.recaptchaVerifier = new RecaptchaVerifier(
+                    "authCodeBtn",
+                    {
+                        size: "invisible",
+                        callback: response => {
+                            // reCAPTCHA solved, allow signInWithPhoneNumber.
+                        }
+                    },
+                    auth
+                );
+            } else {
+                // 인증 번호 재요청 시
+                setValue("authCode", "");
+                window.recaptchaVerifier.recaptcha.reset();
+            }
+
+            const appVerifier = window.recaptchaVerifier;
+
+            signInWithPhoneNumber(auth, "+82" + phoneNumber, appVerifier)
+                .then(confirmationResult => {
+                    window.confirmationResult = confirmationResult;
+                    setCodeInputDisplay("block");
+                })
+                .catch(error => {
+                    setError("phoneNumber", {
+                        type: "server",
+                        message: "SMS 발송에 실패하였습니다."
+                    });
+                });
+        }
+    }
+
+    // 휴대폰 인증 번호 검증
+    const code = watch("authCode");
+    const [authSuccessMsg, setAuthSucessMsg] = useState("none");
+
+    useEffect(() => {
+        // 인증 번호 요청 후 검증 시작
+        if (window.confirmationResult) {
+            if (code.length !== 6) {
+                setAuthSucessMsg("none");
+            } else {
+                window.confirmationResult
+                    .confirm(code)
+                    .then(result => {
+                        setAuthSucessMsg("block");
+                    })
+                    .catch(error => {
+                        setAuthSucessMsg("none");
+
+                        if (error.code === "auth/invalid-verification-code") {
+                            setError("authCode", {
+                                type: "confirm",
+                                message: "인증번호가 일치하지 않습니다."
+                            });
+                        } else if (error.code === "auth/code-expired") {
+                            setError("authCode", {
+                                type: "expired",
+                                message: "인증이 만료되었습니다. 인증번호를 다시 요청해주세요."
+                            });
+                        }
+                    });
+            }
+        }
+    }, [code, setError]);
 
     const onSubmit = data => {};
 
@@ -206,24 +297,29 @@ function Form() {
                 <div className="flex">
                     <input
                         type="text"
-                        placeholder="핸드폰번호"
-                        {...register("mobileNumber", {
-                            required: true
+                        placeholder="휴대폰 번호"
+                        {...register("phoneNumber", {
+                            required: true,
+                            pattern: /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/
                         })}
                     />
-                    <button type="button" className="small-txt radius-style-btn">
+                    <button id="authCodeBtn" type="button" className="small-txt radius-style-btn" onClick={getAuthCode}>
                         인증번호 요청
                     </button>
                 </div>
-                {errors.mobileNumber && <p className="errorMsg">핸드폰번호를 입력해주세요.</p>}
-                <input
-                    type="text"
-                    placeholder="인증번호 6자리 입력"
-                    {...register("certNumber", {
-                        required: true
-                    })}
-                />
-                {errors.certNumber && <p className="errorMsg">인증번호를 입력해주세요.</p>}
+                {errors.phoneNumber?.type === "required" && <p className="errorMsg">휴대폰 번호를 입력해주세요.</p>}
+                {errors.phoneNumber?.type === "pattern" && <p className="errorMsg">휴대폰 번호가 유효하지 않습니다.</p>}
+                {errors.phoneNumber && <p className="errorMsg">{errors.phoneNumber.message}</p>}
+                <div style={{ display: codeInputDisplay }}>
+                    <div className="flex">
+                        <input type="text" placeholder="인증번호 6자리 입력" {...register("authCode", { validate: value => value.length === 6 })} />
+                    </div>
+                    {errors.authCode?.type === "validate" && <p className="errorMsg">인증번호 6자리를 입력해주세요.</p>}
+                    {errors.authCode && <p className="errorMsg">{errors.authCode.message}</p>}
+                    <p className="successMsg" style={{ display: authSuccessMsg }}>
+                        인증번호가 일치합니다.
+                    </p>
+                </div>
             </div>
             <Agree />
             <div className="join-btn-wrap">

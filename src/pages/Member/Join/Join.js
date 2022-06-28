@@ -23,6 +23,7 @@ const TermsOfUse_1 = require("../../TermsOfUse/TermsOfUse");
 const react_hook_form_1 = require("react-hook-form");
 const firestore_1 = require("firebase/firestore");
 const firebase_1 = __importDefault(require("../../../firebase"));
+const auth_1 = require("firebase/auth");
 const StyledInput = styled_components_1.default.input `
     appearance: none;
     border: 1.5px solid #aaa;
@@ -72,8 +73,9 @@ function Agree() {
                         } }, { children: "\uBCF4\uAE30" }))] }), privacyPop] })));
 }
 function Form() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-    const { register, handleSubmit, trigger, formState: { errors, dirtyFields }, getValues } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+    const { register, handleSubmit, trigger, formState: { errors, dirtyFields }, getValues, setError, setValue, watch } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
+    // 이메일 중복 확인
     let display = "none";
     if (dirtyFields.email)
         display = "block";
@@ -84,6 +86,77 @@ function Form() {
             return userSnapshot.size > 0;
         });
     }
+    // 휴대폰 인증 번호 전송
+    const [codeInputDisplay, setCodeInputDisplay] = (0, react_1.useState)("none");
+    function getAuthCode() {
+        var _a;
+        const phoneNumber = getValues("phoneNumber");
+        if (!phoneNumber) {
+            trigger("phoneNumber");
+        }
+        else if (!((_a = errors.phoneNumber) === null || _a === void 0 ? void 0 : _a.type)) {
+            const auth = (0, auth_1.getAuth)();
+            if (!window.recaptchaVerifier) {
+                // 인증 번호 최초 요청 시
+                window.recaptchaVerifier = new auth_1.RecaptchaVerifier("authCodeBtn", {
+                    size: "invisible",
+                    callback: response => {
+                        // reCAPTCHA solved, allow signInWithPhoneNumber.
+                    }
+                }, auth);
+            }
+            else {
+                // 인증 번호 재요청 시
+                setValue("authCode", "");
+                window.recaptchaVerifier.recaptcha.reset();
+            }
+            const appVerifier = window.recaptchaVerifier;
+            (0, auth_1.signInWithPhoneNumber)(auth, "+82" + phoneNumber, appVerifier)
+                .then(confirmationResult => {
+                window.confirmationResult = confirmationResult;
+                setCodeInputDisplay("block");
+            })
+                .catch(error => {
+                setError("phoneNumber", {
+                    type: "server",
+                    message: "SMS 발송에 실패하였습니다."
+                });
+            });
+        }
+    }
+    // 휴대폰 인증 번호 검증
+    const code = watch("authCode");
+    const [authSuccessMsg, setAuthSucessMsg] = (0, react_1.useState)("none");
+    (0, react_1.useEffect)(() => {
+        // 인증 번호 요청 후 검증 시작
+        if (window.confirmationResult) {
+            if (code.length !== 6) {
+                setAuthSucessMsg("none");
+            }
+            else {
+                window.confirmationResult
+                    .confirm(code)
+                    .then(result => {
+                    setAuthSucessMsg("block");
+                })
+                    .catch(error => {
+                    setAuthSucessMsg("none");
+                    if (error.code === "auth/invalid-verification-code") {
+                        setError("authCode", {
+                            type: "confirm",
+                            message: "인증번호가 일치하지 않습니다."
+                        });
+                    }
+                    else if (error.code === "auth/code-expired") {
+                        setError("authCode", {
+                            type: "expired",
+                            message: "인증이 만료되었습니다. 인증번호를 다시 요청해주세요."
+                        });
+                    }
+                });
+            }
+        }
+    }, [code, setError]);
     const onSubmit = data => { };
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "join-form", method: "post", onSubmit: handleSubmit(onSubmit) }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uBA54\uC77C" }, register("email", {
                         required: true,
@@ -99,11 +172,10 @@ function Form() {
                         validate: value => value === getValues("password")
                     }))), errors.confirmPw && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uBE44\uBC00\uBC88\uD638\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uB984" }, register("name", {
                         required: true
-                    }))), errors.name && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638" }, register("mobileNumber", {
-                                required: true
-                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "small-txt radius-style-btn" }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), errors.mobileNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uD578\uB4DC\uD3F0\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("certNumber", {
-                        required: true
-                    }))), errors.certNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC778\uC99D\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." }))] })), (0, jsx_runtime_1.jsx)(Agree, {}), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn" }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
+                    }))), errors.name && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uD734\uB300\uD3F0 \uBC88\uD638" }, register("phoneNumber", {
+                                required: true,
+                                pattern: /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/
+                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ id: "authCodeBtn", type: "button", className: "small-txt radius-style-btn", onClick: getAuthCode }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), ((_l = errors.phoneNumber) === null || _l === void 0 ? void 0 : _l.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), ((_m = errors.phoneNumber) === null || _m === void 0 ? void 0 : _m.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uAC00 \uC720\uD6A8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), errors.phoneNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: errors.phoneNumber.message })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ style: { display: codeInputDisplay } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("authCode", { validate: value => value.length === 6 }))) })), ((_o = errors.authCode) === null || _o === void 0 ? void 0 : _o.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), errors.authCode && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "errorMsg" }, { children: errors.authCode.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "successMsg", style: { display: authSuccessMsg } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uC77C\uCE58\uD569\uB2C8\uB2E4." }))] }))] })), (0, jsx_runtime_1.jsx)(Agree, {}), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn" }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "join-container middle-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", Object.assign({ className: "join-title" }, { children: "SIGN UP" })), (0, jsx_runtime_1.jsx)(Form, {})] })) }));
