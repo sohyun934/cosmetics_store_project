@@ -147,7 +147,7 @@ function Form() {
         register,
         handleSubmit,
         trigger,
-        formState: { errors, dirtyFields },
+        formState: { errors },
         getValues,
         setError,
         setValue,
@@ -155,8 +155,15 @@ function Form() {
     } = useForm<Inputs>({ mode: "onChange" });
 
     // 이메일 중복 확인
-    let display = "none";
-    if (dirtyFields.email) display = "block";
+    const email = watch("email");
+    const [emailSuccessMsg, setEmailSuccessMsg] = useState("none");
+
+    useEffect(() => {
+        if (email) {
+            if (!errors.email?.type) setEmailSuccessMsg("block");
+            else setEmailSuccessMsg("none");
+        }
+    }, [email, errors.email?.type]);
 
     async function fetchUser() {
         const q = query(collection(db, "users"), where("email", "==", getValues("email")));
@@ -260,9 +267,9 @@ function Form() {
                 {errors.email?.type === "required" && <p className="errorMsg">이메일을 입력해 주세요.</p>}
                 {errors.email?.type === "pattern" && <p className="errorMsg">유효하지 않은 이메일 형식입니다.</p>}
                 {errors.email?.type === "validate" && <p className="errorMsg">이미 존재하는 이메일입니다.</p>}
-                {errors.email?.type !== "required" && errors.email?.type !== "pattern" && errors.email?.type !== "validate" && (
-                    <p style={{ marginTop: "0", color: "#008B00", display: display }}>사용 가능한 이메일입니다.</p>
-                )}
+                <p className="successMsg" style={{ display: emailSuccessMsg }}>
+                    사용 가능한 이메일입니다.
+                </p>
                 <input
                     type="password"
                     placeholder="비밀번호"
