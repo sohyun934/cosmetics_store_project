@@ -2,11 +2,12 @@ import "./Join.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
-import { useForm } from "react-hook-form";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import db from "../../../firebase";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
@@ -24,11 +25,11 @@ const StyledInput = styled.input`
     }
 `;
 
-type Prop = {
+type PopProp = {
     closePop: Function;
 };
 
-function TermsPop(props: Prop) {
+function TermsPop(props: PopProp) {
     return (
         <div>
             <div className="popup-container terms-pop">
@@ -42,7 +43,7 @@ function TermsPop(props: Prop) {
     );
 }
 
-function PrivacyPop(props: Prop) {
+function PrivacyPop(props: PopProp) {
     return (
         <div>
             <div className="popup-container privacy-pop">
@@ -56,7 +57,11 @@ function PrivacyPop(props: Prop) {
     );
 }
 
-function Agree() {
+type Prop = {
+    allChkConfirm: Function;
+};
+
+function Agree(props: Prop) {
     const [allChk, setAllChk] = useState(false);
     const [termsChk, setTermsChk] = useState(false);
     const [privacyChk, setPrivacyChk] = useState(false);
@@ -79,6 +84,10 @@ function Agree() {
             setAllChk(false);
         }
     }, [termsChk, privacyChk]);
+
+    useEffect(() => {
+        props.allChkConfirm(allChk);
+    }, [allChk, props]);
 
     return (
         <div className="agree-container small-txt">
@@ -147,7 +156,7 @@ function Form() {
         register,
         handleSubmit,
         trigger,
-        formState: { errors },
+        formState: { errors, isValid },
         getValues,
         setError,
         setValue,
@@ -250,7 +259,29 @@ function Form() {
         }
     }, [code, setError]);
 
-    const onSubmit = data => {};
+    // 신규 회원 데이터 create
+    const [allChk, setAllChk] = useState(false);
+    const [disabled, setDisabled] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isValid && allChk) {
+            setDisabled(false);
+        } else {
+            setDisabled(true);
+        }
+    }, [isValid, allChk]);
+
+    const onSubmit: SubmitHandler<Inputs> = async data => {
+        await addDoc(collection(db, "users"), {
+            email: data.email,
+            password: data.password,
+            name: data.name,
+            phoneNumber: data.phoneNumber
+        });
+
+        navigate("/member/welcome", { replace: true });
+    };
 
     return (
         <form className="join-form" method="post" onSubmit={handleSubmit(onSubmit)}>
@@ -275,7 +306,7 @@ function Form() {
                     placeholder="비밀번호"
                     {...register("password", {
                         required: true,
-                        pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/,
+                        pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,16}$/,
                         minLength: 8,
                         maxLength: 16,
                         validate: () => trigger("confirmPw")
@@ -328,9 +359,11 @@ function Form() {
                     </p>
                 </div>
             </div>
-            <Agree />
+            <Agree allChkConfirm={allChk => setAllChk(allChk)} />
             <div className="join-btn-wrap">
-                <button className="join-btn">가입하기</button>
+                <button className={"join-btn"} disabled={disabled}>
+                    가입하기
+                </button>
             </div>
         </form>
     );
