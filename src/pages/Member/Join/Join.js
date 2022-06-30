@@ -212,7 +212,6 @@ function Form() {
             .then(() => __awaiter(this, void 0, void 0, function* () {
             yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.default, "users"), {
                 email: data.email,
-                password: data.password,
                 name: data.name,
                 phoneNumber: data.phoneNumber
             });

@@ -279,7 +279,6 @@ function Form() {
             .then(async () => {
                 await addDoc(collection(db, "users"), {
                     email: data.email,
-                    password: data.password,
                     name: data.name,
                     phoneNumber: data.phoneNumber
                 });
