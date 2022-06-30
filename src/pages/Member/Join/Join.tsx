@@ -152,7 +152,6 @@ declare global {
 }
 
 function Form() {
-    const auth = getAuth();
     const {
         register,
         handleSubmit,
@@ -164,9 +163,29 @@ function Form() {
         watch
     } = useForm<Inputs>({ mode: "onChange" });
 
-    // 이메일 중복 확인
     const email = watch("email");
+    const password = getValues("password");
+    const authCode = watch("authCode");
+
+    const regExpEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+    const regExpPw = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,16}$/;
+    const regExpPhoneNumber = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;
+
     const [emailSuccessMsg, setEmailSuccessMsg] = useState("none");
+    const [codeInputDisplay, setCodeInputDisplay] = useState("none");
+    const [authSuccessMsg, setAuthSucessMsg] = useState("none");
+    const [allChk, setAllChk] = useState(false);
+    const [disabled, setDisabled] = useState(true);
+
+    const auth = getAuth();
+    const navigate = useNavigate();
+
+    // 이메일 중복 확인
+    async function fetchUser() {
+        const q = query(collection(db, "users"), where("email", "==", getValues("email")));
+        const userSnapshot = await getDocs(q);
+        return userSnapshot.size > 0;
+    }
 
     useEffect(() => {
         if (email) {
@@ -175,15 +194,7 @@ function Form() {
         }
     }, [email, errors.email?.type]);
 
-    async function fetchUser() {
-        const q = query(collection(db, "users"), where("email", "==", getValues("email")));
-        const userSnapshot = await getDocs(q);
-        return userSnapshot.size > 0;
-    }
-
     // 휴대폰 인증 번호 전송
-    const [codeInputDisplay, setCodeInputDisplay] = useState("none");
-
     function getAuthCode() {
         const phoneNumber = getValues("phoneNumber");
 
@@ -225,17 +236,14 @@ function Form() {
     }
 
     // 휴대폰 인증 번호 검증
-    const code = watch("authCode");
-    const [authSuccessMsg, setAuthSucessMsg] = useState("none");
-
     useEffect(() => {
         // 인증 번호 요청 후 검증 시작
         if (window.confirmationResult) {
-            if (code.length !== 6) {
+            if (authCode.length !== 6) {
                 setAuthSucessMsg("none");
             } else {
                 window.confirmationResult
-                    .confirm(code)
+                    .confirm(authCode)
                     .then(result => {
                         setAuthSucessMsg("block");
                     })
@@ -256,14 +264,9 @@ function Form() {
                     });
             }
         }
-    }, [code, setError]);
+    }, [authCode, setError]);
 
     // 신규 회원 데이터 create
-    const [allChk, setAllChk] = useState(false);
-    const [disabled, setDisabled] = useState(true);
-    const navigate = useNavigate();
-    const password = getValues("password");
-
     useEffect(() => {
         if (isValid && allChk) {
             setDisabled(false);
@@ -282,6 +285,9 @@ function Form() {
                     phoneNumber: data.phoneNumber
                 });
 
+                window.recaptchaVerifier = null;
+                window.confirmationResult = null;
+
                 navigate("/member/welcome", { replace: true });
             })
             .catch(error => {
@@ -297,14 +303,14 @@ function Form() {
                     placeholder="이메일"
                     {...register("email", {
                         required: true,
-                        pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                        pattern: regExpEmail,
                         validate: async () => (await fetchUser()) === false
                     })}
                 />
-                {errors.email?.type === "required" && <p className="errorMsg">이메일을 입력해 주세요.</p>}
-                {errors.email?.type === "pattern" && <p className="errorMsg">유효하지 않은 이메일 형식입니다.</p>}
-                {errors.email?.type === "validate" && <p className="errorMsg">이미 존재하는 이메일입니다.</p>}
-                <p className="successMsg" style={{ display: emailSuccessMsg }}>
+                {errors.email?.type === "required" && <p className="error-msg">이메일을 입력해 주세요.</p>}
+                {errors.email?.type === "pattern" && <p className="error-msg">유효하지 않은 이메일 형식입니다.</p>}
+                {errors.email?.type === "validate" && <p className="error-msg">이미 존재하는 이메일입니다.</p>}
+                <p className="success-msg" style={{ display: emailSuccessMsg }}>
                     사용 가능한 이메일입니다.
                 </p>
                 <input
@@ -312,15 +318,15 @@ function Form() {
                     placeholder="비밀번호"
                     {...register("password", {
                         required: true,
-                        pattern: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,16}$/,
+                        pattern: regExpPw,
                         minLength: 8,
                         maxLength: 16,
                         validate: () => trigger("confirmPw")
                     })}
                 />
-                {errors.password?.type === "required" && <p className="errorMsg">비밀번호를 입력해 주세요.</p>}
+                {errors.password?.type === "required" && <p className="error-msg">비밀번호를 입력해 주세요.</p>}
                 {(errors.password?.type === "pattern" || errors.password?.type === "minLength" || errors.password?.type === "maxLength") && (
-                    <p className="errorMsg">8~16자 이내로 영문, 숫자, 특수문자를 포함하여 입력해 주세요.</p>
+                    <p className="error-msg">8~16자 이내로 영문, 숫자, 특수문자를 포함하여 입력해 주세요.</p>
                 )}
                 <input
                     type="password"
@@ -329,7 +335,7 @@ function Form() {
                         validate: value => value === getValues("password")
                     })}
                 />
-                {errors.confirmPw && <p className="errorMsg">비밀번호가 일치하지 않습니다.</p>}
+                {errors.confirmPw && <p className="error-msg">비밀번호가 일치하지 않습니다.</p>}
                 <input
                     type="text"
                     placeholder="이름"
@@ -337,30 +343,30 @@ function Form() {
                         required: true
                     })}
                 />
-                {errors.name && <p className="errorMsg">이름을 입력해 주세요.</p>}
+                {errors.name && <p className="error-msg">이름을 입력해 주세요.</p>}
                 <div className="flex">
                     <input
                         type="text"
                         placeholder="휴대폰 번호"
                         {...register("phoneNumber", {
                             required: true,
-                            pattern: /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/
+                            pattern: regExpPhoneNumber
                         })}
                     />
                     <button id="authCodeBtn" type="button" className="small-txt radius-style-btn" onClick={getAuthCode}>
                         인증번호 요청
                     </button>
                 </div>
-                {errors.phoneNumber?.type === "required" && <p className="errorMsg">휴대폰 번호를 입력해주세요.</p>}
-                {errors.phoneNumber?.type === "pattern" && <p className="errorMsg">휴대폰 번호가 유효하지 않습니다.</p>}
-                {errors.phoneNumber && <p className="errorMsg">{errors.phoneNumber.message}</p>}
+                {errors.phoneNumber?.type === "required" && <p className="error-msg">휴대폰 번호를 입력해주세요.</p>}
+                {errors.phoneNumber?.type === "pattern" && <p className="error-msg">휴대폰 번호가 유효하지 않습니다.</p>}
+                {errors.phoneNumber && <p className="error-msg">{errors.phoneNumber.message}</p>}
                 <div style={{ display: codeInputDisplay }}>
                     <div className="flex">
                         <input type="text" placeholder="인증번호 6자리 입력" {...register("authCode", { validate: value => value.length === 6 })} />
                     </div>
-                    {errors.authCode?.type === "validate" && <p className="errorMsg">인증번호 6자리를 입력해주세요.</p>}
-                    {errors.authCode && <p className="errorMsg">{errors.authCode.message}</p>}
-                    <p className="successMsg" style={{ display: authSuccessMsg }}>
+                    {errors.authCode?.type === "validate" && <p className="error-msg">인증번호 6자리를 입력해주세요.</p>}
+                    {errors.authCode && <p className="error-msg">{errors.authCode.message}</p>}
+                    <p className="success-msg" style={{ display: authSuccessMsg }}>
                         인증번호가 일치합니다.
                     </p>
                 </div>

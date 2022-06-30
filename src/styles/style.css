@@ -193,6 +193,18 @@ button {
     display: flex;
 }
 
+/* msg */
+
+.error-msg {
+    color: #cd3333;
+    margin: 0 0 16px;
+}
+
+.success-msg {
+    color: #008b00;
+    margin: 0 0 16px;
+}
+
 /* input container */
 
 .postcode-wrap {

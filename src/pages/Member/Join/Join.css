@@ -2,16 +2,6 @@
     padding-bottom: 24px;
 }
 
-.join-container .input-container .errorMsg {
-    color: #cd3333;
-    margin: 0 0 16px;
-}
-
-.join-container .input-container .successMsg {
-    color: #008b00;
-    margin: 0 0 16px;
-}
-
 .join-container .input-container .flex input {
     flex: 7.5 1;
     margin-right: 10px;
