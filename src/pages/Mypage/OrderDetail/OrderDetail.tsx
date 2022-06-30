@@ -2,8 +2,10 @@ import "./OrderDetail.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import ReviewPop from "../../../components/ReviewPop/ReviewPop";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 function DetailSection() {
     return (
@@ -133,6 +135,16 @@ function PaySection() {
 function Main() {
     const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
     const popContent = <ReviewPop close={() => setReviewPop(null)} />;
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                // User is signed out
+                navigate("/", { replace: true });
+            }
+        });
+    });
 
     return (
         <main className="wrap">

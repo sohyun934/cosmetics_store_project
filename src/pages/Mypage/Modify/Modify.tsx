@@ -1,8 +1,11 @@
 import "./Modify.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
+import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 type Prop = {
     email: string;
@@ -46,6 +49,17 @@ function Form(props: Prop) {
 }
 
 function Main() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                // User is signed out
+                navigate("/", { replace: true });
+            }
+        });
+    });
+
     return (
         <main>
             <div className="big-container">

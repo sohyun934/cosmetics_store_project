@@ -1,7 +1,22 @@
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../firebase";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Main() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                // User is signed out
+                navigate("/", { replace: true });
+            }
+        });
+    });
+
     return (
         <main className="middle-main">
             <div className="middle-container">

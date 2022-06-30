@@ -3,8 +3,10 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -137,6 +139,17 @@ function OrderSection(props: Prop) {
 }
 
 function Main() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                // User is signed out
+                navigate("/", { replace: true });
+            }
+        });
+    });
+
     return (
         <main>
             <div className="big-container">
