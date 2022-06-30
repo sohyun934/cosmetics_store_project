@@ -29,8 +29,7 @@ function Header() {
         (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
             if (user) {
                 // User is signed in
-                if (user.email != null)
-                    setLogInOut("로그아웃");
+                setLogInOut("로그아웃");
             }
         });
     }, []);

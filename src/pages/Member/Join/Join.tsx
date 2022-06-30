@@ -359,6 +359,9 @@ function Form() {
                 {errors.phoneNumber?.type === "required" && <p className="error-msg">휴대폰 번호를 입력해주세요.</p>}
                 {errors.phoneNumber?.type === "pattern" && <p className="error-msg">휴대폰 번호가 유효하지 않습니다.</p>}
                 {errors.phoneNumber && <p className="error-msg">{errors.phoneNumber.message}</p>}
+                <p className="success-msg" style={{ display: codeInputDisplay === "none" ? "none" : "block" }}>
+                    인증번호가 발송되었습니다.
+                </p>
                 <div style={{ display: codeInputDisplay }}>
                     <div className="flex">
                         <input type="text" placeholder="인증번호 6자리 입력" {...register("authCode", { validate: value => value.length === 6 })} />
