@@ -78,6 +78,7 @@ function Agree(props) {
 }
 function Form() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+    const auth = (0, auth_1.getAuth)();
     const { register, handleSubmit, trigger, formState: { errors, isValid }, getValues, setError, setValue, watch } = (0, react_hook_form_1.useForm)({ mode: "onChange" });
     // 이메일 중복 확인
     const email = watch("email");
@@ -107,7 +108,6 @@ function Form() {
             trigger("phoneNumber");
         }
         else if (!((_a = errors.phoneNumber) === null || _a === void 0 ? void 0 : _a.type)) {
-            const auth = (0, auth_1.getAuth)();
             if (!window.recaptchaVerifier) {
                 // 인증 번호 최초 요청 시
                 window.recaptchaVerifier = new auth_1.RecaptchaVerifier("authCodeBtn", {
@@ -173,6 +173,7 @@ function Form() {
     const [allChk, setAllChk] = (0, react_1.useState)(false);
     const [disabled, setDisabled] = (0, react_1.useState)(true);
     const navigate = (0, react_router_dom_1.useNavigate)();
+    const password = getValues("password");
     (0, react_1.useEffect)(() => {
         if (isValid && allChk) {
             setDisabled(false);
@@ -181,15 +182,21 @@ function Form() {
             setDisabled(true);
         }
     }, [isValid, allChk]);
-    const onSubmit = (data) => __awaiter(this, void 0, void 0, function* () {
-        yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.default, "users"), {
-            email: data.email,
-            password: data.password,
-            name: data.name,
-            phoneNumber: data.phoneNumber
+    const onSubmit = data => {
+        (0, auth_1.createUserWithEmailAndPassword)(auth, email, password)
+            .then(() => __awaiter(this, void 0, void 0, function* () {
+            yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.default, "users"), {
+                email: data.email,
+                password: data.password,
+                name: data.name,
+                phoneNumber: data.phoneNumber
+            });
+            navigate("/member/welcome", { replace: true });
+        }))
+            .catch(error => {
+            alert("가입 과정 중 오류가 발생했습니다.\n" + error.message);
         });
-        navigate("/member/welcome", { replace: true });
-    });
+    };
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "join-form", method: "post", onSubmit: handleSubmit(onSubmit) }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC774\uBA54\uC77C" }, register("email", {
                         required: true,
                         pattern: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,

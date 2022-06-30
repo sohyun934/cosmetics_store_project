@@ -9,7 +9,7 @@ import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import db from "../../../firebase";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "firebase/auth";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -152,6 +152,7 @@ declare global {
 }
 
 function Form() {
+    const auth = getAuth();
     const {
         register,
         handleSubmit,
@@ -189,8 +190,6 @@ function Form() {
         if (!phoneNumber) {
             trigger("phoneNumber");
         } else if (!errors.phoneNumber?.type) {
-            const auth = getAuth();
-
             if (!window.recaptchaVerifier) {
                 // 인증 번호 최초 요청 시
                 window.recaptchaVerifier = new RecaptchaVerifier(
@@ -263,6 +262,7 @@ function Form() {
     const [allChk, setAllChk] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const navigate = useNavigate();
+    const password = getValues("password");
 
     useEffect(() => {
         if (isValid && allChk) {
@@ -272,15 +272,21 @@ function Form() {
         }
     }, [isValid, allChk]);
 
-    const onSubmit: SubmitHandler<Inputs> = async data => {
-        await addDoc(collection(db, "users"), {
-            email: data.email,
-            password: data.password,
-            name: data.name,
-            phoneNumber: data.phoneNumber
-        });
+    const onSubmit: SubmitHandler<Inputs> = data => {
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async () => {
+                await addDoc(collection(db, "users"), {
+                    email: data.email,
+                    password: data.password,
+                    name: data.name,
+                    phoneNumber: data.phoneNumber
+                });
 
-        navigate("/member/welcome", { replace: true });
+                navigate("/member/welcome", { replace: true });
+            })
+            .catch(error => {
+                alert("가입 과정 중 오류가 발생했습니다.\n" + error.message);
+            });
     };
 
     return (
