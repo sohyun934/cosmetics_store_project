@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -23,7 +46,7 @@ const PrivacyPolicy_1 = require("../../PrivacyPolicy/PrivacyPolicy");
 const TermsOfUse_1 = require("../../TermsOfUse/TermsOfUse");
 const react_hook_form_1 = require("react-hook-form");
 const firestore_1 = require("firebase/firestore");
-const firebase_1 = __importDefault(require("../../../firebase"));
+const firebase_1 = __importStar(require("../../../firebase"));
 const auth_1 = require("firebase/auth");
 const StyledInput = styled_components_1.default.input `
     appearance: none;
@@ -90,7 +113,6 @@ function Form() {
     const [authSuccessMsg, setAuthSucessMsg] = (0, react_1.useState)("none");
     const [allChk, setAllChk] = (0, react_1.useState)(false);
     const [disabled, setDisabled] = (0, react_1.useState)(true);
-    const auth = (0, auth_1.getAuth)();
     const navigate = (0, react_router_dom_1.useNavigate)();
     // 이메일 중복 확인
     function fetchUser() {
@@ -124,7 +146,7 @@ function Form() {
                     callback: response => {
                         // reCAPTCHA solved, allow signInWithPhoneNumber.
                     }
-                }, auth);
+                }, firebase_1.auth);
             }
             else {
                 // 인증 번호 재요청 시
@@ -132,7 +154,7 @@ function Form() {
                 window.recaptchaVerifier.recaptcha.reset();
             }
             const appVerifier = window.recaptchaVerifier;
-            (0, auth_1.signInWithPhoneNumber)(auth, "+82" + phoneNumber, appVerifier)
+            (0, auth_1.signInWithPhoneNumber)(firebase_1.auth, "+82" + phoneNumber, appVerifier)
                 .then(confirmationResult => {
                 window.confirmationResult = confirmationResult;
                 setCodeInputDisplay("block");
@@ -186,7 +208,7 @@ function Form() {
         }
     }, [isValid, allChk]);
     const onSubmit = data => {
-        (0, auth_1.createUserWithEmailAndPassword)(auth, email, password)
+        (0, auth_1.createUserWithEmailAndPassword)(firebase_1.auth, email, password)
             .then(() => __awaiter(this, void 0, void 0, function* () {
             yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.default, "users"), {
                 email: data.email,

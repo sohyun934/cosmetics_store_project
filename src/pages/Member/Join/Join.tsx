@@ -8,8 +8,8 @@ import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import db from "../../../firebase";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "firebase/auth";
+import db, { auth } from "../../../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "firebase/auth";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -177,7 +177,6 @@ function Form() {
     const [allChk, setAllChk] = useState(false);
     const [disabled, setDisabled] = useState(true);
 
-    const auth = getAuth();
     const navigate = useNavigate();
 
     // 이메일 중복 확인

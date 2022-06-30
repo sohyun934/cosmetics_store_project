@@ -9,6 +9,9 @@ const Header_1 = __importDefault(require("../../components/Header/Header"));
 const Footer_1 = __importDefault(require("../../components/Footer/Footer"));
 const react_router_dom_1 = require("react-router-dom");
 const styled_components_1 = __importDefault(require("styled-components"));
+const auth_1 = require("firebase/auth");
+const react_1 = require("react");
+const firebase_1 = require("../../firebase");
 const StyledInput = styled_components_1.default.input `
     appearance: none;
     border: 1.5px solid #aaa;
@@ -22,14 +25,70 @@ const StyledInput = styled_components_1.default.input `
             no-repeat 50% / 100%;
     }
 `;
-function Form() {
-    return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "login-form", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "input-wrap" }, { children: (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uC774\uBA54\uC77C" }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "input-wrap" }, { children: (0, jsx_runtime_1.jsx)("input", { type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638" }) }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "login-btn" }, { children: "\uB85C\uADF8\uC778" })) }))] })));
-}
-function Util() {
-    return ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "util-container flex" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "id-save-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "saveUserId", type: "checkbox", value: "" }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "saveUserId" }, { children: "\uC544\uC774\uB514 \uC800\uC7A5" }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "find-join-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/member/findPw" }, { children: "\uBE44\uBC00\uBC88\uD638 \uCC3E\uAE30 | " })), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/member/join", className: "join" }, { children: "\uD68C\uC6D0\uAC00\uC785" }))] }))] })));
+function FormAndUtil() {
+    const [email, setEmail] = (0, react_1.useState)("");
+    const [password, setPassword] = (0, react_1.useState)("");
+    const [errorMsg, setErrorMsg] = (0, react_1.useState)("");
+    const [isChecked, setIsChecked] = (0, react_1.useState)(false);
+    const navigate = (0, react_router_dom_1.useNavigate)();
+    (0, react_1.useEffect)(() => {
+        if (getCookie("email")) {
+            setEmail(getCookie("email"));
+            setIsChecked(true);
+        }
+    }, []);
+    function getCookie(name) {
+        const search = name + "=";
+        if (document.cookie.length > 0) {
+            let offset = document.cookie.indexOf(search);
+            if (offset !== -1) {
+                offset += search.length; // set index of beginning of value
+                let end = document.cookie.indexOf(";", offset); // set index of end of cookie value
+                if (end === -1)
+                    end = document.cookie.length;
+                return unescape(document.cookie.substring(offset, end));
+            }
+        }
+    }
+    function setCookie(name, value, expiredays) {
+        const todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + expiredays);
+        document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toUTCString() + ";";
+    }
+    function logIn() {
+        (0, auth_1.signInWithEmailAndPassword)(firebase_1.auth, email, password)
+            .then(userCredential => {
+            // Signed in
+            const user = userCredential.user;
+            if (isChecked) {
+                setCookie("email", user.email, 7);
+            }
+            else {
+                setCookie("email", user.email, 0);
+            }
+            setErrorMsg("");
+            navigate(-1);
+        })
+            .catch(error => {
+            const errorCode = error.code;
+            if (errorCode === "auth/invalid-email") {
+                setErrorMsg("이메일을 입력해주세요.");
+            }
+            else if (errorCode === "auth/internal-error") {
+                setErrorMsg("비밀번호를 입력해주세요.");
+            }
+            else if (errorCode === "auth/user-not-found") {
+                setErrorMsg("존재하지 않는 이메일 계정입니다.");
+            }
+            else if (errorCode === "auth/wrong-password") {
+                setErrorMsg("비밀번호가 일치하지 않습니다.");
+            }
+        });
+    }
+    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "login-form", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "input-wrap" }, { children: (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uC774\uBA54\uC77C", value: email, onChange: e => setEmail(e.target.value) }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "input-wrap" }, { children: (0, jsx_runtime_1.jsx)("input", { type: "password", placeholder: "\uBE44\uBC00\uBC88\uD638", onChange: e => setPassword(e.target.value) }) })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errorMsg }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "login-btn", onClick: logIn }, { children: "\uB85C\uADF8\uC778" })) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "util-container flex" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "id-save-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "saveUserId", type: "checkbox", value: "", checked: isChecked, onChange: () => setIsChecked(!isChecked) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "saveUserId" }, { children: "\uC544\uC774\uB514 \uC800\uC7A5" }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "find-join-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/member/findPw" }, { children: "\uBE44\uBC00\uBC88\uD638 \uCC3E\uAE30 | " })), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/member/join", className: "join" }, { children: "\uD68C\uC6D0\uAC00\uC785" }))] }))] }))] }));
 }
 function Main() {
-    return ((0, jsx_runtime_1.jsx)("main", Object.assign({ className: "middle-main" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "middle-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", Object.assign({ className: "login-title" }, { children: "SIGN IN" })), (0, jsx_runtime_1.jsx)(Form, {}), (0, jsx_runtime_1.jsx)(Util, {})] })) })));
+    return ((0, jsx_runtime_1.jsx)("main", Object.assign({ className: "middle-main" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "middle-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", Object.assign({ className: "login-title" }, { children: "SIGN IN" })), (0, jsx_runtime_1.jsx)(FormAndUtil, {})] })) })));
 }
 function Login() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));

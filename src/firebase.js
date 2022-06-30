@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -17,5 +18,7 @@ const db = getFirestore(app, {
     experimentalForceLongPolling: true,
     useFetchStreams: false
 });
+
+export const auth = getAuth();
 
 export default db;
