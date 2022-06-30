@@ -32,11 +32,6 @@
     margin-top: 40px;
 }
 
-.join-container .join-btn-wrap button:disabled {
-    cursor: auto;
-    background-color: #e5e5e5;
-}
-
 @media (min-width: 900px) {
     .join-container .popup-container {
         height: 650px;
