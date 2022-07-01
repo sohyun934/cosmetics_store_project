@@ -10,8 +10,6 @@ const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const ReviewPop_1 = __importDefault(require("../../../components/ReviewPop/ReviewPop"));
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
-const auth_1 = require("firebase/auth");
-const firebase_1 = require("../../../firebase");
 function DetailSection() {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "detail-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC0C1\uC138 \uC815\uBCF4" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container" }, { children: [(0, jsx_runtime_1.jsxs)("span", { children: ["\uC8FC\uBB38\uC77C\uC790 : ", (0, jsx_runtime_1.jsx)("strong", { children: "2022-05-17" })] }), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "order-num" }, { children: ["\uC8FC\uBB38\uBC88\uD638 : ", (0, jsx_runtime_1.jsx)("strong", { children: "Y22051708789" })] }))] }))] })));
 }
@@ -31,15 +29,6 @@ function PaySection() {
 function Main() {
     const [reviewPop, setReviewPop] = (0, react_1.useState)(null);
     const popContent = (0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: () => setReviewPop(null) });
-    const navigate = (0, react_router_dom_1.useNavigate)();
-    (0, react_1.useEffect)(() => {
-        (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
-            if (!user) {
-                // User is signed out
-                navigate("/", { replace: true });
-            }
-        });
-    });
     return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, {}), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: () => setReviewPop(popContent) }), (0, jsx_runtime_1.jsx)(DeliverySection, {}), (0, jsx_runtime_1.jsx)(PaySection, {}), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] })));
 }
 function OrderDetail() {

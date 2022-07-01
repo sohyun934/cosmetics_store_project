@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import firebase from "./firebase";
 
 function ScrollToTop() {
-    const { pathname } = useLocation();
+    const pathname = useLocation();
 
     useEffect(() => {
         window.scrollTo(0, 0);

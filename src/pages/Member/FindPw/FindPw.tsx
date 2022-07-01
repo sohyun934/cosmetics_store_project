@@ -2,7 +2,7 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useState } from "react";
-import db, { auth } from "../../../firebase";
+import { db, auth } from "../../../firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
 
 function Main() {

@@ -2,10 +2,7 @@ import "./WishList.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { Link } from "react-router-dom";
 
 function Util() {
     return (
@@ -75,17 +72,6 @@ function Table() {
 }
 
 function Main() {
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        onAuthStateChanged(auth, user => {
-            if (!user) {
-                // User is signed out
-                navigate("/", { replace: true });
-            }
-        });
-    });
-
     return (
         <main>
             <div className="big-container">

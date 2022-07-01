@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,7 +17,7 @@ const Header_1 = __importDefault(require("../../../components/Header/Header"));
 const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const firestore_1 = require("firebase/firestore");
 const react_1 = require("react");
-const firebase_1 = __importStar(require("../../../firebase"));
+const firebase_1 = require("../../../firebase");
 const auth_1 = require("firebase/auth");
 function Main() {
     const [name, setName] = (0, react_1.useState)("");
@@ -49,7 +26,7 @@ function Main() {
     const [errorMsg, setErrorMsg] = (0, react_1.useState)("none");
     function fetchUser() {
         return __awaiter(this, void 0, void 0, function* () {
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.default, "users"), (0, firestore_1.where)("name", "==", name), (0, firestore_1.where)("email", "==", email));
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("name", "==", name), (0, firestore_1.where)("email", "==", email));
             const userSnapshot = yield (0, firestore_1.getDocs)(q);
             if (userSnapshot.size > 0) {
                 setErrorMsg("none");

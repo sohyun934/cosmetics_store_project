@@ -1,7 +1,7 @@
 import "../../styles/style.css";
 import "./Header.css";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 
@@ -46,10 +46,17 @@ function SideGnbBtn(props: Prop) {
 type SideGnbProp = {
     logInOut: string;
     logOut: Function;
+    navigate: NavigateFunction;
+    closeGnb: Function;
 };
 
 function SideGnb(props: SideGnbProp) {
-    const navigate = useNavigate();
+    function logInOut(e: React.MouseEvent<HTMLButtonElement>) {
+        if (props.logInOut === "로그아웃") props.logOut(e);
+        else props.navigate("/login");
+
+        props.closeGnb();
+    }
 
     return (
         <nav className="side-gnb">
@@ -70,13 +77,7 @@ function SideGnb(props: SideGnbProp) {
                     <Link to="/body">바디케어</Link>
                 </li>
                 <li>
-                    <button
-                        className="border-style-btn"
-                        style={{ marginTop: "20px" }}
-                        onClick={e => {
-                            props.logInOut === "로그아웃" ? props.logOut(e) : navigate("/login");
-                        }}
-                    >
+                    <button className="border-style-btn" style={{ marginTop: "20px" }} onClick={e => logInOut(e)}>
                         {props.logInOut}
                     </button>
                 </li>
@@ -117,23 +118,22 @@ function RightGnb(props: RightGnbProp) {
 function Header() {
     const [toggle, setToggle] = useState(false);
     const [logInOut, setLogInOut] = useState("로그인");
+    const navigate = useNavigate();
+    const pathname = useLocation().pathname;
 
     useEffect(() => {
         onAuthStateChanged(auth, user => {
-            if (user) {
-                // User is signed in
-                setLogInOut("로그아웃");
-            }
+            if (user) setLogInOut("로그아웃");
         });
-    }, []);
+    });
 
-    function logOut(e) {
+    function logOut(e: React.MouseEvent) {
         e.preventDefault();
 
         signOut(auth)
             .then(() => {
-                if (toggle) setToggle(false);
                 setLogInOut("로그인");
+                if (pathname.indexOf("mypage") !== -1) navigate("/", { replace: true });
             })
             .catch(error => {
                 alert("로그아웃 과정 중에 오류가 발생했습니다.\n" + error.message);
@@ -144,7 +144,7 @@ function Header() {
         <header className={toggle ? "header side-active" : "header"}>
             <LeftGnb />
             <SideGnbBtn activeSideGnb={() => setToggle(!toggle)} />
-            <SideGnb logInOut={logInOut} logOut={e => logOut(e)} />
+            <SideGnb logInOut={logInOut} logOut={e => logOut(e)} navigate={navigate} closeGnb={() => setToggle(false)} />
             <div className="logo">
                 <Link to="/">
                     <img src={require("../../assets/common/logo.png")} alt="로고" />

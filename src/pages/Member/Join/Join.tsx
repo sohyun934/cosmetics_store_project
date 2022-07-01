@@ -8,7 +8,7 @@ import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import db, { auth } from "../../../firebase";
+import { db, auth } from "../../../firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "firebase/auth";
 
 const StyledInput = styled.input`
