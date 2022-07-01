@@ -67,7 +67,7 @@ function FormAndUtil() {
                 setCookie("email", user.email, 0);
             }
             setErrorMsg("");
-            navigate(-1);
+            navigate("/");
         })
             .catch(error => {
             const errorCode = error.code;

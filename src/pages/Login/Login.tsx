@@ -67,7 +67,7 @@ function FormAndUtil() {
                 }
 
                 setErrorMsg("");
-                navigate(-1);
+                navigate("/");
             })
             .catch(error => {
                 const errorCode = error.code;
