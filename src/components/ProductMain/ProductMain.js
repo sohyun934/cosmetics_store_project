@@ -18,7 +18,7 @@ const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
 const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../firebase");
-const storage_1 = require("firebase/storage");
+const getImage_1 = require("../../utils/getImage");
 function ProductMain() {
     const [empty, setEmpty] = (0, react_1.useState)(false);
     const [products, setProducts] = (0, react_1.useState)([]);
@@ -46,13 +46,6 @@ function ProductMain() {
             desc: "일상의 무게를 줄여주는 바디케어를 경험해보세요"
         }
     };
-    function getImage(url) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const productRef = (0, storage_1.ref)(firebase_1.storage, url);
-            const imageUrl = yield (0, storage_1.getDownloadURL)(productRef);
-            return imageUrl;
-        });
-    }
     function fetchProducts() {
         return __awaiter(this, void 0, void 0, function* () {
             const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname));
@@ -62,7 +55,7 @@ function ProductMain() {
             }
             else {
                 // storage 이미지 가져오기
-                const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_thumb_01));
+                const promises = productSnapshot.docs.map(doc => (0, getImage_1.getImage)(doc.data().product_thumb_01));
                 const urls = yield Promise.all(promises);
                 // firestore 데이터 가져와서 리스트 만들기
                 const productList = [];

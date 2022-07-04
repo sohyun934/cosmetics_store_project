@@ -2,9 +2,8 @@ import MoveTop from "../MoveTop/MoveTop";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db, storage } from "../../firebase";
+import { db } from "../../firebase";
 import { getImage } from "../../utils/getImage";
-import { getDownloadURL, ref } from "firebase/storage";
 
 function ProductMain() {
     const [empty, setEmpty] = useState(false);
@@ -34,12 +33,6 @@ function ProductMain() {
             desc: "일상의 무게를 줄여주는 바디케어를 경험해보세요"
         }
     };
-
-    async function getImage(url: string) {
-        const productRef = ref(storage, url);
-        const imageUrl = await getDownloadURL(productRef);
-        return imageUrl;
-    }
 
     async function fetchProducts() {
         const q = query(collection(db, "product"), where("product_type", "==", pathname));
