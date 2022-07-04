@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, storage } from "../../firebase";
+import { getImage } from "../../utils/getImage";
 import { getDownloadURL, ref } from "firebase/storage";
 
 function ProductMain() {
@@ -48,7 +49,7 @@ function ProductMain() {
             setEmpty(true);
         } else {
             // storage 이미지 가져오기
-            const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_url));
+            const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_thumb_01));
             const urls = await Promise.all(promises);
 
             // firestore 데이터 가져와서 리스트 만들기
@@ -58,7 +59,17 @@ function ProductMain() {
 
                 productList.push(
                     <li key={doc.id} className="product">
-                        <Link to="/detail">
+                        <Link
+                            to="/detail"
+                            state={{
+                                name: data.product_name,
+                                price: data.product_price,
+                                thumb01: data.product_thumb_01,
+                                thumb02: data.product_thumb_02,
+                                thumb03: data.product_thumb_03,
+                                detail: data.product_detail
+                            }}
+                        >
                             <div className="thumb">
                                 <img src={urls[i]} alt={data.product_name} />
                                 <button className={wishToggle ? "wish-btn on " : "wish-btn"} onClick={() => setWishToggle(!wishToggle)}></button>

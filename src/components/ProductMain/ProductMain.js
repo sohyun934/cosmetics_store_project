@@ -62,13 +62,20 @@ function ProductMain() {
             }
             else {
                 // storage 이미지 가져오기
-                const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_url));
+                const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_thumb_01));
                 const urls = yield Promise.all(promises);
                 // firestore 데이터 가져와서 리스트 만들기
                 const productList = [];
                 productSnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
                     const data = doc.data();
-                    productList.push((0, jsx_runtime_1.jsxs)("li", Object.assign({ className: "product" }, { children: [(0, jsx_runtime_1.jsxs)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "thumb" }, { children: [(0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }), (0, jsx_runtime_1.jsx)("button", { className: wishToggle ? "wish-btn on " : "wish-btn", onClick: () => setWishToggle(!wishToggle) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [data.product_price, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "util-btn-container" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn" }, { children: (0, jsx_runtime_1.jsx)("span", { children: "CART" }) })) }))] }), doc.id));
+                    productList.push((0, jsx_runtime_1.jsxs)("li", Object.assign({ className: "product" }, { children: [(0, jsx_runtime_1.jsxs)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
+                                    name: data.product_name,
+                                    price: data.product_price,
+                                    thumb01: data.product_thumb_01,
+                                    thumb02: data.product_thumb_02,
+                                    thumb03: data.product_thumb_03,
+                                    detail: data.product_detail
+                                } }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "thumb" }, { children: [(0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }), (0, jsx_runtime_1.jsx)("button", { className: wishToggle ? "wish-btn on " : "wish-btn", onClick: () => setWishToggle(!wishToggle) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [data.product_price, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "util-btn-container" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn" }, { children: (0, jsx_runtime_1.jsx)("span", { children: "CART" }) })) }))] }), doc.id));
                 }));
                 setProducts(productList);
             }

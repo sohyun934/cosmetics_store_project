@@ -6,13 +6,17 @@ import ReviewPop from "../../../components/ReviewPop/ReviewPop";
 import CartPop from "../../Mypage/Cart/CartPop/CartPop";
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, A11y } from "swiper";
+import { Pagination, A11y, Autoplay } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import WishPop from "../../../components/WishPop/WishPop";
+import { useLocation } from "react-router-dom";
+import { getImage } from "../../../utils/getImage";
 
 type ProductionProp = {
+    name: string;
     price: string;
+    urls: string[];
     open: Function;
 };
 
@@ -22,24 +26,23 @@ function ProductSection(props: ProductionProp) {
     const [totPrice, setTotPrice] = useState(props.price);
     const [count, setCount] = useState(1);
 
-    function openWishPop() {
-        if (wishToggle === false) {
-            props.open("wish");
-        }
+    function openWishPop(): void {
+        if (wishToggle === false) props.open("wish");
 
         setWishToggle(!wishToggle);
     }
 
-    function minus() {
+    function minus(): void {
         setCount(count === 1 ? 1 : count - 1);
     }
 
-    function changeCnt(e: React.ChangeEvent<HTMLInputElement>) {
+    function changeCnt(e: React.ChangeEvent<HTMLInputElement>): void {
         setCount(Number(e.target.value));
     }
 
-    function plus() {
+    function plus(): void {
         setCount(count === 3 ? 3 : count + 1);
+
         if (count === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
@@ -49,21 +52,21 @@ function ProductSection(props: ProductionProp) {
 
     return (
         <section className="product-section flex">
-            <Swiper className="thumb" modules={[Pagination, A11y]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} loop={true}>
+            <Swiper className="thumb" modules={[Pagination, A11y, Autoplay]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} loop={true} autoplay={{ delay: 3000 }}>
                 <SwiperSlide>
-                    <img src={require("../../../assets/product/new/new01.jpg")} alt="신제품01" />
+                    <img src={props.urls[0]} alt={`${props.name}01`} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <img src={require("../../../assets/product/new/new02.jpg")} alt="신제품02" />
+                    <img src={props.urls[1]} alt={`${props.name}02`} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <img src={require("../../../assets/product/new/new03.jpg")} alt="신제품03" />
+                    <img src={props.urls[2]} alt={`${props.name}03`} />
                 </SwiperSlide>
             </Swiper>
             <div className="info">
                 <form method="post">
                     <h2>
-                        <strong>로즈마리 헤어 씨크닝 컨디셔너 바 115G</strong>
+                        <strong>{props.name}</strong>
                     </h2>
                     <div className="price-wish-container flex">
                         <span className="price big-txt">
@@ -214,16 +217,31 @@ function ReviewSection(props: ReviewProp) {
     );
 }
 
+interface CustomizedState {
+    name: string;
+    price: string;
+    thumb01: string;
+    thumb02: string;
+    thumb03: string;
+    detail: string;
+}
+
 function Main() {
     let content;
     const [tap, setTap] = useState("detail");
     const [pop, setPop] = useState<string>("");
     const [popContent, setPopContent] = useState<JSX.Element | null>(null);
 
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+    const name = state.name;
+    const price = state.price;
+    const [urls, setUrls] = useState<string[]>([]);
+
     if (tap === "detail") {
         content = (
             <div className="detail-wrap">
-                <img src={require("../../../assets/product/detail/product_content.jpg")} alt="상세정보" />
+                <img src={urls[3]} alt="상세정보" />
             </div>
         );
     } else if (tap === "review") {
@@ -245,10 +263,21 @@ function Main() {
         }
     }, [pop]);
 
+    useEffect(() => {
+        async function getImageUrls() {
+            const imgs = [state.thumb01, state.thumb02, state.thumb03, state.detail];
+            const promises = imgs.map(thumb => getImage(thumb));
+            const urls = await Promise.all(promises);
+            setUrls(urls);
+        }
+
+        getImageUrls();
+    });
+
     return (
         <main>
             <div className="detail-container big-container">
-                <ProductSection price="42000" open={(_pop: string) => setPop(_pop)} />
+                <ProductSection name={name} price={price} urls={urls} open={(_pop: string) => setPop(_pop)} />
                 <Nav onChangeTap={(_tap: string) => setTap(_tap)}></Nav>
                 {content}
             </div>
