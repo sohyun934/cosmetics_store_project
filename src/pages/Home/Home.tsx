@@ -7,18 +7,15 @@ import { Pagination, A11y, Autoplay } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import { db } from "../../firebase";
+import { getImage } from "../../utils/getImage";
 
 function Slider() {
     return (
         <div>
-            <Swiper
-                modules={[Pagination, A11y, Autoplay]}
-                spaceBetween={0}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-                loop={true}
-                autoplay={{ delay: 3000 }}
-            >
+            <Swiper modules={[Pagination, A11y, Autoplay]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} loop={true} autoplay={{ delay: 3000 }}>
                 <SwiperSlide>
                     <img src={require("../../assets/main/main01.jpg")} alt="메인01" />
                 </SwiperSlide>
@@ -96,7 +93,11 @@ function NewSection() {
     );
 }
 
-function HairSection() {
+type SectionProp = {
+    products: any[];
+};
+
+function HairSection(props: SectionProp) {
     return (
         <section className="hair-section flex">
             <div className="section-inner-left">
@@ -107,59 +108,13 @@ function HairSection() {
                 </Link>
             </div>
             <div className="section-inner-right">
-                <ul className="product-list flex">
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/hair/hair01.jpg")} alt="헤어케어01" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>로즈마리 스칼프 스케일링 샴푸 1L</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>42,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/hair/hair02.jpg")} alt="헤어케어02" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>티트리 퓨리파잉 샴푸 400ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>20,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/hair/hair03.jpg")} alt="헤어케어03" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>퀴노아 프로틴 샴푸 400ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>18,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                </ul>
+                <ul className="product-list flex">{props.products}</ul>
             </div>
         </section>
     );
 }
 
-function SkinSection() {
+function SkinSection(props: SectionProp) {
     return (
         <section className="skin-section flex">
             <div className="section-inner-left">
@@ -170,59 +125,13 @@ function SkinSection() {
                 </Link>
             </div>
             <div className="section-inner-right">
-                <ul className="product-list flex">
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/skin/skin01.jpg")} alt="스킨케어01" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>알로에 하이펙티브 세럼 50ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>33,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/skin/skin02.jpg")} alt="스킨케어02" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>바이탈라이징 로즈마리 컨센트레이티드 에센스 100ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>28,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/skin/skin03.jpg")} alt="스킨케어03" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>수딩 알로에 베라 젤 300ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>11,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                </ul>
+                <ul className="product-list flex">{props.products}</ul>
             </div>
         </section>
     );
 }
 
-function BodySection() {
+function BodySection(props: SectionProp) {
     return (
         <section className="body-section flex">
             <div className="section-inner-left">
@@ -233,66 +142,82 @@ function BodySection() {
                 </Link>
             </div>
             <div className="section-inner-right">
-                <ul className="product-list flex">
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/body/body01.jpg")} alt="바디케어01" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>임브레이스 바디워시 네롤리 & 패츌리 300ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>28,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/body/body02.jpg")} alt="바디케어02" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>서렌 바디워시 라벤더 & 마조람 300ML</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>28,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/body/body03.jpg")} alt="바디케어03" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>티트리 밸런싱 클렌징 바 110G</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>22,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                </ul>
+                <ul className="product-list flex">{props.products}</ul>
             </div>
         </section>
     );
 }
 
 function Main() {
+    // 각 section에서 상품 3개만 가져올건데 이거 제한 걸어야됨.
+    const [hairProducts, setHairProducts] = useState<any[]>([]);
+    const [skinProducts, setSkinProducts] = useState<any[]>([]);
+    const [bodyProducts, setBodyProducts] = useState<any[]>([]);
+
+    async function fetchProducts(section: string) {
+        const q = query(collection(db, "product"), where("product_type", "==", section), orderBy("product_id", "desc"), limit(3));
+        const productSnapshot = await getDocs(q);
+
+        // storage 이미지 가져오기
+        const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_thumb_01));
+        const urls = await Promise.all(promises);
+
+        // firestore 데이터 가져와서 리스트 만들기
+        const productList = [];
+        productSnapshot.docs.map(async (doc, i) => {
+            const data = doc.data();
+
+            productList.push(
+                <li key={doc.id} className="product">
+                    <Link
+                        to="/detail"
+                        state={{
+                            name: data.product_name,
+                            price: data.product_price,
+                            thumb01: data.product_thumb_01,
+                            thumb02: data.product_thumb_02,
+                            thumb03: data.product_thumb_03,
+                            detail: data.product_detail
+                        }}
+                    >
+                        <div className="thumb">
+                            <img src={urls[i]} alt={data.product_name} />
+                        </div>
+                        <div className="info">
+                            <div className="name">
+                                <strong>{data.product_name}</strong>
+                            </div>
+                            <div className="price">
+                                <strong>{data.product_price}원</strong>
+                            </div>
+                        </div>
+                    </Link>
+                </li>
+            );
+        });
+
+        if (section === "hair") {
+            setHairProducts(productList);
+        } else if (section === "skin") {
+            setSkinProducts(productList);
+        } else if (section === "body") {
+            setBodyProducts(productList);
+        }
+    }
+
+    useEffect(() => {
+        fetchProducts("hair");
+        fetchProducts("skin");
+        fetchProducts("body");
+    }, []);
+
     return (
         <main className="main-container">
             <Slider />
             <NewSection />
-            <HairSection />
-            <SkinSection />
-            <BodySection />
+            <HairSection products={hairProducts} />
+            <SkinSection products={skinProducts} />
+            <BodySection products={bodyProducts} />
             <MoveTop />
         </main>
     );
