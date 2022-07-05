@@ -129,7 +129,7 @@ function Main() {
             });
         }
         getImageUrls();
-    });
+    }, []);
     return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container big-container" }, { children: [(0, jsx_runtime_1.jsx)(ProductSection, { name: name, price: price, urls: urls, open: (_pop) => setPop(_pop) }), (0, jsx_runtime_1.jsx)(Nav, { onChangeTap: (_tap) => setTap(_tap) }), content] })), popContent, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
 function Detail() {

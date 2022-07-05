@@ -272,7 +272,7 @@ function Main() {
         }
 
         getImageUrls();
-    });
+    }, []);
 
     return (
         <main>

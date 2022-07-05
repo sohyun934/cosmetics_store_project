@@ -36,7 +36,7 @@ function Header() {
             if (user)
                 setLogInOut("로그아웃");
         });
-    });
+    }, []);
     function logOut(e) {
         e.preventDefault();
         (0, auth_1.signOut)(firebase_1.auth)

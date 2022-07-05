@@ -125,7 +125,7 @@ function Header() {
         onAuthStateChanged(auth, user => {
             if (user) setLogInOut("로그아웃");
         });
-    });
+    }, []);
 
     function logOut(e: React.MouseEvent) {
         e.preventDefault();

@@ -91,7 +91,7 @@ function ProductMain() {
 
     useEffect(() => {
         fetchProducts();
-    });
+    }, []);
 
     return (
         <main>
