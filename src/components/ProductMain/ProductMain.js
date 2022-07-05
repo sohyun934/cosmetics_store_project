@@ -46,9 +46,9 @@ function ProductMain() {
             desc: "일상의 무게를 줄여주는 바디케어를 경험해보세요"
         }
     };
-    function fetchProducts() {
+    function fetchProducts(field, direction) {
         return __awaiter(this, void 0, void 0, function* () {
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname));
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction));
             const productSnapshot = yield (0, firestore_1.getDocs)(q);
             if (productSnapshot.empty) {
                 setEmpty(true);
@@ -75,8 +75,19 @@ function ProductMain() {
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchProducts();
+        fetchProducts("product_id", "desc");
     }, []);
-    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "rank" }, { children: "\uD310\uB9E4\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] }) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: empty ? "등록된 상품이 없습니다." : products }))] })), (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
+    function sortProducts(e) {
+        if (e.target.value === "new") {
+            fetchProducts("product_id", "desc");
+        }
+        else if (e.target.value === "low-price") {
+            fetchProducts("product_price", "asc");
+        }
+        else if (e.target.value === "high-price") {
+            fetchProducts("product_price", "desc");
+        }
+    }
+    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => sortProducts(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: empty ? "등록된 상품이 없습니다." : products }))] })), (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
 exports.default = ProductMain;

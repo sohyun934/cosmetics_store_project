@@ -1,7 +1,7 @@
 import MoveTop from "../MoveTop/MoveTop";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, orderBy, OrderByDirection, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { getImage } from "../../utils/getImage";
 
@@ -34,8 +34,8 @@ function ProductMain() {
         }
     };
 
-    async function fetchProducts() {
-        const q = query(collection(db, "product"), where("product_type", "==", pathname));
+    async function fetchProducts(field, direction) {
+        const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction));
         const productSnapshot = await getDocs(q);
 
         if (productSnapshot.empty) {
@@ -90,8 +90,18 @@ function ProductMain() {
     }
 
     useEffect(() => {
-        fetchProducts();
+        fetchProducts("product_id", "desc");
     }, []);
+
+    function sortProducts(e: React.ChangeEvent<HTMLSelectElement>) {
+        if (e.target.value === "new") {
+            fetchProducts("product_id", "desc");
+        } else if (e.target.value === "low-price") {
+            fetchProducts("product_price", "asc");
+        } else if (e.target.value === "high-price") {
+            fetchProducts("product_price", "desc");
+        }
+    }
 
     return (
         <main>
@@ -101,9 +111,9 @@ function ProductMain() {
                     <p>{category[pathname].desc}</p>
                 </div>
                 <div className="list-filter">
-                    <select>
+                    <select onChange={e => sortProducts(e)}>
                         <option value="new">등록순</option>
-                        <option value="rank">판매순</option>
+                        {/* <option value="rank">판매순</option> */}
                         <option value="low-price">낮은가격순</option>
                         <option value="high-price">높은가격순</option>
                     </select>
