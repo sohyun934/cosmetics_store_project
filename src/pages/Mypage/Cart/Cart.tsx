@@ -3,8 +3,11 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db, signedInUser } from "../../../firebase";
+import { getImage } from "../../../utils/getImage";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -24,6 +27,7 @@ const StyledInput = styled.input`
 function CartSection() {
     const trs = [];
     const [amount, setAmount] = useState(1);
+    const [cartList, setCartList] = useState([]);
 
     function minus(): void {
         setAmount(amount === 1 ? 1 : amount - 1);
@@ -52,36 +56,53 @@ function CartSection() {
         if (amount === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
-    for (let i = 0; i < 2; i++) {
-        trs.push(
-            <tr key={i} className="cart-item">
-                <td className="del-chk">
-                    <StyledInput type="checkbox" />
-                </td>
-                <td className="thumb">
-                    <Link to="/detail">
-                        <img src={require("../../../assets/product/new/new02.jpg")} alt="신제품02" />
-                    </Link>
-                </td>
-                <td className="info">
-                    <div className="name">
-                        <Link to="/detail">티트리 스칼프 스케일링 샴푸 바 135G</Link>
-                    </div>
-                    <div className="price">22,000원</div>
-                    <div className="flex">
-                        <span className="cnt-box">
-                            <button type="button" className="minus" onClick={minus}></button>
-                            <input type="text" className="cnt" value={amount} onChange={changeAmt} />
-                            <button type="button" className="plus" onClick={plus}></button>
-                        </span>
-                    </div>
-                </td>
-                <td className="del-util">
-                    <button type="button" className="del-btn"></button>
-                </td>
-            </tr>
-        );
+    async function fetchCart() {
+        const q = query(collection(db, "cart"), where("user_email", "==", signedInUser));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach(async document => {
+            const cartItem = document.data();
+            const docRef = doc(db, "product", cartItem.product_name);
+            const docSnap = await getDoc(docRef);
+            const product = docSnap.data();
+            const thumb = await getImage(product.product_thumb_01);
+
+            trs.push(
+                <tr key={document.id} className="cart-item">
+                    <td className="del-chk">
+                        <StyledInput type="checkbox" />
+                    </td>
+                    <td className="thumb">
+                        <Link to="/detail">
+                            <img src={thumb} alt={cartItem.product_name} />
+                        </Link>
+                    </td>
+                    <td className="info">
+                        <div className="name">
+                            <Link to="/detail">{cartItem.product_name}</Link>
+                        </div>
+                        <div className="price">{product.product_price}원</div>
+                        <div className="flex">
+                            <span className="cnt-box">
+                                <button type="button" className="minus" onClick={minus}></button>
+                                <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
+                                <button type="button" className="plus" onClick={plus}></button>
+                            </span>
+                        </div>
+                    </td>
+                    <td className="del-util">
+                        <button type="button" className="del-btn"></button>
+                    </td>
+                </tr>
+            );
+
+            setCartList(trs);
+        });
     }
+
+    useEffect(() => {
+        fetchCart();
+    }, []);
 
     function allDel(e: React.MouseEvent<HTMLElement>) {
         e.preventDefault();
@@ -91,7 +112,7 @@ function CartSection() {
         <section className="cart-section">
             <h2>Cart</h2>
             <table className="cart-list">
-                <tbody>{trs}</tbody>
+                <tbody>{cartList}</tbody>
             </table>
             <div className="cart-del-wrap small-txt">
                 <StyledInput type="checkbox" />
