@@ -10,8 +10,10 @@ import { Pagination, A11y, Autoplay } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import WishPop from "../../../components/WishPop/WishPop";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getImage } from "../../../utils/getImage";
+import { db, signedInUser } from "../../../firebase";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 type ProductionProp = {
     name: string;
@@ -24,7 +26,8 @@ function ProductSection(props: ProductionProp) {
     const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     const [wishToggle, setWishToggle] = useState(false);
     const [totPrice, setTotPrice] = useState(props.price);
-    const [count, setCount] = useState(1);
+    const [amount, setAmount] = useState(1);
+    const navigate = useNavigate();
 
     function openWishPop(): void {
         if (wishToggle === false) props.open("wish");
@@ -33,22 +36,56 @@ function ProductSection(props: ProductionProp) {
     }
 
     function minus(): void {
-        setCount(count === 1 ? 1 : count - 1);
+        setAmount(amount === 1 ? 1 : amount - 1);
     }
 
-    function changeCnt(e: React.ChangeEvent<HTMLInputElement>): void {
-        setCount(Number(e.target.value));
+    function changeAmt(e: React.ChangeEvent<HTMLInputElement>): void {
+        const amount = Number(e.target.value);
+
+        if (amount >= 3) {
+            alert("최대 주문수량은 3개 입니다.");
+            setAmount(3);
+        } else if (amount < 1) {
+            alert("최소 주문수량은 1개 입니다.");
+            setAmount(1);
+        } else if (isNaN(amount)) {
+            alert("숫자만 입력 가능합니다.");
+            setAmount(1);
+        } else {
+            setAmount(Number(e.target.value));
+        }
     }
 
     function plus(): void {
-        setCount(count === 3 ? 3 : count + 1);
+        setAmount(amount === 3 ? 3 : amount + 1);
 
-        if (count === 3) alert("최대 주문수량은 3개 입니다.");
+        if (amount === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
     useEffect(() => {
-        setTotPrice(String(Number(props.price) * count).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-    }, [props.price, count]);
+        setTotPrice(String(Number(props.price) * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+    }, [props.price, amount]);
+
+    async function addCart() {
+        if (!signedInUser) {
+            navigate("/login");
+        } else {
+            const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", props.name));
+
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) {
+                await addDoc(collection(db, "cart"), {
+                    product_name: props.name,
+                    user_email: signedInUser,
+                    amount: amount
+                });
+
+                props.open("cart");
+            } else {
+                props.open("duplicate");
+            }
+        }
+    }
 
     return (
         <section className="product-section flex">
@@ -80,7 +117,7 @@ function ProductSection(props: ProductionProp) {
                     <div className="cnt-container flex">
                         <span className="cnt-box">
                             <button type="button" className="minus" onClick={minus}></button>
-                            <input type="text" className="cnt" value={count} onChange={changeCnt} />
+                            <input type="text" className="cnt" value={amount} onChange={changeAmt} />
                             <button type="button" className="plus" onClick={plus}></button>
                         </span>
                         <span className="price big-txt">
@@ -90,7 +127,7 @@ function ProductSection(props: ProductionProp) {
                     <p>30,000원 이상 구매 시 무료 배송</p>
                     <div className="util-btn-container flex">
                         <div className="cart-btn-wrap">
-                            <button className="cart-btn gray-style-btn" type="button" onClick={() => props.open("cart")}>
+                            <button className="cart-btn gray-style-btn" type="button" onClick={addCart}>
                                 장바구니
                             </button>
                         </div>
@@ -257,7 +294,9 @@ function Main() {
         if (pop === "wish") {
             setPopContent(<WishPop close={closePop} />);
         } else if (pop === "cart") {
-            setPopContent(<CartPop close={closePop} />);
+            setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
+        } else if (pop === "duplicate") {
+            setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
         } else if (pop === "review") {
             setPopContent(<ReviewPop close={closePop} />);
         }

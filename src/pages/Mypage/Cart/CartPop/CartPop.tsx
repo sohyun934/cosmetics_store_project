@@ -3,6 +3,7 @@ import "./CartPop.css";
 
 type Prop = {
     close: Function;
+    title: string;
 };
 
 function CartPop(props: Prop) {
@@ -12,7 +13,7 @@ function CartPop(props: Prop) {
                 <h2>CART</h2>
                 <hr />
                 <p className="small-txt">
-                    <strong>상품이 장바구니에 담겼습니다.</strong>
+                    <strong>{props.title}</strong>
                 </p>
                 <div className="pop-btn-container flex">
                     <button className="radius-style-btn" onClick={() => props.close()}>
