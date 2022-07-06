@@ -23,19 +23,33 @@ const StyledInput = styled.input`
 
 function CartSection() {
     const trs = [];
-    const [count, setCount] = useState(1);
+    const [amount, setAmount] = useState(1);
 
-    function minus() {
-        setCount(count === 1 ? 1 : count - 1);
+    function minus(): void {
+        setAmount(amount === 1 ? 1 : amount - 1);
     }
 
-    function changeCnt(e: React.ChangeEvent<HTMLInputElement>) {
-        setCount(Number(e.target.value));
+    function changeAmt(e: React.ChangeEvent<HTMLInputElement>): void {
+        const amount = Number(e.target.value);
+
+        if (amount >= 3) {
+            alert("최대 주문수량은 3개 입니다.");
+            setAmount(3);
+        } else if (amount < 1) {
+            alert("최소 주문수량은 1개 입니다.");
+            setAmount(1);
+        } else if (isNaN(amount)) {
+            alert("숫자만 입력 가능합니다.");
+            setAmount(1);
+        } else {
+            setAmount(Number(e.target.value));
+        }
     }
 
-    function plus() {
-        setCount(count === 3 ? 3 : count + 1);
-        if (count === 3) alert("최대 주문수량은 3개 입니다.");
+    function plus(): void {
+        setAmount(amount === 3 ? 3 : amount + 1);
+
+        if (amount === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
     for (let i = 0; i < 2; i++) {
@@ -57,7 +71,7 @@ function CartSection() {
                     <div className="flex">
                         <span className="cnt-box">
                             <button type="button" className="minus" onClick={minus}></button>
-                            <input type="text" className="cnt" value={count} onChange={changeCnt} />
+                            <input type="text" className="cnt" value={amount} onChange={changeAmt} />
                             <button type="button" className="plus" onClick={plus}></button>
                         </span>
                     </div>
