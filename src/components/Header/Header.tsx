@@ -106,7 +106,7 @@ function RightGnb(props: RightGnbProp) {
                     </Link>
                 </li>
                 <li>
-                    <Link to="/mypage/cart">
+                    <Link to={props.logOutDisplay === "none" ? "/login" : "/mypage/cart"}>
                         <img src={require("../../assets/common/cart.png")} alt="장바구니" />
                     </Link>
                 </li>
