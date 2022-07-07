@@ -6,8 +6,9 @@ import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { db, signedInUser } from "../../../firebase";
+import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
+import { onAuthStateChanged } from "firebase/auth";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -25,7 +26,6 @@ const StyledInput = styled.input`
 `;
 
 function CartSection() {
-    const trs = [];
     const [amount, setAmount] = useState(1);
     const [cartList, setCartList] = useState([]);
 
@@ -56,52 +56,65 @@ function CartSection() {
         if (amount === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
-    async function fetchCart() {
-        const q = query(collection(db, "cart"), where("user_email", "==", signedInUser));
+    async function fetchCart(userEmail: string) {
+        const q = query(collection(db, "cart"), where("user_email", "==", userEmail));
         const querySnapshot = await getDocs(q);
 
-        querySnapshot.forEach(async document => {
-            const cartItem = document.data();
-            const docRef = doc(db, "product", cartItem.product_name);
-            const docSnap = await getDoc(docRef);
-            const product = docSnap.data();
-            const thumb = await getImage(product.product_thumb_01);
-
-            trs.push(
-                <tr key={document.id} className="cart-item">
-                    <td className="del-chk">
-                        <StyledInput type="checkbox" />
-                    </td>
-                    <td className="thumb">
-                        <Link to="/detail">
-                            <img src={thumb} alt={cartItem.product_name} />
-                        </Link>
-                    </td>
-                    <td className="info">
-                        <div className="name">
-                            <Link to="/detail">{cartItem.product_name}</Link>
-                        </div>
-                        <div className="price">{product.product_price}원</div>
-                        <div className="flex">
-                            <span className="cnt-box">
-                                <button type="button" className="minus" onClick={minus}></button>
-                                <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
-                                <button type="button" className="plus" onClick={plus}></button>
-                            </span>
-                        </div>
-                    </td>
-                    <td className="del-util">
-                        <button type="button" className="del-btn"></button>
-                    </td>
+        if (querySnapshot.empty) {
+            setCartList([
+                <tr key="empty" className="cart-item">
+                    <td className="empty">장바구니가 비어있습니다.</td>
                 </tr>
-            );
+            ]);
+        } else {
+            // 장바구니에 담긴 product 정보 가져오기
+            const productsPromises = querySnapshot.docs.map(document => getDoc(doc(db, "product", document.data().product_name)));
+            const products = await Promise.all(productsPromises);
+            const urlsPromises = products.map(product => getImage(product.data().product_thumb_01));
+            const urls = await Promise.all(urlsPromises);
 
-            setCartList(trs);
-        });
+            const cartList = [];
+
+            querySnapshot.docs.map(async (doc, i) => {
+                const cartItem = doc.data();
+                cartList.push(
+                    <tr key={i} className="cart-item">
+                        <td className="del-chk">
+                            <StyledInput type="checkbox" />
+                        </td>
+                        <td className="thumb">
+                            <Link to="/detail">
+                                <img src={urls[i]} alt={cartItem.product_name} />
+                            </Link>
+                        </td>
+                        <td className="info">
+                            <div className="name">
+                                <Link to="/detail">{cartItem.product_name}</Link>
+                            </div>
+                            <div className="price">{products[i].data().product_price}</div>
+                            <div className="flex">
+                                <span className="cnt-box">
+                                    <button type="button" className="minus" onClick={minus}></button>
+                                    <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
+                                    <button type="button" className="plus" onClick={plus}></button>
+                                </span>
+                            </div>
+                        </td>
+                        <td className="del-util">
+                            <button type="button" className="del-btn"></button>
+                        </td>
+                    </tr>
+                );
+            });
+
+            setCartList(cartList);
+        }
     }
 
     useEffect(() => {
-        fetchCart();
+        onAuthStateChanged(auth, user => {
+            if (user) fetchCart(user.email);
+        });
     }, []);
 
     function allDel(e: React.MouseEvent<HTMLElement>) {

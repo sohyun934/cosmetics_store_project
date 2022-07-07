@@ -23,6 +23,7 @@ const react_router_dom_1 = require("react-router-dom");
 const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../../firebase");
 const getImage_1 = require("../../../utils/getImage");
+const auth_1 = require("firebase/auth");
 const StyledInput = styled_components_1.default.input `
     appearance: none;
     border: 1.5px solid #aaa;
@@ -38,7 +39,6 @@ const StyledInput = styled_components_1.default.input `
     }
 `;
 function CartSection() {
-    const trs = [];
     const [amount, setAmount] = (0, react_1.useState)(1);
     const [cartList, setCartList] = (0, react_1.useState)([]);
     function minus() {
@@ -67,23 +67,35 @@ function CartSection() {
         if (amount === 3)
             alert("최대 주문수량은 3개 입니다.");
     }
-    function fetchCart() {
+    function fetchCart(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser));
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", userEmail));
             const querySnapshot = yield (0, firestore_1.getDocs)(q);
-            querySnapshot.forEach((document) => __awaiter(this, void 0, void 0, function* () {
-                const cartItem = document.data();
-                const docRef = (0, firestore_1.doc)(firebase_1.db, "product", cartItem.product_name);
-                const docSnap = yield (0, firestore_1.getDoc)(docRef);
-                const product = docSnap.data();
-                const thumb = yield (0, getImage_1.getImage)(product.product_thumb_01);
-                trs.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: (0, jsx_runtime_1.jsx)("img", { src: thumb, alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "price" }, { children: [product.product_price, "\uC6D0"] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn" }) }))] }), document.id));
-                setCartList(trs);
-            }));
+            if (querySnapshot.empty) {
+                setCartList([
+                    (0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uAC00 \uBE44\uC5B4\uC788\uC2B5\uB2C8\uB2E4." })) }), "empty")
+                ]);
+            }
+            else {
+                // 장바구니에 담긴 product 정보 가져오기
+                const productsPromises = querySnapshot.docs.map(document => (0, firestore_1.getDoc)((0, firestore_1.doc)(firebase_1.db, "product", document.data().product_name)));
+                const products = yield Promise.all(productsPromises);
+                const urlsPromises = products.map(product => (0, getImage_1.getImage)(product.data().product_thumb_01));
+                const urls = yield Promise.all(urlsPromises);
+                const cartList = [];
+                querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
+                    const cartItem = doc.data();
+                    cartList.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: products[i].data().product_price })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn" }) }))] }), i));
+                }));
+                setCartList(cartList);
+            }
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchCart();
+        (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
+            if (user)
+                fetchCart(user.email);
+        });
     }, []);
     function allDel(e) {
         e.preventDefault();
