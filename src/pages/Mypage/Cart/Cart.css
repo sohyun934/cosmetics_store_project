@@ -22,6 +22,11 @@
     padding-top: 22px;
 }
 
+.cart-list .empty {
+    text-align: center;
+    line-height: 18;
+}
+
 .cart-list .del-chk {
     width: 8%;
     padding-right: 10px;
