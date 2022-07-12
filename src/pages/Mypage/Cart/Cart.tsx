@@ -5,7 +5,7 @@ import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 import { onAuthStateChanged } from "firebase/auth";
@@ -54,6 +54,12 @@ function CartSection() {
         setAmount(amount === 3 ? 3 : amount + 1);
 
         if (amount === 3) alert("최대 주문수량은 3개 입니다.");
+    }
+
+    async function delCartItem(e: React.MouseEvent<HTMLButtonElement>) {
+        const button = e.target as HTMLButtonElement;
+        await deleteDoc(doc(db, "cart", button.value));
+        window.location.reload();
     }
 
     async function fetchCart(userEmail: string) {
@@ -126,7 +132,7 @@ function CartSection() {
                             </div>
                         </td>
                         <td className="del-util">
-                            <button type="button" className="del-btn"></button>
+                            <button type="button" className="del-btn" value={doc.id} onClick={e => delCartItem(e)}></button>
                         </td>
                     </tr>
                 );

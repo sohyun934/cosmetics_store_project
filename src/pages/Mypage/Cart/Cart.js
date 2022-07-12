@@ -67,6 +67,13 @@ function CartSection() {
         if (amount === 3)
             alert("최대 주문수량은 3개 입니다.");
     }
+    function delCartItem(e) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const button = e.target;
+            yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", button.value));
+            window.location.reload();
+        });
+    }
     function fetchCart(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", userEmail));
@@ -101,7 +108,7 @@ function CartSection() {
                                                 thumb02: product.product_thumb_02,
                                                 thumb03: product.product_thumb_03,
                                                 detail: product.product_detail
-                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: totPrice })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn" }) }))] }), i));
+                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: totPrice })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", value: doc.id, onClick: e => delCartItem(e) }) }))] }), i));
                 }));
                 setCartList(cartList);
             }
