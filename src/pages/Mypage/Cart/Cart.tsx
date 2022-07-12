@@ -77,6 +77,8 @@ function CartSection() {
 
             querySnapshot.docs.map(async (doc, i) => {
                 const cartItem = doc.data();
+                const totPrice = products[i].data().product_price * cartItem.amount;
+
                 cartList.push(
                     <tr key={i} className="cart-item">
                         <td className="del-chk">
@@ -91,7 +93,7 @@ function CartSection() {
                             <div className="name">
                                 <Link to="/detail">{cartItem.product_name}</Link>
                             </div>
-                            <div className="price">{products[i].data().product_price}</div>
+                            <div className="price">{totPrice}</div>
                             <div className="flex">
                                 <span className="cnt-box">
                                     <button type="button" className="minus" onClick={minus}></button>
