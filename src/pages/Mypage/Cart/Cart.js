@@ -85,8 +85,23 @@ function CartSection() {
                 const cartList = [];
                 querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
                     const cartItem = doc.data();
-                    const totPrice = products[i].data().product_price * cartItem.amount;
-                    cartList.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail" }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: totPrice })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn" }) }))] }), i));
+                    const product = products[i].data();
+                    const totPrice = product.product_price * cartItem.amount;
+                    cartList.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
+                                        name: product.product_name,
+                                        price: product.product_price,
+                                        thumb01: product.product_thumb_01,
+                                        thumb02: product.product_thumb_02,
+                                        thumb03: product.product_thumb_03,
+                                        detail: product.product_detail
+                                    } }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
+                                                name: product.product_name,
+                                                price: product.product_price,
+                                                thumb01: product.product_thumb_01,
+                                                thumb02: product.product_thumb_02,
+                                                thumb03: product.product_thumb_03,
+                                                detail: product.product_detail
+                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: totPrice })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn" }) }))] }), i));
                 }));
                 setCartList(cartList);
             }

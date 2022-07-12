@@ -77,7 +77,8 @@ function CartSection() {
 
             querySnapshot.docs.map(async (doc, i) => {
                 const cartItem = doc.data();
-                const totPrice = products[i].data().product_price * cartItem.amount;
+                const product = products[i].data();
+                const totPrice = product.product_price * cartItem.amount;
 
                 cartList.push(
                     <tr key={i} className="cart-item">
@@ -85,13 +86,35 @@ function CartSection() {
                             <StyledInput type="checkbox" />
                         </td>
                         <td className="thumb">
-                            <Link to="/detail">
+                            <Link
+                                to="/detail"
+                                state={{
+                                    name: product.product_name,
+                                    price: product.product_price,
+                                    thumb01: product.product_thumb_01,
+                                    thumb02: product.product_thumb_02,
+                                    thumb03: product.product_thumb_03,
+                                    detail: product.product_detail
+                                }}
+                            >
                                 <img src={urls[i]} alt={cartItem.product_name} />
                             </Link>
                         </td>
                         <td className="info">
                             <div className="name">
-                                <Link to="/detail">{cartItem.product_name}</Link>
+                                <Link
+                                    to="/detail"
+                                    state={{
+                                        name: product.product_name,
+                                        price: product.product_price,
+                                        thumb01: product.product_thumb_01,
+                                        thumb02: product.product_thumb_02,
+                                        thumb03: product.product_thumb_03,
+                                        detail: product.product_detail
+                                    }}
+                                >
+                                    {cartItem.product_name}
+                                </Link>
                             </div>
                             <div className="price">{totPrice}</div>
                             <div className="flex">
