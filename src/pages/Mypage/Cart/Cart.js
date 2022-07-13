@@ -38,7 +38,7 @@ const StyledInput = styled_components_1.default.input `
             no-repeat 50% / 100%;
     }
 `;
-function CartSection() {
+function CartSection(props) {
     const [amount, setAmount] = (0, react_1.useState)(1);
     const [cartList, setCartList] = (0, react_1.useState)([]);
     function minus() {
@@ -89,11 +89,12 @@ function CartSection() {
                 const products = yield Promise.all(productsPromises);
                 const urlsPromises = products.map(product => (0, getImage_1.getImage)(product.data().product_thumb_01));
                 const urls = yield Promise.all(urlsPromises);
+                let orderPrice = 0;
                 const cartList = [];
                 querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
                     const cartItem = doc.data();
                     const product = products[i].data();
-                    const totPrice = product.product_price * cartItem.amount;
+                    orderPrice += product.product_price * cartItem.amount;
                     cartList.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
                                         name: product.product_name,
                                         price: product.product_price,
@@ -108,8 +109,9 @@ function CartSection() {
                                                 thumb02: product.product_thumb_02,
                                                 thumb03: product.product_thumb_03,
                                                 detail: product.product_detail
-                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: totPrice })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", value: doc.id, onClick: e => delCartItem(e) }) }))] }), i));
+                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", value: doc.id, onClick: e => delCartItem(e) }) }))] }), i));
                 }));
+                props.setOrderPrice(orderPrice);
                 setCartList(cartList);
             }
         });
@@ -126,16 +128,17 @@ function CartSection() {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: allDel }, { children: "\uC804\uCCB4 \uC0AD\uC81C" }))] }))] })));
 }
 function OrderSection(props) {
-    const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const price = String(props.price).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     let fee = 3000;
-    if (Number(props.price) >= 30000)
+    if (props.price >= 30000)
         fee = 0;
     const strFee = String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    const totPrice = String(Number(props.price) + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const totPrice = String(props.price + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Order" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uC8FC\uBB38\uAE08\uC561" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uBC30\uC1A1\uBE44" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [strFee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-wrap flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ className: "part-order-btn gray-style-btn" }, { children: "\uC120\uD0DD\uC0C1\uD488 \uAD6C\uB9E4\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "all-order-btn" }, { children: "\uC804\uCCB4 \uAD6C\uB9E4\uD558\uAE30" }))] }))] })));
 }
 function Main() {
-    return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "cart" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsx)(CartSection, {}), (0, jsx_runtime_1.jsx)(OrderSection, { price: "44000" })] })) }))] })) }));
+    const [orderPrice, setOrderPrice] = (0, react_1.useState)(0);
+    return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "cart" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsx)(CartSection, { setOrderPrice: (orderPrice) => setOrderPrice(orderPrice) }), (0, jsx_runtime_1.jsx)(OrderSection, { price: orderPrice })] })) }))] })) }));
 }
 function Cart() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));

@@ -25,7 +25,11 @@ const StyledInput = styled.input`
     }
 `;
 
-function CartSection() {
+type CartProp = {
+    setOrderPrice: Function;
+};
+
+function CartSection(props: CartProp) {
     const [amount, setAmount] = useState(1);
     const [cartList, setCartList] = useState([]);
 
@@ -79,12 +83,13 @@ function CartSection() {
             const urlsPromises = products.map(product => getImage(product.data().product_thumb_01));
             const urls = await Promise.all(urlsPromises);
 
+            let orderPrice = 0;
             const cartList = [];
 
             querySnapshot.docs.map(async (doc, i) => {
                 const cartItem = doc.data();
                 const product = products[i].data();
-                const totPrice = product.product_price * cartItem.amount;
+                orderPrice += product.product_price * cartItem.amount;
 
                 cartList.push(
                     <tr key={i} className="cart-item">
@@ -122,7 +127,7 @@ function CartSection() {
                                     {cartItem.product_name}
                                 </Link>
                             </div>
-                            <div className="price">{totPrice}</div>
+                            <div className="price">{product.product_price}</div>
                             <div className="flex">
                                 <span className="cnt-box">
                                     <button type="button" className="minus" onClick={minus}></button>
@@ -138,6 +143,7 @@ function CartSection() {
                 );
             });
 
+            props.setOrderPrice(orderPrice);
             setCartList(cartList);
         }
     }
@@ -169,15 +175,17 @@ function CartSection() {
 }
 
 type Prop = {
-    price: string;
+    price: number;
 };
 
 function OrderSection(props: Prop) {
-    const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const price = String(props.price).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+
     let fee = 3000;
-    if (Number(props.price) >= 30000) fee = 0;
+    if (props.price >= 30000) fee = 0;
     const strFee = String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    const totPrice = String(Number(props.price) + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+
+    const totPrice = String(props.price + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 
     return (
         <section className="order-section">
@@ -216,6 +224,8 @@ function OrderSection(props: Prop) {
 }
 
 function Main() {
+    const [orderPrice, setOrderPrice] = useState(0);
+
     return (
         <main>
             <div className="big-container">
@@ -223,8 +233,8 @@ function Main() {
                 <Lnb title="cart" />
                 <div className="section-container">
                     <form className="flex" action="#" method="post">
-                        <CartSection />
-                        <OrderSection price="44000" />
+                        <CartSection setOrderPrice={(orderPrice: React.SetStateAction<number>) => setOrderPrice(orderPrice)} />
+                        <OrderSection price={orderPrice} />
                     </form>
                 </div>
             </div>
