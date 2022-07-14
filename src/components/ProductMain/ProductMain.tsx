@@ -1,15 +1,25 @@
 import MoveTop from "../MoveTop/MoveTop";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { collection, getDocs, orderBy, OrderByDirection, query, where } from "firebase/firestore";
+import { collection, DocumentData, FieldPath, getDocs, limit, orderBy, OrderByDirection, query, QuerySnapshot, startAfter, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { getImage } from "../../utils/getImage";
+import styled from "styled-components";
+
+const StyledButton = styled.button`
+    @media (min-width: 900px) {
+        width: 30%;
+    }
+`;
 
 function ProductMain() {
-    const [empty, setEmpty] = useState(false);
+    const [more, setMore] = useState(false);
     const [products, setProducts] = useState([]);
     const [wishToggle, setWishToggle] = useState(false);
+    const [lastVisible, setLastVisible] = useState(null);
+
     const pathname = useLocation().pathname.substring(1);
+    const limitNum = 12;
 
     const category = {
         new: {
@@ -34,19 +44,45 @@ function ProductMain() {
         }
     };
 
-    async function fetchProducts(field, direction) {
-        const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction));
-        const productSnapshot = await getDocs(q);
+    // 상품 리스트 가져오기
+    async function fetchProducts(field: string | FieldPath, direction: OrderByDirection) {
+        let productSnapshot: QuerySnapshot<DocumentData>;
+        let productList: any[];
+
+        if (products.length === 0) {
+            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
+            const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction));
+            const totProducts = await getDocs(q);
+            if (totProducts.size > limitNum) setMore(true);
+
+            // 상품 가져오기
+            const first = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), limit(limitNum));
+            productSnapshot = await getDocs(first);
+
+            productList = [];
+        } else {
+            // 나머지 상품 갯수가 limit 이하인 경우 더보기 버튼 감추기
+            const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), startAfter(lastVisible));
+            const restProducts = await getDocs(q);
+            if (restProducts.size <= limitNum) setMore(false);
+
+            // 더보기 버튼 클릭 시 상품 추가로 가져오기
+            const more = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), startAfter(lastVisible), limit(limitNum));
+            productSnapshot = await getDocs(more);
+
+            productList = [...products];
+        }
+
+        setLastVisible(productSnapshot.docs[productSnapshot.docs.length - 1]);
 
         if (productSnapshot.empty) {
-            setEmpty(true);
+            productList.push(<li style={{ padding: "20px", marginTop: "50px", marginBottom: "40vh" }}>등록된 상품이 없습니다.</li>);
         } else {
             // storage 이미지 가져오기
             const promises = productSnapshot.docs.map(doc => getImage(doc.data().product_thumb_01));
             const urls = await Promise.all(promises);
 
             // firestore 데이터 가져와서 리스트 만들기
-            const productList = [];
             productSnapshot.docs.map(async (doc, i) => {
                 const data = doc.data();
 
@@ -84,15 +120,16 @@ function ProductMain() {
                     </li>
                 );
             });
-
-            setProducts(productList);
         }
+
+        setProducts(productList);
     }
 
     useEffect(() => {
         fetchProducts("product_id", "desc");
     }, []);
 
+    // 상품 리스트 정렬
     function sortProducts(e: React.ChangeEvent<HTMLSelectElement>) {
         if (e.target.value === "new") {
             fetchProducts("product_id", "desc");
@@ -118,7 +155,21 @@ function ProductMain() {
                         <option value="high-price">높은가격순</option>
                     </select>
                 </div>
-                <ul className="product-list flex">{empty ? "등록된 상품이 없습니다." : products}</ul>
+                <ul className="product-list flex">{products}</ul>
+                {more ? (
+                    <div style={{ textAlign: "center", padding: "0 20px" }}>
+                        <StyledButton
+                            className="border-style-btn"
+                            onClick={() => {
+                                fetchProducts("product_id", "desc");
+                            }}
+                        >
+                            더보기
+                        </StyledButton>
+                    </div>
+                ) : (
+                    <></>
+                )}
             </section>
             <MoveTop />
         </main>
