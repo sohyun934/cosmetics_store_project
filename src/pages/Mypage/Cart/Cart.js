@@ -38,37 +38,31 @@ const StyledInput = styled_components_1.default.input `
             no-repeat 50% / 100%;
     }
 `;
+const StyledSelect = styled_components_1.default.select `
+    width: 45px;
+    height: 25px;
+    padding: 0 0 0 5px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    font-size: 12px;
+    background: white;
+    margin-left: 10px;
+`;
 function CartSection(props) {
-    const [amount, setAmount] = (0, react_1.useState)(1);
     const [cartList, setCartList] = (0, react_1.useState)([]);
     const [cartIdList, setCartIdList] = (0, react_1.useState)([]);
+    const [cartAmountList, setCartAmountList] = (0, react_1.useState)([]);
     const [checkList, setCheckList] = (0, react_1.useState)([]);
     // 장바구니 상품 수량 변경
-    function minus() {
-        setAmount(amount === 1 ? 1 : amount - 1);
-    }
-    function changeAmt(e) {
-        const amount = Number(e.target.value);
-        if (amount >= 3) {
-            alert("최대 주문수량은 3개 입니다.");
-            setAmount(3);
-        }
-        else if (amount < 1) {
-            alert("최소 주문수량은 1개 입니다.");
-            setAmount(1);
-        }
-        else if (isNaN(amount)) {
-            alert("숫자만 입력 가능합니다.");
-            setAmount(1);
-        }
-        else {
-            setAmount(Number(e.target.value));
-        }
-    }
-    function plus() {
-        setAmount(amount === 3 ? 3 : amount + 1);
-        if (amount === 3)
-            alert("최대 주문수량은 3개 입니다.");
+    function handleAmt(id, amount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const cartItemRef = (0, firestore_1.doc)(firebase_1.db, "cart", id);
+            yield (0, firestore_1.updateDoc)(cartItemRef, {
+                amount: amount
+            }).then(() => {
+                window.confirm("수량 변경이 완료되었습니다.");
+            });
+        });
     }
     // 장바구니 리스트 가져오기
     function fetchCart(userEmail) {
@@ -83,11 +77,13 @@ function CartSection(props) {
             let orderPrice = 0;
             const cartList = [];
             const cartIdList = [];
+            const cartAmountList = [];
             querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
                 const cartItem = doc.data();
                 const product = products[i].data();
                 orderPrice += product.product_price * cartItem.amount;
                 cartIdList.push(doc.id);
+                cartAmountList.push(doc.data().amount);
                 cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
                                     name: product.product_name,
                                     price: product.product_price,
@@ -102,11 +98,12 @@ function CartSection(props) {
                                             thumb02: product.product_thumb_02,
                                             thumb03: product.product_thumb_03,
                                             detail: product.product_detail
-                                        } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => delCartItem(doc.id) }) }))] }));
+                                        } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price }))] }))] }));
             }));
             props.setOrderPrice(orderPrice);
             setCartList(cartList);
             setCartIdList(cartIdList);
+            setCartAmountList(cartAmountList);
         });
     }
     (0, react_1.useEffect)(() => {
@@ -168,8 +165,8 @@ function CartSection(props) {
         });
     }
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList.length > 0 ? (cartList.map((val, i) => {
-                        return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cartIdList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cartIdList[i]) }) })), val] }), i));
-                    })) : ((0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uAC00 \uBE44\uC5B4\uC788\uC2B5\uB2C8\uB2E4." })) }), "empty")) }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: cartList.length !== 0 && checkList.length === cartList.length ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartItems }, { children: "\uC120\uD0DD\uC0AD\uC81C" })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartList }, { children: "\uC804\uCCB4\uC0AD\uC81C" }))] }))] })));
+                        return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cartIdList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cartIdList[i]) }) })), val, (0, jsx_runtime_1.jsx)("td", { children: (0, jsx_runtime_1.jsxs)(StyledSelect, Object.assign({ defaultValue: cartAmountList[i], onChange: e => handleAmt(cartIdList[i], e.target.value) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "1" }, { children: "1" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "2" }, { children: "2" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "3" }, { children: "3" }))] })) }), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => delCartItem(cartIdList[i]) }) }))] }), i));
+                    })) : ((0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uAE34 \uC0C1\uD488\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." })) }), "empty")) }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: cartList.length !== 0 && checkList.length === cartList.length ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartItems }, { children: "\uC120\uD0DD\uC0AD\uC81C" })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartList }, { children: "\uC804\uCCB4\uC0AD\uC81C" }))] }))] })));
 }
 function OrderSection(props) {
     const price = String(props.price).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");

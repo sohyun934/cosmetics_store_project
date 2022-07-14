@@ -5,7 +5,7 @@ import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 import { onAuthStateChanged } from "firebase/auth";
@@ -25,42 +25,36 @@ const StyledInput = styled.input`
     }
 `;
 
+const StyledSelect = styled.select`
+    width: 45px;
+    height: 25px;
+    padding: 0 0 0 5px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    font-size: 12px;
+    background: white;
+    margin-left: 10px;
+`;
+
 type CartProp = {
     setOrderPrice: Function;
 };
 
 function CartSection(props: CartProp) {
-    const [amount, setAmount] = useState(1);
     const [cartList, setCartList] = useState([]);
     const [cartIdList, setCartIdList] = useState([]);
+    const [cartAmountList, setCartAmountList] = useState([]);
     const [checkList, setCheckList] = useState([]);
 
     // 장바구니 상품 수량 변경
-    function minus(): void {
-        setAmount(amount === 1 ? 1 : amount - 1);
-    }
+    async function handleAmt(id: string, amount: string): Promise<void> {
+        const cartItemRef = doc(db, "cart", id);
 
-    function changeAmt(e: React.ChangeEvent<HTMLInputElement>): void {
-        const amount = Number(e.target.value);
-
-        if (amount >= 3) {
-            alert("최대 주문수량은 3개 입니다.");
-            setAmount(3);
-        } else if (amount < 1) {
-            alert("최소 주문수량은 1개 입니다.");
-            setAmount(1);
-        } else if (isNaN(amount)) {
-            alert("숫자만 입력 가능합니다.");
-            setAmount(1);
-        } else {
-            setAmount(Number(e.target.value));
-        }
-    }
-
-    function plus(): void {
-        setAmount(amount === 3 ? 3 : amount + 1);
-
-        if (amount === 3) alert("최대 주문수량은 3개 입니다.");
+        await updateDoc(cartItemRef, {
+            amount: amount
+        }).then(() => {
+            window.confirm("수량 변경이 완료되었습니다.");
+        });
     }
 
     // 장바구니 리스트 가져오기
@@ -77,6 +71,7 @@ function CartSection(props: CartProp) {
         let orderPrice = 0;
         const cartList = [];
         const cartIdList = [];
+        const cartAmountList = [];
 
         querySnapshot.docs.map(async (doc, i) => {
             const cartItem = doc.data();
@@ -84,6 +79,7 @@ function CartSection(props: CartProp) {
             orderPrice += product.product_price * cartItem.amount;
 
             cartIdList.push(doc.id);
+            cartAmountList.push(doc.data().amount);
 
             cartList.push(
                 <>
@@ -119,16 +115,6 @@ function CartSection(props: CartProp) {
                             </Link>
                         </div>
                         <div className="price">{product.product_price}</div>
-                        <div className="flex">
-                            <span className="cnt-box">
-                                <button type="button" className="minus" onClick={minus}></button>
-                                <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
-                                <button type="button" className="plus" onClick={plus}></button>
-                            </span>
-                        </div>
-                    </td>
-                    <td className="del-util">
-                        <button type="button" className="del-btn" onClick={() => delCartItem(doc.id)}></button>
                     </td>
                 </>
             );
@@ -137,6 +123,7 @@ function CartSection(props: CartProp) {
         props.setOrderPrice(orderPrice);
         setCartList(cartList);
         setCartIdList(cartIdList);
+        setCartAmountList(cartAmountList);
     }
 
     useEffect(() => {
@@ -210,12 +197,22 @@ function CartSection(props: CartProp) {
                                         />
                                     </td>
                                     {val}
+                                    <td>
+                                        <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(cartIdList[i], e.target.value)}>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </StyledSelect>
+                                    </td>
+                                    <td className="del-util">
+                                        <button type="button" className="del-btn" onClick={() => delCartItem(cartIdList[i])}></button>
+                                    </td>
                                 </tr>
                             );
                         })
                     ) : (
                         <tr key="empty" className="cart-item">
-                            <td className="empty">장바구니가 비어있습니다.</td>
+                            <td className="empty">장바구니에 담긴 상품이 없습니다.</td>
                         </tr>
                     )}
                 </tbody>
