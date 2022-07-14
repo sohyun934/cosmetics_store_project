@@ -41,6 +41,9 @@ const StyledInput = styled_components_1.default.input `
 function CartSection(props) {
     const [amount, setAmount] = (0, react_1.useState)(1);
     const [cartList, setCartList] = (0, react_1.useState)([]);
+    const [cartIdList, setCartIdList] = (0, react_1.useState)([]);
+    const [checkList, setCheckList] = (0, react_1.useState)([]);
+    // 장바구니 상품 수량 변경
     function minus() {
         setAmount(amount === 1 ? 1 : amount - 1);
     }
@@ -67,53 +70,43 @@ function CartSection(props) {
         if (amount === 3)
             alert("최대 주문수량은 3개 입니다.");
     }
-    function delCartItem(e) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const button = e.target;
-            yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", button.value));
-            window.location.reload();
-        });
-    }
+    // 장바구니 리스트 가져오기
     function fetchCart(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", userEmail));
             const querySnapshot = yield (0, firestore_1.getDocs)(q);
-            if (querySnapshot.empty) {
-                setCartList([
-                    (0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uAC00 \uBE44\uC5B4\uC788\uC2B5\uB2C8\uB2E4." })) }), "empty")
-                ]);
-            }
-            else {
-                // 장바구니에 담긴 product 정보 가져오기
-                const productsPromises = querySnapshot.docs.map(document => (0, firestore_1.getDoc)((0, firestore_1.doc)(firebase_1.db, "product", document.data().product_name)));
-                const products = yield Promise.all(productsPromises);
-                const urlsPromises = products.map(product => (0, getImage_1.getImage)(product.data().product_thumb_01));
-                const urls = yield Promise.all(urlsPromises);
-                let orderPrice = 0;
-                const cartList = [];
-                querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
-                    const cartItem = doc.data();
-                    const product = products[i].data();
-                    orderPrice += product.product_price * cartItem.amount;
-                    cartList.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
-                                        name: product.product_name,
-                                        price: product.product_price,
-                                        thumb01: product.product_thumb_01,
-                                        thumb02: product.product_thumb_02,
-                                        thumb03: product.product_thumb_03,
-                                        detail: product.product_detail
-                                    } }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
-                                                name: product.product_name,
-                                                price: product.product_price,
-                                                thumb01: product.product_thumb_01,
-                                                thumb02: product.product_thumb_02,
-                                                thumb03: product.product_thumb_03,
-                                                detail: product.product_detail
-                                            } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", value: doc.id, onClick: e => delCartItem(e) }) }))] }), i));
-                }));
-                props.setOrderPrice(orderPrice);
-                setCartList(cartList);
-            }
+            // 장바구니에 담긴 product 정보 가져오기
+            const productsPromises = querySnapshot.docs.map(document => (0, firestore_1.getDoc)((0, firestore_1.doc)(firebase_1.db, "product", document.data().product_name)));
+            const products = yield Promise.all(productsPromises);
+            const urlsPromises = products.map(product => (0, getImage_1.getImage)(product.data().product_thumb_01));
+            const urls = yield Promise.all(urlsPromises);
+            let orderPrice = 0;
+            const cartList = [];
+            const cartIdList = [];
+            querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
+                const cartItem = doc.data();
+                const product = products[i].data();
+                orderPrice += product.product_price * cartItem.amount;
+                cartIdList.push(doc.id);
+                cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
+                                    name: product.product_name,
+                                    price: product.product_price,
+                                    thumb01: product.product_thumb_01,
+                                    thumb02: product.product_thumb_02,
+                                    thumb03: product.product_thumb_03,
+                                    detail: product.product_detail
+                                } }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
+                                            name: product.product_name,
+                                            price: product.product_price,
+                                            thumb01: product.product_thumb_01,
+                                            thumb02: product.product_thumb_02,
+                                            thumb03: product.product_thumb_03,
+                                            detail: product.product_detail
+                                        } }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: cartItem.amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })) }))] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => delCartItem(doc.id) }) }))] }));
+            }));
+            props.setOrderPrice(orderPrice);
+            setCartList(cartList);
+            setCartIdList(cartIdList);
         });
     }
     (0, react_1.useEffect)(() => {
@@ -122,10 +115,61 @@ function CartSection(props) {
                 fetchCart(user.email);
         });
     }, []);
-    function allDel(e) {
-        e.preventDefault();
+    // 체크박스 단일 선택
+    function handleSingleCheck(isChecked, id) {
+        if (isChecked) {
+            setCheckList(checkList => [...checkList, id]);
+        }
+        else {
+            setCheckList(checkList => checkList.filter(el => el !== id));
+        }
     }
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox" }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: allDel }, { children: "\uC804\uCCB4 \uC0AD\uC81C" }))] }))] })));
+    // 체크박스 전체 선택
+    function handleAllCheck(isChecked) {
+        if (isChecked) {
+            setCheckList(cartIdList);
+        }
+        else {
+            setCheckList([]);
+        }
+    }
+    // 장바구니 개별 삭제
+    function delCartItem(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", id));
+            window.location.reload();
+        });
+    }
+    // 장바구니 선택 삭제
+    function delCartItems(e) {
+        return __awaiter(this, void 0, void 0, function* () {
+            e.preventDefault();
+            if (checkList.length === 0) {
+                alert("선택된 상품이 없습니다.");
+            }
+            else {
+                if (window.confirm("선택된 상품을 삭제하시겠습니까?")) {
+                    for (let id of checkList)
+                        yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", id));
+                    window.location.reload();
+                }
+            }
+        });
+    }
+    // 장바구니 전체 삭제
+    function delCartList(e) {
+        return __awaiter(this, void 0, void 0, function* () {
+            e.preventDefault();
+            if (window.confirm("장바구니를 비우시겠습니까?")) {
+                for (let id of cartIdList)
+                    yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", id));
+                window.location.reload();
+            }
+        });
+    }
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList.length > 0 ? (cartList.map((val, i) => {
+                        return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cartIdList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cartIdList[i]) }) })), val] }), i));
+                    })) : ((0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uAC00 \uBE44\uC5B4\uC788\uC2B5\uB2C8\uB2E4." })) }), "empty")) }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: cartList.length !== 0 && checkList.length === cartList.length ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartItems }, { children: "\uC120\uD0DD\uC0AD\uC81C" })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: delCartList }, { children: "\uC804\uCCB4\uC0AD\uC81C" }))] }))] })));
 }
 function OrderSection(props) {
     const price = String(props.price).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");

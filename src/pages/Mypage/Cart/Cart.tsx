@@ -32,7 +32,10 @@ type CartProp = {
 function CartSection(props: CartProp) {
     const [amount, setAmount] = useState(1);
     const [cartList, setCartList] = useState([]);
+    const [cartIdList, setCartIdList] = useState([]);
+    const [checkList, setCheckList] = useState([]);
 
+    // 장바구니 상품 수량 변경
     function minus(): void {
         setAmount(amount === 1 ? 1 : amount - 1);
     }
@@ -60,43 +63,47 @@ function CartSection(props: CartProp) {
         if (amount === 3) alert("최대 주문수량은 3개 입니다.");
     }
 
-    async function delCartItem(e: React.MouseEvent<HTMLButtonElement>) {
-        const button = e.target as HTMLButtonElement;
-        await deleteDoc(doc(db, "cart", button.value));
-        window.location.reload();
-    }
-
+    // 장바구니 리스트 가져오기
     async function fetchCart(userEmail: string) {
         const q = query(collection(db, "cart"), where("user_email", "==", userEmail));
         const querySnapshot = await getDocs(q);
 
-        if (querySnapshot.empty) {
-            setCartList([
-                <tr key="empty" className="cart-item">
-                    <td className="empty">장바구니가 비어있습니다.</td>
-                </tr>
-            ]);
-        } else {
-            // 장바구니에 담긴 product 정보 가져오기
-            const productsPromises = querySnapshot.docs.map(document => getDoc(doc(db, "product", document.data().product_name)));
-            const products = await Promise.all(productsPromises);
-            const urlsPromises = products.map(product => getImage(product.data().product_thumb_01));
-            const urls = await Promise.all(urlsPromises);
+        // 장바구니에 담긴 product 정보 가져오기
+        const productsPromises = querySnapshot.docs.map(document => getDoc(doc(db, "product", document.data().product_name)));
+        const products = await Promise.all(productsPromises);
+        const urlsPromises = products.map(product => getImage(product.data().product_thumb_01));
+        const urls = await Promise.all(urlsPromises);
 
-            let orderPrice = 0;
-            const cartList = [];
+        let orderPrice = 0;
+        const cartList = [];
+        const cartIdList = [];
 
-            querySnapshot.docs.map(async (doc, i) => {
-                const cartItem = doc.data();
-                const product = products[i].data();
-                orderPrice += product.product_price * cartItem.amount;
+        querySnapshot.docs.map(async (doc, i) => {
+            const cartItem = doc.data();
+            const product = products[i].data();
+            orderPrice += product.product_price * cartItem.amount;
 
-                cartList.push(
-                    <tr key={i} className="cart-item">
-                        <td className="del-chk">
-                            <StyledInput type="checkbox" />
-                        </td>
-                        <td className="thumb">
+            cartIdList.push(doc.id);
+
+            cartList.push(
+                <>
+                    <td className="thumb">
+                        <Link
+                            to="/detail"
+                            state={{
+                                name: product.product_name,
+                                price: product.product_price,
+                                thumb01: product.product_thumb_01,
+                                thumb02: product.product_thumb_02,
+                                thumb03: product.product_thumb_03,
+                                detail: product.product_detail
+                            }}
+                        >
+                            <img src={urls[i]} alt={cartItem.product_name} />
+                        </Link>
+                    </td>
+                    <td className="info">
+                        <div className="name">
                             <Link
                                 to="/detail"
                                 state={{
@@ -108,44 +115,28 @@ function CartSection(props: CartProp) {
                                     detail: product.product_detail
                                 }}
                             >
-                                <img src={urls[i]} alt={cartItem.product_name} />
+                                {cartItem.product_name}
                             </Link>
-                        </td>
-                        <td className="info">
-                            <div className="name">
-                                <Link
-                                    to="/detail"
-                                    state={{
-                                        name: product.product_name,
-                                        price: product.product_price,
-                                        thumb01: product.product_thumb_01,
-                                        thumb02: product.product_thumb_02,
-                                        thumb03: product.product_thumb_03,
-                                        detail: product.product_detail
-                                    }}
-                                >
-                                    {cartItem.product_name}
-                                </Link>
-                            </div>
-                            <div className="price">{product.product_price}</div>
-                            <div className="flex">
-                                <span className="cnt-box">
-                                    <button type="button" className="minus" onClick={minus}></button>
-                                    <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
-                                    <button type="button" className="plus" onClick={plus}></button>
-                                </span>
-                            </div>
-                        </td>
-                        <td className="del-util">
-                            <button type="button" className="del-btn" value={doc.id} onClick={e => delCartItem(e)}></button>
-                        </td>
-                    </tr>
-                );
-            });
+                        </div>
+                        <div className="price">{product.product_price}</div>
+                        <div className="flex">
+                            <span className="cnt-box">
+                                <button type="button" className="minus" onClick={minus}></button>
+                                <input type="text" className="cnt" value={cartItem.amount} onChange={changeAmt} />
+                                <button type="button" className="plus" onClick={plus}></button>
+                            </span>
+                        </div>
+                    </td>
+                    <td className="del-util">
+                        <button type="button" className="del-btn" onClick={() => delCartItem(doc.id)}></button>
+                    </td>
+                </>
+            );
+        });
 
-            props.setOrderPrice(orderPrice);
-            setCartList(cartList);
-        }
+        props.setOrderPrice(orderPrice);
+        setCartList(cartList);
+        setCartIdList(cartIdList);
     }
 
     useEffect(() => {
@@ -154,20 +145,92 @@ function CartSection(props: CartProp) {
         });
     }, []);
 
-    function allDel(e: React.MouseEvent<HTMLElement>) {
+    // 체크박스 단일 선택
+    function handleSingleCheck(isChecked: boolean, id: string) {
+        if (isChecked) {
+            setCheckList(checkList => [...checkList, id]);
+        } else {
+            setCheckList(checkList => checkList.filter(el => el !== id));
+        }
+    }
+
+    // 체크박스 전체 선택
+    function handleAllCheck(isChecked: boolean) {
+        if (isChecked) {
+            setCheckList(cartIdList);
+        } else {
+            setCheckList([]);
+        }
+    }
+
+    // 장바구니 개별 삭제
+    async function delCartItem(id: string) {
+        await deleteDoc(doc(db, "cart", id));
+        window.location.reload();
+    }
+
+    // 장바구니 선택 삭제
+    async function delCartItems(e: React.MouseEvent<HTMLElement>) {
         e.preventDefault();
+
+        if (checkList.length === 0) {
+            alert("선택된 상품이 없습니다.");
+        } else {
+            if (window.confirm("선택된 상품을 삭제하시겠습니까?")) {
+                for (let id of checkList) await deleteDoc(doc(db, "cart", id));
+                window.location.reload();
+            }
+        }
+    }
+
+    // 장바구니 전체 삭제
+    async function delCartList(e: React.MouseEvent<HTMLElement>) {
+        e.preventDefault();
+
+        if (window.confirm("장바구니를 비우시겠습니까?")) {
+            for (let id of cartIdList) await deleteDoc(doc(db, "cart", id));
+            window.location.reload();
+        }
     }
 
     return (
         <section className="cart-section">
             <h2>Cart</h2>
             <table className="cart-list">
-                <tbody>{cartList}</tbody>
+                <tbody>
+                    {cartList.length > 0 ? (
+                        cartList.map((val, i) => {
+                            return (
+                                <tr key={i} className="cart-item">
+                                    <td className="del-chk">
+                                        <StyledInput
+                                            type="checkbox"
+                                            checked={checkList.includes(cartIdList[i]) ? true : false}
+                                            onChange={e => handleSingleCheck(e.target.checked, cartIdList[i])}
+                                        />
+                                    </td>
+                                    {val}
+                                </tr>
+                            );
+                        })
+                    ) : (
+                        <tr key="empty" className="cart-item">
+                            <td className="empty">장바구니가 비어있습니다.</td>
+                        </tr>
+                    )}
+                </tbody>
             </table>
             <div className="cart-del-wrap small-txt">
-                <StyledInput type="checkbox" />
-                <a href="/" onClick={allDel}>
-                    전체 삭제
+                <StyledInput
+                    type="checkbox"
+                    checked={cartList.length !== 0 && checkList.length === cartList.length ? true : false}
+                    onChange={e => handleAllCheck(e.target.checked)}
+                />
+                <a href="/" onClick={delCartItems}>
+                    선택삭제
+                </a>
+                <a href="/" onClick={delCartList}>
+                    전체삭제
                 </a>
             </div>
         </section>

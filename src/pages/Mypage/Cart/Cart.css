@@ -24,7 +24,7 @@
 
 .cart-list .empty {
     text-align: center;
-    line-height: 18;
+    line-height: 16;
 }
 
 .cart-list .del-chk {
@@ -85,7 +85,7 @@
 }
 
 .cart-section .cart-del-wrap a {
-    padding-left: 10px;
+    margin-left: 10px;
 }
 
 /* order-section */
