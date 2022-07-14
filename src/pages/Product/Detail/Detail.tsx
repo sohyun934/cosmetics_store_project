@@ -70,11 +70,13 @@ function ProductSection(props: ProductionProp) {
         if (!signedInUser) {
             navigate("/login");
         } else {
+            const cartList = await getDocs(query(collection(db, "cart"), where("user_email", "==", signedInUser)));
             const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", props.name));
-
             const querySnapshot = await getDocs(q);
+
             if (querySnapshot.empty) {
                 await addDoc(collection(db, "cart"), {
+                    cart_id: cartList.size + 1,
                     product_name: props.name,
                     user_email: signedInUser,
                     amount: amount
@@ -82,14 +84,22 @@ function ProductSection(props: ProductionProp) {
 
                 props.open("cart");
             } else {
-                props.open("duplicate");
+                props.open("overlap");
             }
         }
     }
 
     return (
         <section className="product-section flex">
-            <Swiper className="thumb" modules={[Pagination, A11y, Autoplay]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} loop={true} autoplay={{ delay: 3000 }}>
+            <Swiper
+                className="thumb"
+                modules={[Pagination, A11y, Autoplay]}
+                spaceBetween={0}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                loop={true}
+                autoplay={{ delay: 3000 }}
+            >
                 <SwiperSlide>
                     <img src={props.urls[0]} alt={`${props.name}01`} />
                 </SwiperSlide>
@@ -295,7 +305,7 @@ function Main() {
             setPopContent(<WishPop close={closePop} />);
         } else if (pop === "cart") {
             setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
-        } else if (pop === "duplicate") {
+        } else if (pop === "overlap") {
             setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
         } else if (pop === "review") {
             setPopContent(<ReviewPop close={closePop} />);

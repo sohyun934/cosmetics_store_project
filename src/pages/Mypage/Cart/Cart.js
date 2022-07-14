@@ -73,7 +73,7 @@ function CartSection(props) {
     // 장바구니 리스트 가져오기
     function fetchCart(userEmail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", userEmail));
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", userEmail), (0, firestore_1.orderBy)("cart_id", "desc"));
             const querySnapshot = yield (0, firestore_1.getDocs)(q);
             // 장바구니에 담긴 product 정보 가져오기
             const productsPromises = querySnapshot.docs.map(document => (0, firestore_1.getDoc)((0, firestore_1.doc)(firebase_1.db, "product", document.data().product_name)));

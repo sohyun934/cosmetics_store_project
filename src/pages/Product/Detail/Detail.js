@@ -75,10 +75,12 @@ function ProductSection(props) {
                 navigate("/login");
             }
             else {
+                const cartList = yield (0, firestore_1.getDocs)((0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser)));
                 const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser), (0, firestore_1.where)("product_name", "==", props.name));
                 const querySnapshot = yield (0, firestore_1.getDocs)(q);
                 if (querySnapshot.empty) {
                     yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.db, "cart"), {
+                        cart_id: cartList.size + 1,
                         product_name: props.name,
                         user_email: firebase_1.signedInUser,
                         amount: amount
@@ -86,7 +88,7 @@ function ProductSection(props) {
                     props.open("cart");
                 }
                 else {
-                    props.open("duplicate");
+                    props.open("overlap");
                 }
             }
         });
@@ -155,7 +157,7 @@ function Main() {
         else if (pop === "cart") {
             setPopContent((0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC0C1\uD488\uC774 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACBC\uC2B5\uB2C8\uB2E4." }));
         }
-        else if (pop === "duplicate") {
+        else if (pop === "overlap") {
             setPopContent((0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC774\uBBF8 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACA8\uC788\uB294 \uC0C1\uD488\uC785\uB2C8\uB2E4." }));
         }
         else if (pop === "review") {

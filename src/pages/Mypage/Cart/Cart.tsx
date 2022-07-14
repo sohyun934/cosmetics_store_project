@@ -5,7 +5,7 @@ import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 import { onAuthStateChanged } from "firebase/auth";
@@ -65,7 +65,7 @@ function CartSection(props: CartProp) {
 
     // 장바구니 리스트 가져오기
     async function fetchCart(userEmail: string) {
-        const q = query(collection(db, "cart"), where("user_email", "==", userEmail));
+        const q = query(collection(db, "cart"), where("user_email", "==", userEmail), orderBy("cart_id", "desc"));
         const querySnapshot = await getDocs(q);
 
         // 장바구니에 담긴 product 정보 가져오기
