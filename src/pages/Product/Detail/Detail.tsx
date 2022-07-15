@@ -42,7 +42,7 @@ function ProductSection(props: ProductionProp) {
     function changeAmt(e: React.ChangeEvent<HTMLInputElement>): void {
         const amount = Number(e.target.value);
 
-        if (amount >= 3) {
+        if (amount > 3) {
             alert("최대 주문수량은 3개 입니다.");
             setAmount(3);
         } else if (amount < 1) {
