@@ -52,7 +52,7 @@ function CartSection() {
         setOrderPrice(String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
 
         let fee = 0;
-        if (orderPrice >= 0 && orderPrice < 30000) fee = 3000;
+        if (orderPrice > 0 && orderPrice < 30000) fee = 3000;
         setFee(String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
 
         setTotPrice(String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
@@ -148,10 +148,14 @@ function CartSection() {
         setCartList(cartList);
     }
 
-    useEffect(() => {
+    function getCartList() {
         onAuthStateChanged(auth, user => {
             if (user) fetchCart(user.email);
         });
+    }
+
+    useEffect(() => {
+        getCartList();
     }, []);
 
     // 체크박스 단일 선택
@@ -174,8 +178,10 @@ function CartSection() {
 
     // 장바구니 개별 삭제
     async function delCartItem(id: string) {
-        await deleteDoc(doc(db, "cart", id));
-        window.location.reload();
+        await deleteDoc(doc(db, "cart", id)).then(() => {
+            setCheckList([]);
+            getCartList();
+        });
     }
 
     // 장바구니 선택 삭제
@@ -186,8 +192,12 @@ function CartSection() {
             alert("선택된 상품이 없습니다.");
         } else {
             if (window.confirm("선택된 상품을 삭제하시겠습니까?")) {
-                for (let id of checkList) await deleteDoc(doc(db, "cart", id));
-                window.location.reload();
+                for (let id of checkList) {
+                    await deleteDoc(doc(db, "cart", id)).then(() => {
+                        setCheckList([]);
+                        getCartList();
+                    });
+                }
             }
         }
     }
@@ -197,8 +207,12 @@ function CartSection() {
         e.preventDefault();
 
         if (window.confirm("장바구니를 비우시겠습니까?")) {
-            for (let id of cartIdList) await deleteDoc(doc(db, "cart", id));
-            window.location.reload();
+            for (let id of cartIdList) {
+                await deleteDoc(doc(db, "cart", id)).then(() => {
+                    setCheckList([]);
+                    getCartList();
+                });
+            }
         }
     }
 
