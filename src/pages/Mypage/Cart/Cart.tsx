@@ -36,23 +36,43 @@ const StyledSelect = styled.select`
     margin-left: 10px;
 `;
 
-type CartProp = {
-    setOrderPrice: Function;
-};
-
-function CartSection(props: CartProp) {
+function CartSection() {
     const [cartList, setCartList] = useState([]);
     const [cartIdList, setCartIdList] = useState([]);
     const [cartAmountList, setCartAmountList] = useState([]);
+    const [cartPriceList, setCartPriceList] = useState([]);
     const [checkList, setCheckList] = useState([]);
 
+    const [orderPrice, setOrderPrice] = useState("0");
+    const [fee, setFee] = useState("0");
+    const [totPrice, setTotPrice] = useState("0");
+
+    // 주문서 가격 설정
+    function handlePrice(orderPrice: number): void {
+        setOrderPrice(String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+
+        let fee = 0;
+        if (orderPrice >= 0 && orderPrice < 30000) fee = 3000;
+        setFee(String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+
+        setTotPrice(String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+    }
+
     // 장바구니 상품 수량 변경
-    async function handleAmt(id: string, amount: string): Promise<void> {
+    async function handleAmt(i: number, id: string, amount: string): Promise<void> {
         const cartItemRef = doc(db, "cart", id);
 
         await updateDoc(cartItemRef, {
             amount: amount
         }).then(() => {
+            const newAmountList = [...cartAmountList];
+            newAmountList[i] = amount;
+            setCartAmountList(newAmountList);
+
+            let orderPrice = 0;
+            for (let i = 0; i < cartPriceList.length; i++) orderPrice += cartPriceList[i] * newAmountList[i];
+            handlePrice(orderPrice);
+
             window.confirm("수량 변경이 완료되었습니다.");
         });
     }
@@ -69,18 +89,19 @@ function CartSection(props: CartProp) {
         const urls = await Promise.all(urlsPromises);
 
         let orderPrice = 0;
-        const cartList = [];
         const cartIdList = [];
         const cartAmountList = [];
+        const cartPriceList = [];
+        const cartList = [];
 
         querySnapshot.docs.map(async (doc, i) => {
             const cartItem = doc.data();
             const product = products[i].data();
+
             orderPrice += product.product_price * cartItem.amount;
-
             cartIdList.push(doc.id);
-            cartAmountList.push(doc.data().amount);
-
+            cartAmountList.push(cartItem.amount);
+            cartPriceList.push(product.product_price);
             cartList.push(
                 <>
                     <td className="thumb">
@@ -120,10 +141,11 @@ function CartSection(props: CartProp) {
             );
         });
 
-        props.setOrderPrice(orderPrice);
-        setCartList(cartList);
+        handlePrice(orderPrice);
         setCartIdList(cartIdList);
         setCartAmountList(cartAmountList);
+        setCartPriceList(cartPriceList);
+        setCartList(cartList);
     }
 
     useEffect(() => {
@@ -181,111 +203,94 @@ function CartSection(props: CartProp) {
     }
 
     return (
-        <section className="cart-section">
-            <h2>Cart</h2>
-            <table className="cart-list">
-                <tbody>
-                    {cartList.length > 0 ? (
-                        cartList.map((val, i) => {
-                            return (
-                                <tr key={i} className="cart-item">
-                                    <td className="del-chk">
-                                        <StyledInput
-                                            type="checkbox"
-                                            checked={checkList.includes(cartIdList[i]) ? true : false}
-                                            onChange={e => handleSingleCheck(e.target.checked, cartIdList[i])}
-                                        />
-                                    </td>
-                                    {val}
-                                    <td>
-                                        <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(cartIdList[i], e.target.value)}>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                        </StyledSelect>
-                                    </td>
-                                    <td className="del-util">
-                                        <button type="button" className="del-btn" onClick={() => delCartItem(cartIdList[i])}></button>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    ) : (
-                        <tr key="empty" className="cart-item">
-                            <td className="empty">장바구니에 담긴 상품이 없습니다.</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-            <div className="cart-del-wrap small-txt">
-                <StyledInput
-                    type="checkbox"
-                    checked={cartList.length !== 0 && checkList.length === cartList.length ? true : false}
-                    onChange={e => handleAllCheck(e.target.checked)}
-                />
-                <a href="/" onClick={delCartItems}>
-                    선택삭제
-                </a>
-                <a href="/" onClick={delCartList}>
-                    전체삭제
-                </a>
-            </div>
-        </section>
-    );
-}
-
-type Prop = {
-    price: number;
-};
-
-function OrderSection(props: Prop) {
-    const price = String(props.price).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-
-    let fee = 3000;
-    if (props.price >= 30000) fee = 0;
-    const strFee = String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-
-    const totPrice = String(props.price + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-
-    return (
-        <section className="order-section">
-            <div className="section-inner">
-                <h2>Order</h2>
-                <hr />
-                <div className="order-price flex">
-                    <span className="title">주문금액</span>
-                    <span className="price">
-                        <strong>{price}원</strong>
-                    </span>
+        <>
+            <section className="cart-section">
+                <h2>Cart</h2>
+                <table className="cart-list">
+                    <tbody>
+                        {cartList.length > 0 ? (
+                            cartList.map((val, i) => {
+                                return (
+                                    <tr key={i} className="cart-item">
+                                        <td className="del-chk">
+                                            <StyledInput
+                                                type="checkbox"
+                                                checked={checkList.includes(cartIdList[i]) ? true : false}
+                                                onChange={e => handleSingleCheck(e.target.checked, cartIdList[i])}
+                                            />
+                                        </td>
+                                        {val}
+                                        <td>
+                                            <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(i, cartIdList[i], e.target.value)}>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </StyledSelect>
+                                        </td>
+                                        <td className="del-util">
+                                            <button type="button" className="del-btn" onClick={() => delCartItem(cartIdList[i])}></button>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr key="empty" className="cart-item">
+                                <td className="empty">장바구니에 담긴 상품이 없습니다.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+                <div className="cart-del-wrap small-txt">
+                    <StyledInput
+                        type="checkbox"
+                        checked={cartList.length !== 0 && checkList.length === cartList.length ? true : false}
+                        onChange={e => handleAllCheck(e.target.checked)}
+                    />
+                    <a href="/" onClick={delCartItems}>
+                        선택삭제
+                    </a>
+                    <a href="/" onClick={delCartList}>
+                        전체삭제
+                    </a>
                 </div>
-                <div className="delivery-fee flex">
-                    <span className="title">배송비</span>
-                    <span className="fee">
-                        <strong>{strFee}원</strong>
-                    </span>
+            </section>
+            <section className="order-section">
+                <div className="section-inner">
+                    <h2>Order</h2>
+                    <hr />
+                    <div className="order-price flex">
+                        <span className="title">주문금액</span>
+                        <span className="price">
+                            <strong>{orderPrice}원</strong>
+                        </span>
+                    </div>
+                    <div className="delivery-fee flex">
+                        <span className="title">배송비</span>
+                        <span className="fee">
+                            <strong>{fee}원</strong>
+                        </span>
+                    </div>
+                    <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
+                    <hr />
+                    <div className="total-price flex">
+                        <span className="title">
+                            <strong>합계</strong>
+                        </span>
+                        <span className="price">
+                            <strong>{totPrice}원</strong>
+                        </span>
+                    </div>
                 </div>
-                <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
-                <hr />
-                <div className="total-price flex">
-                    <span className="title">
-                        <strong>합계</strong>
-                    </span>
-                    <span className="price">
-                        <strong>{totPrice}원</strong>
-                    </span>
+                <div className="btn-wrap flex">
+                    <button className="part-order-btn gray-style-btn">선택상품 구매하기</button>
+                    <button className="all-order-btn">전체 구매하기</button>
                 </div>
-            </div>
-            <div className="btn-wrap flex">
-                <button className="part-order-btn gray-style-btn">선택상품 구매하기</button>
-                <button className="all-order-btn">전체 구매하기</button>
-            </div>
-        </section>
+            </section>
+        </>
     );
 }
 
 function Main() {
-    const [orderPrice, setOrderPrice] = useState(0);
-
     return (
         <main>
             <div className="big-container">
@@ -293,8 +298,7 @@ function Main() {
                 <Lnb title="cart" />
                 <div className="section-container">
                     <form className="flex" action="#" method="post">
-                        <CartSection setOrderPrice={(orderPrice: React.SetStateAction<number>) => setOrderPrice(orderPrice)} />
-                        <OrderSection price={orderPrice} />
+                        <CartSection />
                     </form>
                 </div>
             </div>
