@@ -1,96 +1,221 @@
 import "./Order.css";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { db, signedInUser } from "../../firebase";
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { useDaumPostcodePopup } from "react-daum-postcode";
+import styled from "styled-components";
 
-type DeliveryProp = {
-    name: string;
-    postCode: string;
-    address: string;
-    detailAddress: string;
-    mobile: string;
-    email: string;
-};
-
-function DeliverySection(props: DeliveryProp) {
-    const [name, setName] = useState(props.name);
-    const [mobile, setMobile] = useState(props.mobile);
-    const [postCode, setPostCode] = useState(props.postCode);
-    const [address, setAddress] = useState(props.address);
-    const [detailAddress, setDetailAddress] = useState(props.detailAddress);
-
-    return (
-        <section className="delivery-section">
-            <h2>Delivery</h2>
-            <div className="input-container">
-                <input type="text" placeholder="받는 분" value={name} onChange={event => setName(event.target.value)} />
-                <input type="text" placeholder="핸드폰번호" value={mobile} onChange={event => setMobile(event.target.value)} />
-                <div className="postcode-wrap">
-                    <input className="userPostcode" type="text" placeholder="우편번호" value={postCode} onChange={event => setPostCode(event.target.value)} />
-                    <button type="button" className="search-btn"></button>
-                </div>
-                <input className="userAddress" type="text" placeholder="기본 주소" value={address} onChange={event => setAddress(event.target.value)} />
-                <input className="userDetailAddress" type="text" placeholder="상세 주소" value={detailAddress} onChange={event => setDetailAddress(event.target.value)} />
-            </div>
-            <div className="delivery-msg">
-                <select>
-                    <option value="etc">직접 입력</option>
-                    <option value="msg01">배송 전 연락 부탁드립니다.</option>
-                    <option value="msg02">부재 시 경비실에 맡겨주세요.</option>
-                    <option value="msg03">문 앞 배송 부탁드립니다.</option>
-                </select>
-                <textarea rows={5} cols={50} maxLength={50} placeholder="배송메시지 직접 입력 (50자 이내)"></textarea>
-            </div>
-        </section>
-    );
+interface CustomizedState {
+    orderList: string[];
+    orderPrice: string;
+    fee: string;
+    totPrice: string;
 }
 
-type CheckOutProp = {
-    price: string;
-};
+const StyledInput = styled.input`
+    &:read-only {
+        border-bottom: 1px solid #e5e5e5 !important;
+    }
+`;
 
-function CheckOutSection(props: CheckOutProp) {
-    const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    let fee = 3000;
-    if (Number(props.price) >= 30000) fee = 0;
-    const totPrice = String(fee + Number(props.price)).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+function OrderForm() {
+    const [name, setName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [postcode, setPostcode] = useState("");
+    const [address, setAddress] = useState("");
+    const [detailAddress, setDetailAddress] = useState("");
+    const [deliveryMsg, setDeliveryMsg] = useState("");
+    const [disabled, setDisabled] = useState(true);
+
+    const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    const open = useDaumPostcodePopup(scriptUrl);
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+    const orderList = state.orderList;
+    const orderPrice = state.orderPrice;
+    const fee = state.fee;
+    const totPrice = state.totPrice;
+
+    // 사용자 정보 가져오기
+    async function fetchUser() {
+        const q = query(collection(db, "users"), where("email", "==", signedInUser));
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(doc => {
+            const user = doc.data();
+
+            setName(user.name);
+            setPhoneNumber(user.phoneNumber);
+        });
+    }
+
+    useEffect(() => {
+        fetchUser().catch(() => {
+            navigate("/mypage/cart");
+        });
+    }, []);
+
+    // 다음 우편번호 API
+    function handleComplete(data) {
+        let addr = "";
+
+        // 사용자가 도로명 주소를 선택했을 경우
+        if (data.userSelectedType === "R") addr = data.roadAddress;
+        // 사용자가 지번 주소를 선택했을 경우(J)
+        else addr = data.jibunAddress;
+
+        setPostcode(data.zonecode);
+        setAddress(addr);
+    }
+
+    function handleClick() {
+        open({ onComplete: handleComplete });
+    }
+
+    // 유효성 검증 후 결제하기 버튼 활성화
+    useEffect(() => {
+        // if (isValid) setDisabled(false);
+        if (name && phoneNumber && postcode && address && detailAddress) setDisabled(false);
+        else setDisabled(true);
+    }, [name, phoneNumber, postcode, address, detailAddress]);
+
+    function getToday() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = ("0" + (1 + date.getMonth())).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
+
+        return year + month + day;
+    }
+
+    // 난수 생성
+    function generateRandomCode(n: number) {
+        let str = "";
+        for (let i = 0; i < n; i++) str += Math.floor(Math.random() * 10);
+        return str;
+    }
+
+    // 결제 후 firestore에 결제 정보 등록
+    async function order() {
+        const today = getToday();
+        const randomCode = generateRandomCode(4);
+        const orderId = today + randomCode;
+
+        await setDoc(doc(db, "order", orderId), {
+            orderId: orderId,
+            orderList: orderList,
+            name: name,
+            phoneNumber: phoneNumber,
+            postcode: postcode,
+            address: address,
+            detailAddress: detailAddress,
+            deliveryMsg: deliveryMsg,
+            orderPrice: orderPrice,
+            fee: fee,
+            totPrice: totPrice
+        }).then(() => {
+            navigate("/order/orderComplete", {
+                state: {
+                    orderId: orderId
+                }
+            });
+        });
+    }
 
     return (
-        <section className="check-out-section">
-            <div className="section-inner">
-                <h2>Check Out</h2>
-                <hr />
-                <div className="check-out-price flex">
-                    <span>주문금액</span>
-                    <span className="price">
-                        <strong>{price}원</strong>
-                    </span>
+        <form className="flex" action="#" method="post">
+            <section className="delivery-section">
+                <h2>Delivery</h2>
+                <div className="input-container">
+                    <input type="text" placeholder="받는 분" value={name} onChange={e => setName(e.target.value)} />
+                    <input type="text" placeholder="핸드폰번호" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+                    <div className="postcode-wrap">
+                        <StyledInput
+                            className="userPostcode"
+                            type="text"
+                            placeholder="우편번호"
+                            value={postcode}
+                            onChange={e => setPostcode(e.target.value)}
+                            readOnly
+                        />
+                        <button type="button" className="search-btn" onClick={handleClick}></button>
+                    </div>
+                    <StyledInput
+                        className="userAddress"
+                        type="text"
+                        placeholder="기본 주소"
+                        value={address}
+                        onChange={e => setAddress(e.target.value)}
+                        readOnly
+                    />
+                    <input
+                        className="userDetailAddress"
+                        type="text"
+                        placeholder="상세 주소"
+                        value={detailAddress}
+                        onChange={e => setDetailAddress(e.target.value)}
+                    />
                 </div>
-                <div className="delivery-fee flex">
-                    <span>배송비</span>
-                    <span className="fee">
-                        <strong>{String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}원</strong>
-                    </span>
+                <div className="delivery-msg">
+                    <select onChange={e => setDeliveryMsg(e.target.value)}>
+                        <option value="">직접 입력</option>
+                        <option>배송 전 연락 부탁드립니다.</option>
+                        <option>부재 시 경비실에 맡겨주세요.</option>
+                        <option>문 앞 배송 부탁드립니다.</option>
+                    </select>
+                    <textarea
+                        rows={5}
+                        cols={50}
+                        maxLength={50}
+                        placeholder="배송메시지 직접 입력 (50자 이내)"
+                        value={deliveryMsg}
+                        onChange={e => setDeliveryMsg(e.target.value)}
+                        style={{ fontSize: "1rem" }}
+                    ></textarea>
                 </div>
-                <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
-                <hr />
-                <div className="total-price flex">
-                    <span>
-                        <strong>합계</strong>
-                    </span>
-                    <span className="price">
-                        <strong>{totPrice}원</strong>
-                    </span>
+            </section>
+            <section className="check-out-section">
+                <div className="section-inner">
+                    <h2>Check Out</h2>
+                    <hr />
+                    <div className="check-out-price flex">
+                        <span>주문금액</span>
+                        <span className="price">
+                            <strong>{orderPrice}원</strong>
+                        </span>
+                    </div>
+                    <div className="delivery-fee flex">
+                        <span>배송비</span>
+                        <span className="fee">
+                            <strong>{fee}원</strong>
+                        </span>
+                    </div>
+                    <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
+                    <hr />
+                    <div className="total-price flex">
+                        <span>
+                            <strong>합계</strong>
+                        </span>
+                        <span className="price">
+                            <strong>{totPrice}원</strong>
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div className="btn-container flex">
-                <Link to="/mypage/cart" className="cancel-btn gray-style-btn">
-                    취소하기
-                </Link>
-                <button className="pay-btn">결제하기</button>
-            </div>
-        </section>
+                <div className="btn-container flex">
+                    <Link to="/mypage/cart" className="cancel-btn border-style-btn">
+                        취소하기
+                    </Link>
+                    <button type="button" className="pay-btn" onClick={order} disabled={disabled}>
+                        결제하기
+                    </button>
+                </div>
+            </section>
+        </form>
     );
 }
 
@@ -100,10 +225,7 @@ function Main() {
             <div className="order-container big-container">
                 <h1>ORDER</h1>
                 <div className="section-container">
-                    <form className="flex" action="#" method="post">
-                        <DeliverySection name="김소현" mobile="010-0000-0000" postCode="00000" address="서울시" detailAddress="더 내추럴 빌딩" email="a6570407@naver.com" />
-                        <CheckOutSection price="24000" />
-                    </form>
+                    <OrderForm />
                 </div>
             </div>
         </main>

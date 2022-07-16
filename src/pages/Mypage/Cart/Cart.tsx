@@ -4,7 +4,7 @@ import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
@@ -36,7 +36,7 @@ const StyledSelect = styled.select`
     margin-left: 10px;
 `;
 
-function CartSection() {
+function CartForm() {
     const [cartList, setCartList] = useState([]);
     const [cartIdList, setCartIdList] = useState([]);
     const [cartAmountList, setCartAmountList] = useState([]);
@@ -46,6 +46,8 @@ function CartSection() {
     const [orderPrice, setOrderPrice] = useState("0");
     const [fee, setFee] = useState("0");
     const [totPrice, setTotPrice] = useState("0");
+
+    const navigate = useNavigate();
 
     // 주문서 가격 설정
     function handlePrice(orderPrice: number): void {
@@ -59,7 +61,7 @@ function CartSection() {
     }
 
     // 장바구니 상품 수량 변경
-    async function handleAmt(i: number, id: string, amount: string): Promise<void> {
+    async function handleAmt(i: number, id: string, amount: number): Promise<void> {
         const cartItemRef = doc(db, "cart", id);
 
         await updateDoc(cartItemRef, {
@@ -97,6 +99,14 @@ function CartSection() {
         querySnapshot.docs.map(async (doc, i) => {
             const cartItem = doc.data();
             const product = products[i].data();
+            const state = {
+                name: product.product_name,
+                price: product.product_price,
+                thumb01: product.product_thumb_01,
+                thumb02: product.product_thumb_02,
+                thumb03: product.product_thumb_03,
+                detail: product.product_detail
+            };
 
             orderPrice += product.product_price * cartItem.amount;
             cartIdList.push(doc.id);
@@ -105,33 +115,13 @@ function CartSection() {
             cartList.push(
                 <>
                     <td className="thumb">
-                        <Link
-                            to="/detail"
-                            state={{
-                                name: product.product_name,
-                                price: product.product_price,
-                                thumb01: product.product_thumb_01,
-                                thumb02: product.product_thumb_02,
-                                thumb03: product.product_thumb_03,
-                                detail: product.product_detail
-                            }}
-                        >
+                        <Link to="/detail" state={state}>
                             <img src={urls[i]} alt={cartItem.product_name} />
                         </Link>
                     </td>
                     <td className="info">
                         <div className="name">
-                            <Link
-                                to="/detail"
-                                state={{
-                                    name: product.product_name,
-                                    price: product.product_price,
-                                    thumb01: product.product_thumb_01,
-                                    thumb02: product.product_thumb_02,
-                                    thumb03: product.product_thumb_03,
-                                    detail: product.product_detail
-                                }}
-                            >
+                            <Link to="/detail" state={state}>
                                 {cartItem.product_name}
                             </Link>
                         </div>
@@ -216,8 +206,53 @@ function CartSection() {
         }
     }
 
+    // 선택 주문
+    async function handleOrder() {
+        if (checkList.length === 0) {
+            alert("선택된 상품이 없습니다.");
+        } else {
+            let orderPrice = 0;
+            let fee = 0;
+
+            for (let i = 0; i < checkList.length; i++) {
+                const cartRef = doc(db, "cart", checkList[i]);
+                const cartSnap = await getDoc(cartRef);
+                const cart = cartSnap.data();
+
+                const productRef = doc(db, "product", cart.product_name);
+                const productSnap = await getDoc(productRef);
+                const product = productSnap.data();
+
+                orderPrice += cart.amount * product.product_price;
+            }
+
+            if (orderPrice > 0 && orderPrice < 30000) fee = 3000;
+
+            navigate("/order", {
+                state: {
+                    orderList: checkList,
+                    orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                    fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                    totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                }
+            });
+        }
+    }
+
+    // 전체 주문
+    function handleAllOrder() {
+        navigate("/order", {
+            state: {
+                orderList: cartIdList,
+                orderPrice: orderPrice,
+                fee: fee,
+                totPrice: totPrice
+            }
+        });
+    }
+
     return (
-        <>
+        <form className="flex" action="#" method="post">
             <section className="cart-section">
                 <h2>Cart</h2>
                 <table className="cart-list">
@@ -235,7 +270,7 @@ function CartSection() {
                                         </td>
                                         {val}
                                         <td>
-                                            <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(i, cartIdList[i], e.target.value)}>
+                                            <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(i, cartIdList[i], Number(e.target.value))}>
                                                 <option value="1">1</option>
                                                 <option value="2">2</option>
                                                 <option value="3">3</option>
@@ -296,11 +331,15 @@ function CartSection() {
                     </div>
                 </div>
                 <div className="btn-wrap flex">
-                    <button className="part-order-btn gray-style-btn">선택상품 구매하기</button>
-                    <button className="all-order-btn">전체 구매하기</button>
+                    <button type="button" className="part-order-btn gray-style-btn" onClick={handleOrder}>
+                        선택상품 구매하기
+                    </button>
+                    <button type="button" className="all-order-btn" onClick={handleAllOrder}>
+                        전체 구매하기
+                    </button>
                 </div>
             </section>
-        </>
+        </form>
     );
 }
 
@@ -311,9 +350,7 @@ function Main() {
                 <h1>MYPAGE</h1>
                 <Lnb title="cart" />
                 <div className="section-container">
-                    <form className="flex" action="#" method="post">
-                        <CartSection />
-                    </form>
+                    <CartForm />
                 </div>
             </div>
         </main>
