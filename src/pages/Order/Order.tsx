@@ -4,7 +4,7 @@ import Footer from "../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { db, signedInUser } from "../../firebase";
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
 
@@ -120,6 +120,9 @@ function OrderForm() {
 
                 amountList.push(cart.amount);
                 productNameList.push(cart.product_name);
+
+                // 장바구니에서 삭제
+                await deleteDoc(doc(db, "cart", orderList[i]));
             }
         }
 

@@ -114,6 +114,8 @@ function OrderForm() {
                     const cart = cartSnap.data();
                     amountList.push(cart.amount);
                     productNameList.push(cart.product_name);
+                    // 장바구니에서 삭제
+                    yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", orderList[i]));
                 }
             }
             // firestore에 주문 정보 등록
