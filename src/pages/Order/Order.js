@@ -29,6 +29,7 @@ const StyledInput = styled_components_1.default.input `
 `;
 function OrderForm() {
     const [name, setName] = (0, react_1.useState)("");
+    const [email, setEmail] = (0, react_1.useState)("");
     const [phoneNumber, setPhoneNumber] = (0, react_1.useState)("");
     const [postcode, setPostcode] = (0, react_1.useState)("");
     const [address, setAddress] = (0, react_1.useState)("");
@@ -52,6 +53,7 @@ function OrderForm() {
             querySnapshot.forEach(doc => {
                 const user = doc.data();
                 setName(user.name);
+                setEmail(user.email);
                 setPhoneNumber(user.phoneNumber);
             });
         });
@@ -78,7 +80,6 @@ function OrderForm() {
     }
     // 유효성 검증 후 결제하기 버튼 활성화
     (0, react_1.useEffect)(() => {
-        // if (isValid) setDisabled(false);
         if (name && phoneNumber && postcode && address && detailAddress)
             setDisabled(false);
         else
@@ -98,24 +99,39 @@ function OrderForm() {
             str += Math.floor(Math.random() * 10);
         return str;
     }
-    // 결제 후 firestore에 결제 정보 등록
+    // 주문 진행
     function order() {
         return __awaiter(this, void 0, void 0, function* () {
             const today = getToday();
             const randomCode = generateRandomCode(4);
             const orderId = today + randomCode;
+            const amountList = [];
+            const productNameList = [];
+            for (let i = 0; i < orderList.length; i++) {
+                const cartRef = (0, firestore_1.doc)(firebase_1.db, "cart", orderList[i]);
+                const cartSnap = yield (0, firestore_1.getDoc)(cartRef);
+                if (cartSnap.exists()) {
+                    const cart = cartSnap.data();
+                    amountList.push(cart.amount);
+                    productNameList.push(cart.product_name);
+                }
+            }
+            // firestore에 주문 정보 등록
             yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderId), {
-                orderId: orderId,
-                orderList: orderList,
+                order_id: orderId,
+                order_list: orderList,
+                amount_list: amountList,
+                product_name_list: productNameList,
                 name: name,
-                phoneNumber: phoneNumber,
+                email: email,
+                phone_number: phoneNumber,
                 postcode: postcode,
                 address: address,
-                detailAddress: detailAddress,
-                deliveryMsg: deliveryMsg,
-                orderPrice: orderPrice,
+                detail_address: detailAddress,
+                delivery_msg: deliveryMsg,
+                order_price: orderPrice,
                 fee: fee,
-                totPrice: totPrice
+                tot_price: totPrice
             }).then(() => {
                 navigate("/order/orderComplete", {
                     state: {

@@ -4,7 +4,7 @@ import Footer from "../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { db, signedInUser } from "../../firebase";
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
 
@@ -23,6 +23,7 @@ const StyledInput = styled.input`
 
 function OrderForm() {
     const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [postcode, setPostcode] = useState("");
     const [address, setAddress] = useState("");
@@ -50,6 +51,7 @@ function OrderForm() {
             const user = doc.data();
 
             setName(user.name);
+            setEmail(user.email);
             setPhoneNumber(user.phoneNumber);
         });
     }
@@ -79,7 +81,6 @@ function OrderForm() {
 
     // 유효성 검증 후 결제하기 버튼 활성화
     useEffect(() => {
-        // if (isValid) setDisabled(false);
         if (name && phoneNumber && postcode && address && detailAddress) setDisabled(false);
         else setDisabled(true);
     }, [name, phoneNumber, postcode, address, detailAddress]);
@@ -97,27 +98,47 @@ function OrderForm() {
     function generateRandomCode(n: number) {
         let str = "";
         for (let i = 0; i < n; i++) str += Math.floor(Math.random() * 10);
+
         return str;
     }
 
-    // 결제 후 firestore에 결제 정보 등록
+    // 주문 진행
     async function order() {
         const today = getToday();
         const randomCode = generateRandomCode(4);
         const orderId = today + randomCode;
 
+        const amountList = [];
+        const productNameList = [];
+
+        for (let i = 0; i < orderList.length; i++) {
+            const cartRef = doc(db, "cart", orderList[i]);
+            const cartSnap = await getDoc(cartRef);
+
+            if (cartSnap.exists()) {
+                const cart = cartSnap.data();
+
+                amountList.push(cart.amount);
+                productNameList.push(cart.product_name);
+            }
+        }
+
+        // firestore에 주문 정보 등록
         await setDoc(doc(db, "order", orderId), {
-            orderId: orderId,
-            orderList: orderList,
+            order_id: orderId,
+            order_list: orderList,
+            amount_list: amountList,
+            product_name_list: productNameList,
             name: name,
-            phoneNumber: phoneNumber,
+            email: email,
+            phone_number: phoneNumber,
             postcode: postcode,
             address: address,
-            detailAddress: detailAddress,
-            deliveryMsg: deliveryMsg,
-            orderPrice: orderPrice,
+            detail_address: detailAddress,
+            delivery_msg: deliveryMsg,
+            order_price: orderPrice,
             fee: fee,
-            totPrice: totPrice
+            tot_price: totPrice
         }).then(() => {
             navigate("/order/orderComplete", {
                 state: {
