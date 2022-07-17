@@ -152,7 +152,17 @@ function OrderTable() {
                     <th>상태</th>
                 </tr>
             </thead>
-            <tbody>{orderItems}</tbody>
+            <tbody>
+                {orderItems.length > 0 ? (
+                    orderItems
+                ) : (
+                    <tr>
+                        <td colSpan={6} style={{ textAlign: "center" }}>
+                            <p>주문 내역이 없습니다.</p>
+                        </td>
+                    </tr>
+                )}
+            </tbody>
         </table>
     );
 }
