@@ -1,7 +1,15 @@
 import "./OrderComplete.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../../firebase";
+import { getImage } from "../../../utils/getImage";
+
+type SectionProp = {
+    orderDetail: any;
+};
 
 function NoticeSection() {
     return (
@@ -16,25 +24,60 @@ function NoticeSection() {
     );
 }
 
-function OrderItemSection() {
-    const trs = [];
+function OrderItemSection(props: SectionProp) {
+    const orderList = props.orderDetail.order_list;
+    const [products, setProducts] = useState([]);
 
-    for (let i = 0; i < 3; i++) {
-        trs.push(
-            <tr key={i} className="order-item">
-                <td className="order-item-thumb">
-                    <Link to="/detail">
-                        <img src={require("../../../assets/product/new/new02.jpg")} alt="신제품02" />
-                    </Link>
-                </td>
-                <td className="order-item-name">
-                    <Link to="/detail">티트리 스칼프 스케일링 샴푸 바 135G</Link>
-                </td>
-                <td className="order-amount">1</td>
-                <td className="order-price">22,000원</td>
-            </tr>
-        );
+    async function fetchProducts() {
+        const products = [];
+
+        if (orderList) {
+            for (let i = 0; i < orderList.length; i++) {
+                const amount = props.orderDetail.amount_list[i];
+
+                const productName = props.orderDetail.product_name_list[i];
+                const productRef = doc(db, "product", productName);
+                const productSnap = await getDoc(productRef);
+                const product = productSnap.data();
+
+                const thumb = await getImage(product.product_thumb_01);
+                const price = product.product_price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+                const state = {
+                    name: product.product_name,
+                    price: product.product_price,
+                    thumb01: product.product_thumb_01,
+                    thumb02: product.product_thumb_02,
+                    thumb03: product.product_thumb_03,
+                    detail: product.product_detail
+                };
+
+                if (productSnap.exists()) {
+                    products.push(
+                        <tr key={i} className="order-item">
+                            <td className="order-item-thumb">
+                                <Link to="/detail" state={state}>
+                                    <img src={thumb} alt={productName} />
+                                </Link>
+                            </td>
+                            <td className="order-item-name">
+                                <Link to="/detail" state={state}>
+                                    {productName}
+                                </Link>
+                            </td>
+                            <td className="order-amount">{amount}</td>
+                            <td className="order-price">{price}원</td>
+                        </tr>
+                    );
+                }
+            }
+
+            setProducts(products);
+        }
     }
+
+    useEffect(() => {
+        fetchProducts();
+    }, [orderList]);
 
     return (
         <section className="order-item-section">
@@ -47,13 +90,23 @@ function OrderItemSection() {
                         <th>금액</th>
                     </tr>
                 </thead>
-                <tbody>{trs}</tbody>
+                <tbody>{products}</tbody>
             </table>
         </section>
     );
 }
 
-function DeliverySection() {
+function DeliverySection(props: SectionProp) {
+    let firstNumber: string;
+    let thirdNumber: string;
+    let phoneNumber: string = props.orderDetail.phone_number;
+
+    if (phoneNumber) {
+        firstNumber = phoneNumber.slice(0, 3);
+        thirdNumber = phoneNumber.slice(-4);
+        phoneNumber = firstNumber + "-****-" + thirdNumber;
+    }
+
     return (
         <section className="delivery-section">
             <h3>배송지 정보</h3>
@@ -61,19 +114,23 @@ function DeliverySection() {
                 <tbody>
                     <tr>
                         <th>받는분</th>
-                        <td>김소현</td>
+                        <td>{props.orderDetail.name}</td>
                     </tr>
                     <tr>
                         <th>연락처</th>
-                        <td>010-****-0407</td>
+                        <td>{phoneNumber}</td>
                     </tr>
                     <tr>
                         <th>주소</th>
                         <td>
-                            (02390)
+                            ({props.orderDetail.postcode})
                             <br />
-                            서울 송파구 벚꽃로2길
+                            {props.orderDetail.address + " " + props.orderDetail.detail_address}
                         </td>
+                    </tr>
+                    <tr>
+                        <th>배송 메시지</th>
+                        <td>{props.orderDetail.delivery_msg ? props.orderDetail.delivery_msg : "\u00A0"}</td>
                     </tr>
                 </tbody>
             </table>
@@ -81,7 +138,7 @@ function DeliverySection() {
     );
 }
 
-function PaySection() {
+function PaySection(props: SectionProp) {
     return (
         <section className="payment-section">
             <h3>결제 정보</h3>
@@ -89,15 +146,15 @@ function PaySection() {
                 <tbody>
                     <tr>
                         <th>상품 금액</th>
-                        <td>29,300원</td>
+                        <td>{props.orderDetail.order_price}원</td>
                     </tr>
                     <tr>
                         <th>배송비</th>
-                        <td>3,000원</td>
+                        <td>{props.orderDetail.fee}원</td>
                     </tr>
                     <tr>
                         <th>전체 금액</th>
-                        <td>32,300원</td>
+                        <td>{props.orderDetail.tot_price}원</td>
                     </tr>
                 </tbody>
             </table>
@@ -105,14 +162,36 @@ function PaySection() {
     );
 }
 
+interface CustomizedState {
+    orderId: string;
+}
+
 function Main() {
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+    const orderId = state.orderId;
+    const [orderDetail, setOrderDetail] = useState({});
+
+    async function fetchOrder() {
+        const docRef = doc(db, "order", orderId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            setOrderDetail(docSnap.data());
+        }
+    }
+
+    useEffect(() => {
+        fetchOrder();
+    }, []);
+
     return (
         <main>
             <div className="order-detail big-container">
                 <NoticeSection />
-                <OrderItemSection />
-                <DeliverySection />
-                <PaySection />
+                <OrderItemSection orderDetail={orderDetail} />
+                <DeliverySection orderDetail={orderDetail} />
+                <PaySection orderDetail={orderDetail} />
             </div>
         </main>
     );
