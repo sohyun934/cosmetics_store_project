@@ -53,6 +53,9 @@ function OrderForm() {
             setName(user.name);
             setEmail(user.email);
             setPhoneNumber(user.phoneNumber);
+            setPostcode(user.post_code);
+            setAddress(user.address);
+            setDetailAddress(user.detail_address);
         });
     }
 
