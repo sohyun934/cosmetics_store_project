@@ -308,7 +308,7 @@ function Main() {
         } else if (pop === "overlap") {
             setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
         } else if (pop === "review") {
-            setPopContent(<ReviewPop close={closePop} />);
+            setPopContent(<ReviewPop close={closePop} productName={name} />);
         }
     }, [pop]);
 

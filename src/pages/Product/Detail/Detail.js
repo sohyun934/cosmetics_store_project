@@ -161,7 +161,7 @@ function Main() {
             setPopContent((0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC774\uBBF8 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACA8\uC788\uB294 \uC0C1\uD488\uC785\uB2C8\uB2E4." }));
         }
         else if (pop === "review") {
-            setPopContent((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: closePop }));
+            setPopContent((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: closePop, productName: name }));
         }
     }, [pop]);
     (0, react_1.useEffect)(() => {

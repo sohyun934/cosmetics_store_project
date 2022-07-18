@@ -4,8 +4,8 @@ import Footer from "../../../components/Footer/Footer";
 import ReviewPop from "../../../components/ReviewPop/ReviewPop";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../firebase";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db, signedInUser } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 
 type SectionProp = {
@@ -45,20 +45,23 @@ function DetailSection(props: SectionProp) {
 type ItemProp = {
     open: Function;
     orderDetail: any;
+    reviewId: string;
 };
 
 function OrderItemSection(props: ItemProp) {
-    const orderList = props.orderDetail.order_list;
+    const orderDetail = props.orderDetail;
+    const reviewId = props.reviewId;
+
     const [products, setProducts] = useState([]);
 
     async function fetchProducts() {
         const products = [];
 
-        if (orderList) {
-            for (let i = 0; i < orderList.length; i++) {
-                const amount = props.orderDetail.amount_list[i];
+        if (orderDetail.order_list) {
+            for (let i = 0; i < orderDetail.order_list.length; i++) {
+                const amount = orderDetail.amount_list[i];
 
-                const productName = props.orderDetail.product_name_list[i];
+                const productName = orderDetail.product_name_list[i];
                 const productRef = doc(db, "product", productName);
                 const productSnap = await getDoc(productRef);
                 const product = productSnap.data();
@@ -73,6 +76,9 @@ function OrderItemSection(props: ItemProp) {
                     thumb03: product.product_thumb_03,
                     detail: product.product_detail
                 };
+
+                const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", productName));
+                const reviewSnapshot = await getDocs(reviewQuery);
 
                 if (productSnap.exists()) {
                     products.push(
@@ -98,8 +104,8 @@ function OrderItemSection(props: ItemProp) {
                                         <button className="radius-style-btn">주문취소</button>
                                     </div> */}
                                     <div>
-                                        <button className="review-pop-btn radius-style-btn" onClick={() => props.open()}>
-                                            리뷰작성
+                                        <button className="review-pop-btn radius-style-btn" onClick={() => props.open(productName)}>
+                                            {reviewSnapshot.empty ? "리뷰작성" : "리뷰수정"}
                                         </button>
                                     </div>
                                 </div>
@@ -115,7 +121,7 @@ function OrderItemSection(props: ItemProp) {
 
     useEffect(() => {
         fetchProducts();
-    }, [orderList]);
+    }, [orderDetail, reviewId]);
 
     return (
         <section className="order-item-section">
@@ -206,21 +212,19 @@ interface CustomizedState {
 }
 
 function Main() {
+    const [orderDetail, setOrderDetail] = useState({});
+    const [reviewId, setReviewId] = useState("");
     const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
-    const popContent = <ReviewPop close={() => setReviewPop(null)} />;
 
     const location = useLocation();
     const state = location.state as CustomizedState;
     const orderId = state.orderId;
-    const [orderDetail, setOrderDetail] = useState({});
 
     async function fetchOrder() {
         const docRef = doc(db, "order", orderId);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            setOrderDetail(docSnap.data());
-        }
+        if (docSnap.exists()) setOrderDetail(docSnap.data());
     }
 
     useEffect(() => {
@@ -231,7 +235,21 @@ function Main() {
         <main className="wrap">
             <div className="order-detail big-container">
                 <DetailSection orderDetail={orderDetail} />
-                <OrderItemSection open={() => setReviewPop(popContent)} orderDetail={orderDetail} />
+                <OrderItemSection
+                    open={(productName: string) =>
+                        setReviewPop(
+                            <ReviewPop
+                                close={(reviewId: string) => {
+                                    setReviewPop(null);
+                                    if (reviewId) setReviewId(reviewId);
+                                }}
+                                productName={productName}
+                            />
+                        )
+                    }
+                    orderDetail={orderDetail}
+                    reviewId={reviewId}
+                />
                 <DeliverySection orderDetail={orderDetail} />
                 <PaySection orderDetail={orderDetail} />
                 <div className="list-btn-wrap">

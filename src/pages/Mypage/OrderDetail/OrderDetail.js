@@ -38,15 +38,16 @@ function DetailSection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "detail-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC0C1\uC138 \uC815\uBCF4" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container" }, { children: [(0, jsx_runtime_1.jsxs)("span", { children: ["\uC8FC\uBB38\uC77C\uC790 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderDate })] }), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "order-num" }, { children: ["\uC8FC\uBB38\uBC88\uD638 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderId })] }))] }))] })));
 }
 function OrderItemSection(props) {
-    const orderList = props.orderDetail.order_list;
+    const orderDetail = props.orderDetail;
+    const reviewId = props.reviewId;
     const [products, setProducts] = (0, react_1.useState)([]);
     function fetchProducts() {
         return __awaiter(this, void 0, void 0, function* () {
             const products = [];
-            if (orderList) {
-                for (let i = 0; i < orderList.length; i++) {
-                    const amount = props.orderDetail.amount_list[i];
-                    const productName = props.orderDetail.product_name_list[i];
+            if (orderDetail.order_list) {
+                for (let i = 0; i < orderDetail.order_list.length; i++) {
+                    const amount = orderDetail.amount_list[i];
+                    const productName = orderDetail.product_name_list[i];
                     const productRef = (0, firestore_1.doc)(firebase_1.db, "product", productName);
                     const productSnap = yield (0, firestore_1.getDoc)(productRef);
                     const product = productSnap.data();
@@ -60,8 +61,10 @@ function OrderItemSection(props) {
                         thumb03: product.product_thumb_03,
                         detail: product.product_detail
                     };
+                    const reviewQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser), (0, firestore_1.where)("product_name", "==", productName));
+                    const reviewSnapshot = yield (0, firestore_1.getDocs)(reviewQuery);
                     if (productSnap.exists()) {
-                        products.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: thumb, alt: productName }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productName })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amount })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [price, "\uC6D0"] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-status" }, { children: [(0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }), (0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "review-pop-btn radius-style-btn", onClick: () => props.open() }, { children: "\uB9AC\uBDF0\uC791\uC131" })) }) })] }))] }), i));
+                        products.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: thumb, alt: productName }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productName })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amount })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [price, "\uC6D0"] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-status" }, { children: [(0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }), (0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "review-pop-btn radius-style-btn", onClick: () => props.open(productName) }, { children: reviewSnapshot.empty ? "리뷰작성" : "리뷰수정" })) }) })] }))] }), i));
                     }
                 }
                 setProducts(products);
@@ -70,7 +73,7 @@ function OrderItemSection(props) {
     }
     (0, react_1.useEffect)(() => {
         fetchProducts();
-    }, [orderList]);
+    }, [orderDetail, reviewId]);
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-item-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC8FC\uBB38 \uC0C1\uD488" }), (0, jsx_runtime_1.jsxs)("table", { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC8FC\uBB38 \uC815\uBCF4" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: products })] })] })));
 }
 function DeliverySection(props) {
@@ -88,25 +91,28 @@ function PaySection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.order_price, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.tot_price, "\uC6D0"] })] })] }) })] })));
 }
 function Main() {
+    const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
+    const [reviewId, setReviewId] = (0, react_1.useState)("");
     const [reviewPop, setReviewPop] = (0, react_1.useState)(null);
-    const popContent = (0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: () => setReviewPop(null) });
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
     const orderId = state.orderId;
-    const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
             const docRef = (0, firestore_1.doc)(firebase_1.db, "order", orderId);
             const docSnap = yield (0, firestore_1.getDoc)(docRef);
-            if (docSnap.exists()) {
+            if (docSnap.exists())
                 setOrderDetail(docSnap.data());
-            }
         });
     }
     (0, react_1.useEffect)(() => {
         fetchOrder();
     }, []);
-    return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: () => setReviewPop(popContent), orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(DeliverySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(PaySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] })));
+    return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
+                                setReviewPop(null);
+                                if (reviewId)
+                                    setReviewId(reviewId);
+                            }, productName: productName })), orderDetail: orderDetail, reviewId: reviewId }), (0, jsx_runtime_1.jsx)(DeliverySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(PaySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] })));
 }
 function OrderDetail() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
