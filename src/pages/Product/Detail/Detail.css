@@ -86,10 +86,10 @@
 
 .review-section .section-inner .review-point {
     display: inline-block;
-    width: 7.5rem;
+    width: 7.1rem;
     height: 1.25rem;
     background: url("../../../assets/product/detail/review_point_off.png") no-repeat;
-    background-size: 7.5rem auto;
+    background-size: 7.1rem auto;
     vertical-align: middle;
 }
 
@@ -97,7 +97,7 @@
     display: inline-block;
     height: 1.25rem;
     background: url("../../../assets/product/detail/review_point.png") no-repeat;
-    background-size: 7.5rem auto;
+    background-size: 7.1rem auto;
 }
 
 .review-section .section-inner .total-point {
@@ -114,13 +114,13 @@
 
 .review-section .section-inner .total-point .review-point {
     width: 8.7rem;
-    height: 1.45rem;
+    height: 1.55rem;
     background-size: 8.7rem auto;
     text-align: left;
 }
 
 .review-section .section-inner .total-point .review-point .point {
-    height: 1.45rem;
+    height: 1.55rem;
     background-size: 8.7rem auto;
 }
 
