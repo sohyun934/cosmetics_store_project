@@ -36,7 +36,7 @@ function FormAndUtil() {
         }
     }, []);
 
-    function getCookie(name) {
+    function getCookie(name: string) {
         const search = name + "=";
         if (document.cookie.length > 0) {
             let offset = document.cookie.indexOf(search);
@@ -49,7 +49,7 @@ function FormAndUtil() {
         }
     }
 
-    function setCookie(name, value, expiredays) {
+    function setCookie(name: string, value: string, expiredays: number) {
         const todayDate = new Date();
         todayDate.setDate(todayDate.getDate() + expiredays);
         document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toUTCString() + ";";
@@ -83,15 +83,19 @@ function FormAndUtil() {
             });
     }
 
+    function handleKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === "Enter") logIn();
+    }
+
     return (
         <div>
             <form className="login-form" action="#" method="post">
                 <div className="input-container">
                     <div className="input-wrap">
-                        <input type="text" placeholder="이메일" value={email} onChange={e => setEmail(e.target.value)} />
+                        <input type="text" placeholder="이메일" value={email} onChange={e => setEmail(e.target.value)} onKeyPress={handleKeyPress} />
                     </div>
                     <div className="input-wrap">
-                        <input type="password" placeholder="비밀번호" onChange={e => setPassword(e.target.value)} />
+                        <input type="password" placeholder="비밀번호" onChange={e => setPassword(e.target.value)} onKeyPress={handleKeyPress} />
                     </div>
                     <p className="error-msg">{errorMsg}</p>
                 </div>
