@@ -22,6 +22,7 @@ const firebase_1 = require("../../firebase");
 const firestore_1 = require("firebase/firestore");
 const react_daum_postcode_1 = require("react-daum-postcode");
 const styled_components_1 = __importDefault(require("styled-components"));
+const getDate_1 = require("../../utils/getDate");
 const StyledInput = styled_components_1.default.input `
     &:read-only {
         border-bottom: 1px solid #e5e5e5 !important;
@@ -102,13 +103,13 @@ function OrderForm() {
         else
             setDisabled(true);
     }, [name, phoneNumber, postcode, address, detailAddress]);
-    function getToday() {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = ("0" + (1 + date.getMonth())).slice(-2);
-        const day = ("0" + date.getDate()).slice(-2);
-        return year + month + day;
-    }
+    // function getToday() {
+    //     const date = new Date();
+    //     const year = date.getFullYear();
+    //     const month = ("0" + (1 + date.getMonth())).slice(-2);
+    //     const day = ("0" + date.getDate()).slice(-2);
+    //     return year + month + day;
+    // }
     // 난수 생성
     function generateRandomCode(n) {
         let str = "";
@@ -119,9 +120,11 @@ function OrderForm() {
     // 주문 진행
     function order() {
         return __awaiter(this, void 0, void 0, function* () {
-            const today = getToday();
+            const querySnapshot = yield (0, firestore_1.getDocs)((0, firestore_1.collection)(firebase_1.db, "order"));
+            const orderId = String(querySnapshot.size + 1);
+            const date = (0, getDate_1.getDate)();
             const randomCode = generateRandomCode(4);
-            const orderId = today + randomCode;
+            const orderNum = date.join("") + randomCode;
             const amountList = [];
             const productNameList = [];
             for (let i = 0; i < orderList.length; i++) {
@@ -136,8 +139,9 @@ function OrderForm() {
                 }
             }
             // firestore에 주문 정보 등록
-            yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderId), {
+            yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderNum), {
                 order_id: orderId,
+                order_date: date.join("."),
                 order_list: orderList,
                 amount_list: amountList,
                 product_name_list: productNameList,
@@ -155,7 +159,7 @@ function OrderForm() {
                 navigate("/order/orderComplete", {
                     replace: true,
                     state: {
-                        orderId: orderId
+                        docId: orderNum
                     }
                 });
             });

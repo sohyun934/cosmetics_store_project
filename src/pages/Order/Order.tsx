@@ -7,6 +7,7 @@ import { db, signedInUser } from "../../firebase";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
+import { getDate } from "../../utils/getDate";
 
 interface CustomizedState {
     orderList: string[];
@@ -103,14 +104,14 @@ function OrderForm() {
         else setDisabled(true);
     }, [name, phoneNumber, postcode, address, detailAddress]);
 
-    function getToday() {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = ("0" + (1 + date.getMonth())).slice(-2);
-        const day = ("0" + date.getDate()).slice(-2);
+    // function getToday() {
+    //     const date = new Date();
+    //     const year = date.getFullYear();
+    //     const month = ("0" + (1 + date.getMonth())).slice(-2);
+    //     const day = ("0" + date.getDate()).slice(-2);
 
-        return year + month + day;
-    }
+    //     return year + month + day;
+    // }
 
     // 난수 생성
     function generateRandomCode(n: number) {
@@ -122,9 +123,12 @@ function OrderForm() {
 
     // 주문 진행
     async function order() {
-        const today = getToday();
+        const querySnapshot = await getDocs(collection(db, "order"));
+        const orderId = String(querySnapshot.size + 1);
+
+        const date = getDate();
         const randomCode = generateRandomCode(4);
-        const orderId = today + randomCode;
+        const orderNum = date.join("") + randomCode;
 
         const amountList = [];
         const productNameList = [];
@@ -145,8 +149,9 @@ function OrderForm() {
         }
 
         // firestore에 주문 정보 등록
-        await setDoc(doc(db, "order", orderId), {
+        await setDoc(doc(db, "order", orderNum), {
             order_id: orderId,
+            order_date: date.join("."),
             order_list: orderList,
             amount_list: amountList,
             product_name_list: productNameList,
@@ -164,7 +169,7 @@ function OrderForm() {
             navigate("/order/orderComplete", {
                 replace: true,
                 state: {
-                    orderId: orderId
+                    docId: orderNum
                 }
             });
         });
