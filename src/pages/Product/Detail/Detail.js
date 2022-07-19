@@ -134,7 +134,7 @@ function ReviewSection(props) {
             let totRating = 0;
             const reviews = [];
             if (reviewSnapshot.empty) {
-                reviews.push((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })));
+                reviews.push((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) })));
             }
             else {
                 reviewSnapshot.forEach(doc => {
@@ -150,8 +150,8 @@ function ReviewSection(props) {
                 const totWidth = String(Number(fixedRating) * 20) + "%";
                 setTotRating(fixedRating);
                 setTotWidth(totWidth);
-                setReviews(reviews);
             }
+            setReviews(reviews);
         });
     }
     (0, react_1.useEffect)(() => {
