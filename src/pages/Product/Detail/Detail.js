@@ -96,8 +96,10 @@ function ProductSection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section flex" }, { children: [(0, jsx_runtime_1.jsxs)(react_2.Swiper, Object.assign({ className: "thumb", modules: [swiper_1.Pagination, swiper_1.A11y, swiper_1.Autoplay], spaceBetween: 0, slidesPerView: 1, pagination: { clickable: true }, loop: true, autoplay: { delay: 3000 } }, { children: [(0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[0], alt: `${props.name}01` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[1], alt: `${props.name}02` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[2], alt: `${props.name}03` }) })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "info" }, { children: (0, jsx_runtime_1.jsxs)("form", Object.assign({ method: "post" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: (0, jsx_runtime_1.jsx)("strong", { children: props.name }) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "price-wish-container flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price, "\uC6D0"] }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "wish-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: wishToggle ? "wish-btn on" : "wish-btn", onClick: openWishPop }) }))] })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cnt-container flex" }, { children: [(0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", { children: "30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "util-btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "cart-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn", type: "button", onClick: addCart }, { children: "\uC7A5\uBC14\uAD6C\uB2C8" })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "order-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "order-btn" }, { children: "\uAD6C\uB9E4\uD558\uAE30" })) }))] }))] })) }))] })));
 }
 function Nav(props) {
+    const productName = props.productName;
     const [detailClass, setDetailClass] = (0, react_1.useState)(" on");
     const [reviewClass, setReviewClass] = (0, react_1.useState)("");
+    const [reviewCnt, setReviewCnt] = (0, react_1.useState)(0);
     function onDetail() {
         props.onChangeTap("detail");
         setDetailClass(" on");
@@ -108,27 +110,63 @@ function Nav(props) {
         setDetailClass("");
         setReviewClass(" on");
     }
-    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "menu-lnb" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "border-style-btn" + detailClass, onClick: onDetail }, { children: "\uC0C1\uC138\uC815\uBCF4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "border-style-btn" + reviewClass, onClick: onReview }, { children: "\uAD6C\uB9E4\uD6C4\uAE30 (3)" })) })] })) })));
+    function fetchReviews() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reviewQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"));
+            const reviewSnapshot = yield (0, firestore_1.getDocs)(reviewQuery);
+            setReviewCnt(reviewSnapshot.size);
+        });
+    }
+    (0, react_1.useEffect)(() => {
+        fetchReviews();
+    });
+    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "menu-lnb" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "border-style-btn" + detailClass, onClick: onDetail }, { children: "\uC0C1\uC138\uC815\uBCF4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsxs)("button", Object.assign({ className: "border-style-btn" + reviewClass, onClick: onReview }, { children: ["\uAD6C\uB9E4\uD6C4\uAE30 (", reviewCnt, ")"] })) })] })) })));
 }
 function ReviewSection(props) {
-    const reviews = [];
-    for (let i = 0; i < 3; i++) {
-        reviews.push((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "review-container" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: "60%" } }) })), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "user-id" }, { children: "sohy****" })), (0, jsx_runtime_1.jsx)("span", { children: "2022.05.16" })] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "content" }, { children: [(0, jsx_runtime_1.jsx)("p", { children: "\uC138\uC548 \uD6C4 \uCD09\uCD09\uD574\uC11C \uC790\uC8FC \uC4F0\uB294 \uC544\uC774\uD15C\uC785\uB2C8\uB2E4." }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsxs)("a", Object.assign({ href: "/", onClick: event => {
-                                    event.preventDefault();
-                                    resize(event);
-                                } }, { children: [(0, jsx_runtime_1.jsx)("img", { src: require("../../../assets/product/detail/review.jpg"), alt: "\uB9AC\uBDF0 \uC774\uBBF8\uC9C0" }), (0, jsx_runtime_1.jsx)("button", { className: "image-more" })] })) }))] }))] }), i));
+    const productName = props.productName;
+    const [reviews, setReviews] = (0, react_1.useState)([]);
+    const [totRating, setTotRating] = (0, react_1.useState)("0.0");
+    const [totWidth, setTotWidth] = (0, react_1.useState)("");
+    function fetchReviews() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const reviewQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"));
+            const reviewSnapshot = yield (0, firestore_1.getDocs)(reviewQuery);
+            let totRating = 0;
+            const reviews = [];
+            if (reviewSnapshot.empty) {
+                reviews.push((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })));
+            }
+            else {
+                reviewSnapshot.forEach(doc => {
+                    const review = doc.data();
+                    const rating = review.rate;
+                    totRating += rating;
+                    const width = String(rating * 20) + "%";
+                    const userName = review.user_name;
+                    const maskingName = userName.slice(0, -1) + "*";
+                    reviews.push((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "review-container" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: width } }) })), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "user-name" }, { children: `${maskingName}님` })), (0, jsx_runtime_1.jsx)("span", { children: review.date })] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "content" }, { children: (0, jsx_runtime_1.jsx)("p", { children: review.content }) }))] }), doc.id));
+                });
+                const fixedRating = (totRating / reviewSnapshot.size).toFixed(1);
+                const totWidth = String(Number(fixedRating) * 20) + "%";
+                setTotRating(fixedRating);
+                setTotWidth(totWidth);
+                setReviews(reviews);
+            }
+        });
     }
-    function resize(e) {
-        let a = e.target.parentNode;
-        a.removeAttribute("href");
-        let thumb = null;
-        if (a !== null) {
-            thumb = a.parentNode;
-            if (thumb !== null)
-                thumb.classList.add("resize");
-        }
-    }
-    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-top flex" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "review-pop-btn border-style-btn", onClick: () => props.open("review") }, { children: "\uD6C4\uAE30 \uC791\uC131\uD558\uAE30" })) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "4.9" }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: "60%" } }) }))] })), reviews] })) })));
+    (0, react_1.useEffect)(() => {
+        fetchReviews();
+    }, []);
+    // function resize(e: React.MouseEvent<HTMLElement>) {
+    //     let a = (e.target as HTMLElement).parentNode;
+    //     (a as HTMLAnchorElement).removeAttribute("href");
+    //     let thumb: ParentNode | null = null;
+    //     if (a !== null) {
+    //         thumb = a.parentNode;
+    //         if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
+    //     }
+    // }
+    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews] })) })));
 }
 function Main() {
     let content;
@@ -144,7 +182,7 @@ function Main() {
         content = ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "detail-wrap" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[3], alt: "\uC0C1\uC138\uC815\uBCF4" }) })));
     }
     else if (tap === "review") {
-        content = (0, jsx_runtime_1.jsx)(ReviewSection, { open: (_pop) => setPop(_pop) });
+        content = (0, jsx_runtime_1.jsx)(ReviewSection, { productName: name });
     }
     function closePop() {
         setPop("");
@@ -175,7 +213,7 @@ function Main() {
         }
         getImageUrls();
     }, []);
-    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container big-container" }, { children: [(0, jsx_runtime_1.jsx)(ProductSection, { name: name, price: price, urls: urls, open: (_pop) => setPop(_pop) }), (0, jsx_runtime_1.jsx)(Nav, { onChangeTap: (_tap) => setTap(_tap) }), content] })), popContent, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
+    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container big-container" }, { children: [(0, jsx_runtime_1.jsx)(ProductSection, { name: name, price: price, urls: urls, open: (_pop) => setPop(_pop) }), (0, jsx_runtime_1.jsx)(Nav, { onChangeTap: (_tap) => setTap(_tap), productName: name }), content] })), popContent, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
 function Detail() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));

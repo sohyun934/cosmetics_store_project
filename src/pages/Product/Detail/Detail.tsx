@@ -13,7 +13,7 @@ import WishPop from "../../../components/WishPop/WishPop";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getImage } from "../../../utils/getImage";
 import { db, signedInUser } from "../../../firebase";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, where } from "firebase/firestore";
 
 type ProductionProp = {
     name: string;
@@ -153,11 +153,15 @@ function ProductSection(props: ProductionProp) {
 
 type NavProp = {
     onChangeTap: Function;
+    productName: string;
 };
 
 function Nav(props: NavProp) {
+    const productName = props.productName;
+
     const [detailClass, setDetailClass] = useState(" on");
     const [reviewClass, setReviewClass] = useState("");
+    const [reviewCnt, setReviewCnt] = useState(0);
 
     function onDetail() {
         props.onChangeTap("detail");
@@ -171,6 +175,17 @@ function Nav(props: NavProp) {
         setReviewClass(" on");
     }
 
+    async function fetchReviews() {
+        const reviewQuery = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
+        const reviewSnapshot = await getDocs(reviewQuery);
+
+        setReviewCnt(reviewSnapshot.size);
+    }
+
+    useEffect(() => {
+        fetchReviews();
+    });
+
     return (
         <nav className="menu-lnb">
             <ul className="flex">
@@ -181,7 +196,7 @@ function Nav(props: NavProp) {
                 </li>
                 <li>
                     <button className={"border-style-btn" + reviewClass} onClick={onReview}>
-                        구매후기 (3)
+                        구매후기 ({reviewCnt})
                     </button>
                 </li>
             </ul>
@@ -190,72 +205,103 @@ function Nav(props: NavProp) {
 }
 
 type ReviewProp = {
-    open: Function;
+    productName: string;
 };
 
 function ReviewSection(props: ReviewProp) {
-    const reviews = [];
+    const productName = props.productName;
 
-    for (let i = 0; i < 3; i++) {
-        reviews.push(
-            <div key={i} className="review-container">
-                <div className="flex">
-                    <span className="review-point">
-                        <span className="point" style={{ width: "60%" }}></span>
-                    </span>
-                    <span className="info">
-                        <span className="user-id">sohy****</span>
-                        <span>2022.05.16</span>
-                    </span>
-                </div>
-                <div className="content">
-                    <p>세안 후 촉촉해서 자주 쓰는 아이템입니다.</p>
-                    <div className="thumb">
-                        <a
-                            href="/"
-                            onClick={event => {
-                                event.preventDefault();
-                                resize(event);
-                            }}
-                        >
-                            <img src={require("../../../assets/product/detail/review.jpg")} alt="리뷰 이미지" />
-                            <button className="image-more"></button>
-                        </a>
+    const [reviews, setReviews] = useState([]);
+    const [totRating, setTotRating] = useState("0.0");
+    const [totWidth, setTotWidth] = useState("");
+
+    async function fetchReviews() {
+        const reviewQuery = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
+        const reviewSnapshot = await getDocs(reviewQuery);
+
+        let totRating = 0;
+        const reviews = [];
+
+        if (reviewSnapshot.empty) {
+            reviews.push(<div className="review-container">작성된 리뷰가 없습니다.</div>);
+        } else {
+            reviewSnapshot.forEach(doc => {
+                const review = doc.data();
+
+                const rating = review.rate;
+                totRating += rating;
+                const width = String(rating * 20) + "%";
+
+                const userName = review.user_name;
+                const maskingName = userName.slice(0, -1) + "*";
+
+                reviews.push(
+                    <div key={doc.id} className="review-container">
+                        <div className="flex">
+                            <span className="review-point">
+                                <span className="point" style={{ width: width }}></span>
+                            </span>
+                            <span className="info">
+                                <span className="user-name">{`${maskingName}님`}</span>
+                                <span>{review.date}</span>
+                            </span>
+                        </div>
+                        <div className="content">
+                            <p>{review.content}</p>
+                            {/* <div className="thumb">
+                                <a
+                                    href="/"
+                                    onClick={event => {
+                                        event.preventDefault();
+                                        resize(event);
+                                    }}
+                                >
+                                    <img src={require("../../../assets/product/detail/review.jpg")} alt="리뷰 이미지" />
+                                    <button className="image-more"></button>
+                                </a>
+                            </div> */}
+                        </div>
                     </div>
-                </div>
-            </div>
-        );
-    }
+                );
+            });
 
-    function resize(e: React.MouseEvent<HTMLElement>) {
-        let a = (e.target as HTMLElement).parentNode;
-        (a as HTMLAnchorElement).removeAttribute("href");
+            const fixedRating = (totRating / reviewSnapshot.size).toFixed(1);
+            const totWidth = String(Number(fixedRating) * 20) + "%";
 
-        let thumb: ParentNode | null = null;
-        if (a !== null) {
-            thumb = a.parentNode;
-            if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
+            setTotRating(fixedRating);
+            setTotWidth(totWidth);
+            setReviews(reviews);
         }
     }
+
+    useEffect(() => {
+        fetchReviews();
+    }, []);
+
+    // function resize(e: React.MouseEvent<HTMLElement>) {
+    //     let a = (e.target as HTMLElement).parentNode;
+    //     (a as HTMLAnchorElement).removeAttribute("href");
+
+    //     let thumb: ParentNode | null = null;
+    //     if (a !== null) {
+    //         thumb = a.parentNode;
+    //         if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
+    //     }
+    // }
 
     return (
         <section className="review-section">
             <div className="section-inner">
-                <div className="section-top flex">
+                <div className="section-top">
                     <h1>REVIEW</h1>
-                    <div className="review-btn-wrap">
-                        <button className="review-pop-btn border-style-btn" onClick={() => props.open("review")}>
-                            후기 작성하기
-                        </button>
-                    </div>
                 </div>
                 <div className="total-point">
                     <p style={{ margin: "0" }}>구매자 평점</p>
                     <p className="rating">
-                        <strong>4.9</strong>
+                        <strong>{totRating}</strong>
                     </p>
                     <div className="review-point">
-                        <span className="point" style={{ width: "60%" }}></span>
+                        <span className="point" style={{ width: totWidth }}></span>
                     </div>
                 </div>
                 {reviews}
@@ -292,7 +338,7 @@ function Main() {
             </div>
         );
     } else if (tap === "review") {
-        content = <ReviewSection open={(_pop: string) => setPop(_pop)} />;
+        content = <ReviewSection productName={name} />;
     }
 
     function closePop() {
@@ -327,7 +373,7 @@ function Main() {
         <main>
             <div className="detail-container big-container">
                 <ProductSection name={name} price={price} urls={urls} open={(_pop: string) => setPop(_pop)} />
-                <Nav onChangeTap={(_tap: string) => setTap(_tap)}></Nav>
+                <Nav onChangeTap={(_tap: string) => setTap(_tap)} productName={name}></Nav>
                 {content}
             </div>
             {popContent}
