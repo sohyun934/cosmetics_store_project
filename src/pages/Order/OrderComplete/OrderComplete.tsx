@@ -97,6 +97,12 @@ function OrderItemSection(props: SectionProp) {
 }
 
 function DeliverySection(props: SectionProp) {
+    const name = props.orderDetail.name;
+    const postCode = props.orderDetail.postcode;
+    const address = props.orderDetail.address;
+    const detailAddress = props.orderDetail.detail_address;
+    const deliveryMsg = props.orderDetail.delivery_msg;
+
     let firstNumber: string;
     let thirdNumber: string;
     let phoneNumber: string = props.orderDetail.phone_number;
@@ -114,7 +120,7 @@ function DeliverySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>받는분</th>
-                        <td>{props.orderDetail.name}</td>
+                        <td>{name}</td>
                     </tr>
                     <tr>
                         <th>연락처</th>
@@ -123,14 +129,14 @@ function DeliverySection(props: SectionProp) {
                     <tr>
                         <th>주소</th>
                         <td>
-                            ({props.orderDetail.postcode})
+                            ({postCode})
                             <br />
-                            {props.orderDetail.address + " " + props.orderDetail.detail_address}
+                            {address + " " + detailAddress}
                         </td>
                     </tr>
                     <tr>
                         <th>배송 메시지</th>
-                        <td>{props.orderDetail.delivery_msg ? props.orderDetail.delivery_msg : "\u00A0"}</td>
+                        <td>{deliveryMsg ? deliveryMsg : "\u00A0"}</td>
                     </tr>
                 </tbody>
             </table>
@@ -139,6 +145,10 @@ function DeliverySection(props: SectionProp) {
 }
 
 function PaySection(props: SectionProp) {
+    const orderPrice = props.orderDetail.order_price;
+    const fee = props.orderDetail.fee;
+    const totPrice = props.orderDetail.tot_price;
+
     return (
         <section className="payment-section">
             <h3>결제 정보</h3>
@@ -146,15 +156,15 @@ function PaySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>상품 금액</th>
-                        <td>{props.orderDetail.order_price}원</td>
+                        <td>{orderPrice}원</td>
                     </tr>
                     <tr>
                         <th>배송비</th>
-                        <td>{props.orderDetail.fee}원</td>
+                        <td>{fee}원</td>
                     </tr>
                     <tr>
                         <th>전체 금액</th>
-                        <td>{props.orderDetail.tot_price}원</td>
+                        <td>{totPrice}원</td>
                     </tr>
                 </tbody>
             </table>
@@ -163,7 +173,7 @@ function PaySection(props: SectionProp) {
 }
 
 interface CustomizedState {
-    orderId: string;
+    docId: string;
 }
 
 function Main() {
@@ -173,11 +183,11 @@ function Main() {
     const location = useLocation();
     const state = location.state as CustomizedState;
 
-    let orderId: string;
-    if (state) orderId = state.orderId;
+    let docId: string;
+    if (state) docId = state.docId;
 
     async function fetchOrder() {
-        const docRef = doc(db, "order", orderId);
+        const docRef = doc(db, "order", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) setOrderDetail(docSnap.data());

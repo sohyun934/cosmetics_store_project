@@ -61,6 +61,11 @@ function OrderItemSection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-item-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC8FC\uBB38 \uC0C1\uD488" }), (0, jsx_runtime_1.jsxs)("table", { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC8FC\uBB38 \uC815\uBCF4" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: products })] })] })));
 }
 function DeliverySection(props) {
+    const name = props.orderDetail.name;
+    const postCode = props.orderDetail.postcode;
+    const address = props.orderDetail.address;
+    const detailAddress = props.orderDetail.detail_address;
+    const deliveryMsg = props.orderDetail.delivery_msg;
     let firstNumber;
     let thirdNumber;
     let phoneNumber = props.orderDetail.phone_number;
@@ -69,22 +74,25 @@ function DeliverySection(props) {
         thirdNumber = phoneNumber.slice(-4);
         phoneNumber = firstNumber + "-****-" + thirdNumber;
     }
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uBC30\uC1A1\uC9C0 \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC1B\uB294\uBD84" }), (0, jsx_runtime_1.jsx)("td", { children: props.orderDetail.name })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC5F0\uB77D\uCC98" }), (0, jsx_runtime_1.jsx)("td", { children: phoneNumber })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uC18C" }), (0, jsx_runtime_1.jsxs)("td", { children: ["(", props.orderDetail.postcode, ")", (0, jsx_runtime_1.jsx)("br", {}), props.orderDetail.address + " " + props.orderDetail.detail_address] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1 \uBA54\uC2DC\uC9C0" }), (0, jsx_runtime_1.jsx)("td", { children: props.orderDetail.delivery_msg ? props.orderDetail.delivery_msg : "\u00A0" })] })] }) })] })));
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uBC30\uC1A1\uC9C0 \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC1B\uB294\uBD84" }), (0, jsx_runtime_1.jsx)("td", { children: name })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC5F0\uB77D\uCC98" }), (0, jsx_runtime_1.jsx)("td", { children: phoneNumber })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uC18C" }), (0, jsx_runtime_1.jsxs)("td", { children: ["(", postCode, ")", (0, jsx_runtime_1.jsx)("br", {}), address + " " + detailAddress] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1 \uBA54\uC2DC\uC9C0" }), (0, jsx_runtime_1.jsx)("td", { children: deliveryMsg ? deliveryMsg : "\u00A0" })] })] }) })] })));
 }
 function PaySection(props) {
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.order_price, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.tot_price, "\uC6D0"] })] })] }) })] })));
+    const orderPrice = props.orderDetail.order_price;
+    const fee = props.orderDetail.fee;
+    const totPrice = props.orderDetail.tot_price;
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [orderPrice, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [totPrice, "\uC6D0"] })] })] }) })] })));
 }
 function Main() {
     const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
     const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
-    let orderId;
+    let docId;
     if (state)
-        orderId = state.orderId;
+        docId = state.docId;
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
-            const docRef = (0, firestore_1.doc)(firebase_1.db, "order", orderId);
+            const docRef = (0, firestore_1.doc)(firebase_1.db, "order", docId);
             const docSnap = yield (0, firestore_1.getDoc)(docRef);
             if (docSnap.exists())
                 setOrderDetail(docSnap.data());

@@ -8,24 +8,14 @@ import { collection, doc, getDoc, getDocs, query, where } from "firebase/firesto
 import { db, signedInUser } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 
-type SectionProp = {
+type DetailSectionProp = {
     orderDetail: any;
+    orderNum: string;
 };
 
-function DetailSection(props: SectionProp) {
-    let year: string;
-    let month: string;
-    let day: string;
-    let orderDate: string;
-    let orderId: string;
-
-    if (props.orderDetail.order_id) {
-        year = props.orderDetail.order_id.substr(0, 4);
-        month = props.orderDetail.order_id.substr(4, 2);
-        day = props.orderDetail.order_id.substr(6, 2);
-        orderDate = year + "-" + month + "-" + day;
-        orderId = props.orderDetail.order_id;
-    }
+function DetailSection(props: DetailSectionProp) {
+    const orderDate = props.orderDetail.order_date;
+    const orderNum = props.orderNum;
 
     return (
         <section className="detail-section">
@@ -35,21 +25,22 @@ function DetailSection(props: SectionProp) {
                     주문일자 : <strong>{orderDate}</strong>
                 </span>
                 <span className="order-num">
-                    주문번호 : <strong>{orderId}</strong>
+                    주문번호 : <strong>{orderNum}</strong>
                 </span>
             </div>
         </section>
     );
 }
 
-type ItemProp = {
+type OrderItemSectionProp = {
     open: Function;
     orderDetail: any;
     reviewId: string;
 };
 
-function OrderItemSection(props: ItemProp) {
+function OrderItemSection(props: OrderItemSectionProp) {
     const orderDetail = props.orderDetail;
+    const orderList = orderDetail.order_list;
     const reviewId = props.reviewId;
 
     const [products, setProducts] = useState([]);
@@ -57,8 +48,8 @@ function OrderItemSection(props: ItemProp) {
     async function fetchProducts() {
         const products = [];
 
-        if (orderDetail.order_list) {
-            for (let i = 0; i < orderDetail.order_list.length; i++) {
+        if (orderList) {
+            for (let i = 0; i < orderList.length; i++) {
                 const amount = orderDetail.amount_list[i];
 
                 const productName = orderDetail.product_name_list[i];
@@ -141,7 +132,17 @@ function OrderItemSection(props: ItemProp) {
     );
 }
 
+type SectionProp = {
+    orderDetail: any;
+};
+
 function DeliverySection(props: SectionProp) {
+    const name = props.orderDetail.name;
+    const postCode = props.orderDetail.postcode;
+    const address = props.orderDetail.address;
+    const detailAddress = props.orderDetail.detail_address;
+    const deliveryMsg = props.orderDetail.delivery_msg;
+
     let firstNumber: string;
     let thirdNumber: string;
     let phoneNumber: string = props.orderDetail.phone_number;
@@ -159,7 +160,7 @@ function DeliverySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>받는분</th>
-                        <td>{props.orderDetail.name}</td>
+                        <td>{name}</td>
                     </tr>
                     <tr>
                         <th>연락처</th>
@@ -168,14 +169,14 @@ function DeliverySection(props: SectionProp) {
                     <tr>
                         <th>주소</th>
                         <td>
-                            ({props.orderDetail.postcode})
+                            ({postCode})
                             <br />
-                            {props.orderDetail.address + " " + props.orderDetail.detail_address}
+                            {address + " " + detailAddress}
                         </td>
                     </tr>
                     <tr>
                         <th>배송 메시지</th>
-                        <td>{props.orderDetail.delivery_msg ? props.orderDetail.delivery_msg : "\u00A0"}</td>
+                        <td>{deliveryMsg ? deliveryMsg : "\u00A0"}</td>
                     </tr>
                 </tbody>
             </table>
@@ -184,6 +185,10 @@ function DeliverySection(props: SectionProp) {
 }
 
 function PaySection(props: SectionProp) {
+    const orderPrice = props.orderDetail.order_price;
+    const fee = props.orderDetail.fee;
+    const totPrice = props.orderDetail.tot_price;
+
     return (
         <section className="payment-section">
             <h3>결제 정보</h3>
@@ -191,15 +196,15 @@ function PaySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>상품 금액</th>
-                        <td>{props.orderDetail.order_price}원</td>
+                        <td>{orderPrice}원</td>
                     </tr>
                     <tr>
                         <th>배송비</th>
-                        <td>{props.orderDetail.fee}원</td>
+                        <td>{fee}원</td>
                     </tr>
                     <tr>
                         <th>전체 금액</th>
-                        <td>{props.orderDetail.tot_price}원</td>
+                        <td>{totPrice}원</td>
                     </tr>
                 </tbody>
             </table>
@@ -208,10 +213,11 @@ function PaySection(props: SectionProp) {
 }
 
 interface CustomizedState {
-    orderId: string;
+    docId: string;
 }
 
 function Main() {
+    const [orderNum, setOrderNum] = useState("");
     const [orderDetail, setOrderDetail] = useState({});
     const [reviewId, setReviewId] = useState("");
     const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
@@ -220,14 +226,17 @@ function Main() {
     const location = useLocation();
     const state = location.state as CustomizedState;
 
-    let orderId: string;
-    if (state) orderId = state.orderId;
+    let docId: string;
+    if (state) docId = state.docId;
 
     async function fetchOrder() {
-        const docRef = doc(db, "order", orderId);
+        const docRef = doc(db, "order", docId);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) setOrderDetail(docSnap.data());
+        if (docSnap.exists()) {
+            setOrderNum(docSnap.id);
+            setOrderDetail(docSnap.data());
+        }
     }
 
     useEffect(() => {
@@ -242,7 +251,7 @@ function Main() {
     return (
         <main className="wrap">
             <div className="order-detail big-container">
-                <DetailSection orderDetail={orderDetail} />
+                <DetailSection orderDetail={orderDetail} orderNum={orderNum} />
                 <OrderItemSection
                     open={(productName: string) =>
                         setReviewPop(

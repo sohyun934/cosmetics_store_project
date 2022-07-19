@@ -23,29 +23,20 @@ const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../../firebase");
 const getImage_1 = require("../../../utils/getImage");
 function DetailSection(props) {
-    let year;
-    let month;
-    let day;
-    let orderDate;
-    let orderId;
-    if (props.orderDetail.order_id) {
-        year = props.orderDetail.order_id.substr(0, 4);
-        month = props.orderDetail.order_id.substr(4, 2);
-        day = props.orderDetail.order_id.substr(6, 2);
-        orderDate = year + "-" + month + "-" + day;
-        orderId = props.orderDetail.order_id;
-    }
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "detail-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC0C1\uC138 \uC815\uBCF4" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container" }, { children: [(0, jsx_runtime_1.jsxs)("span", { children: ["\uC8FC\uBB38\uC77C\uC790 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderDate })] }), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "order-num" }, { children: ["\uC8FC\uBB38\uBC88\uD638 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderId })] }))] }))] })));
+    const orderDate = props.orderDetail.order_date;
+    const orderNum = props.orderNum;
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "detail-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC0C1\uC138 \uC815\uBCF4" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container" }, { children: [(0, jsx_runtime_1.jsxs)("span", { children: ["\uC8FC\uBB38\uC77C\uC790 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderDate })] }), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "order-num" }, { children: ["\uC8FC\uBB38\uBC88\uD638 : ", (0, jsx_runtime_1.jsx)("strong", { children: orderNum })] }))] }))] })));
 }
 function OrderItemSection(props) {
     const orderDetail = props.orderDetail;
+    const orderList = orderDetail.order_list;
     const reviewId = props.reviewId;
     const [products, setProducts] = (0, react_1.useState)([]);
     function fetchProducts() {
         return __awaiter(this, void 0, void 0, function* () {
             const products = [];
-            if (orderDetail.order_list) {
-                for (let i = 0; i < orderDetail.order_list.length; i++) {
+            if (orderList) {
+                for (let i = 0; i < orderList.length; i++) {
                     const amount = orderDetail.amount_list[i];
                     const productName = orderDetail.product_name_list[i];
                     const productRef = (0, firestore_1.doc)(firebase_1.db, "product", productName);
@@ -77,6 +68,11 @@ function OrderItemSection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-item-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC8FC\uBB38 \uC0C1\uD488" }), (0, jsx_runtime_1.jsxs)("table", { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC8FC\uBB38 \uC815\uBCF4" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: products })] })] })));
 }
 function DeliverySection(props) {
+    const name = props.orderDetail.name;
+    const postCode = props.orderDetail.postcode;
+    const address = props.orderDetail.address;
+    const detailAddress = props.orderDetail.detail_address;
+    const deliveryMsg = props.orderDetail.delivery_msg;
     let firstNumber;
     let thirdNumber;
     let phoneNumber = props.orderDetail.phone_number;
@@ -85,27 +81,33 @@ function DeliverySection(props) {
         thirdNumber = phoneNumber.slice(-4);
         phoneNumber = firstNumber + "-****-" + thirdNumber;
     }
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uBC30\uC1A1\uC9C0 \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC1B\uB294\uBD84" }), (0, jsx_runtime_1.jsx)("td", { children: props.orderDetail.name })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC5F0\uB77D\uCC98" }), (0, jsx_runtime_1.jsx)("td", { children: phoneNumber })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uC18C" }), (0, jsx_runtime_1.jsxs)("td", { children: ["(", props.orderDetail.postcode, ")", (0, jsx_runtime_1.jsx)("br", {}), props.orderDetail.address + " " + props.orderDetail.detail_address] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1 \uBA54\uC2DC\uC9C0" }), (0, jsx_runtime_1.jsx)("td", { children: props.orderDetail.delivery_msg ? props.orderDetail.delivery_msg : "\u00A0" })] })] }) })] })));
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uBC30\uC1A1\uC9C0 \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC1B\uB294\uBD84" }), (0, jsx_runtime_1.jsx)("td", { children: name })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC5F0\uB77D\uCC98" }), (0, jsx_runtime_1.jsx)("td", { children: phoneNumber })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uC18C" }), (0, jsx_runtime_1.jsxs)("td", { children: ["(", postCode, ")", (0, jsx_runtime_1.jsx)("br", {}), address + " " + detailAddress] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1 \uBA54\uC2DC\uC9C0" }), (0, jsx_runtime_1.jsx)("td", { children: deliveryMsg ? deliveryMsg : "\u00A0" })] })] }) })] })));
 }
 function PaySection(props) {
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.order_price, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.tot_price, "\uC6D0"] })] })] }) })] })));
+    const orderPrice = props.orderDetail.order_price;
+    const fee = props.orderDetail.fee;
+    const totPrice = props.orderDetail.tot_price;
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [orderPrice, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [totPrice, "\uC6D0"] })] })] }) })] })));
 }
 function Main() {
+    const [orderNum, setOrderNum] = (0, react_1.useState)("");
     const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
     const [reviewId, setReviewId] = (0, react_1.useState)("");
     const [reviewPop, setReviewPop] = (0, react_1.useState)(null);
     const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
-    let orderId;
+    let docId;
     if (state)
-        orderId = state.orderId;
+        docId = state.docId;
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
-            const docRef = (0, firestore_1.doc)(firebase_1.db, "order", orderId);
+            const docRef = (0, firestore_1.doc)(firebase_1.db, "order", docId);
             const docSnap = yield (0, firestore_1.getDoc)(docRef);
-            if (docSnap.exists())
+            if (docSnap.exists()) {
+                setOrderNum(docSnap.id);
                 setOrderDetail(docSnap.data());
+            }
         });
     }
     (0, react_1.useEffect)(() => {
@@ -117,7 +119,7 @@ function Main() {
             fetchOrder();
         }
     }, []);
-    return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
+    return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail, orderNum: orderNum }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
                                 setReviewPop(null);
                                 if (reviewId)
                                     setReviewId(reviewId);
