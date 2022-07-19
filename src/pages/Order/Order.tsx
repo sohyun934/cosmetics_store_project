@@ -162,6 +162,7 @@ function OrderForm() {
             tot_price: totPrice
         }).then(() => {
             navigate("/order/orderComplete", {
+                replace: true,
                 state: {
                     orderId: orderId
                 }
