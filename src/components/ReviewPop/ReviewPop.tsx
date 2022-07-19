@@ -81,7 +81,7 @@ function ReviewPop(props: Prop) {
         const year = today.getFullYear();
         const month = ("0" + (today.getMonth() + 1)).slice(-2);
         const day = ("0" + today.getDate()).slice(-2);
-        const date = year + "-" + month + "-" + day;
+        const date = year + "." + month + "." + day;
 
         if (mode === "write") {
             const usersQuery = query(collection(db, "users"), where("email", "==", signedInUser));

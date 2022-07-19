@@ -80,7 +80,7 @@ function ReviewPop(props) {
             const year = today.getFullYear();
             const month = ("0" + (today.getMonth() + 1)).slice(-2);
             const day = ("0" + today.getDate()).slice(-2);
-            const date = year + "-" + month + "-" + day;
+            const date = year + "." + month + "." + day;
             if (mode === "write") {
                 const usersQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser));
                 const userSnapshot = yield (0, firestore_1.getDocs)(usersQuery);
