@@ -18,6 +18,7 @@ const react_1 = require("react");
 const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../firebase");
 const styled_components_1 = __importDefault(require("styled-components"));
+const getDate_1 = require("../../utils/getDate");
 const StyledButton = styled_components_1.default.button `
     background: black;
     color: white;
@@ -76,11 +77,12 @@ function ReviewPop(props) {
     }, []);
     function writeReview() {
         return __awaiter(this, void 0, void 0, function* () {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = ("0" + (today.getMonth() + 1)).slice(-2);
-            const day = ("0" + today.getDate()).slice(-2);
-            const date = year + "." + month + "." + day;
+            // const today = new Date();
+            // const year = today.getFullYear();
+            // const month = ("0" + (today.getMonth() + 1)).slice(-2);
+            // const day = ("0" + today.getDate()).slice(-2);
+            // const date = year + "." + month + "." + day;
+            const date = (0, getDate_1.getDate)().join(".");
             if (mode === "write") {
                 const usersQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser));
                 const userSnapshot = yield (0, firestore_1.getDocs)(usersQuery);

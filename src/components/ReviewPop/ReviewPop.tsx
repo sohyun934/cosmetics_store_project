@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { addDoc, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db, signedInUser } from "../../firebase";
 import styled from "styled-components";
+import { getDate } from "../../utils/getDate";
 
 type Prop = {
     close: Function;
@@ -77,11 +78,13 @@ function ReviewPop(props: Prop) {
     }, []);
 
     async function writeReview() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = ("0" + (today.getMonth() + 1)).slice(-2);
-        const day = ("0" + today.getDate()).slice(-2);
-        const date = year + "." + month + "." + day;
+        // const today = new Date();
+        // const year = today.getFullYear();
+        // const month = ("0" + (today.getMonth() + 1)).slice(-2);
+        // const day = ("0" + today.getDate()).slice(-2);
+        // const date = year + "." + month + "." + day;
+
+        const date = getDate().join(".");
 
         if (mode === "write") {
             const usersQuery = query(collection(db, "users"), where("email", "==", signedInUser));

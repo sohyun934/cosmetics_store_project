@@ -81,14 +81,11 @@ function OrderTable() {
                 const detail = product.product_detail;
                 products[productNames[i]] = [name, price, url, url2, url3, detail];
             }
-            orderSnapshot.forEach(document => {
-                const order = document.data();
+            orderSnapshot.forEach(doc => {
+                const order = doc.data();
                 const productNames = order.product_name_list;
                 const amountList = order.amount_list;
-                const year = order.order_id.substr(0, 4);
-                const month = order.order_id.substr(4, 2);
-                const day = order.order_id.substr(6, 2);
-                const orderDate = year + "." + month + "." + day;
+                const orderDate = order.order_date;
                 for (let i = 0; i < productNames.length; i++) {
                     const state = {
                         name: products[productNames[i]][0],
@@ -99,8 +96,8 @@ function OrderTable() {
                         detail: products[productNames[i]][5]
                     };
                     orderItems.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [i === 0 ? ((0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-date", rowSpan: productNames.length }, { children: [orderDate, (0, jsx_runtime_1.jsx)("div", { className: "order-num" }), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderDetail", state: {
-                                            orderId: order.order_id
-                                        } }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))) : (""), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: products[productNames[i]][2], alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [products[productNames[i]][1], "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), document.id + i));
+                                            docId: doc.id
+                                        } }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))) : (""), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: products[productNames[i]][2], alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [products[productNames[i]][1], "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), doc.id + i));
                 }
             });
             setOrderItems(orderItems);

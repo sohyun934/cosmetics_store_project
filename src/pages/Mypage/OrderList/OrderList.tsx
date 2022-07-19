@@ -77,15 +77,11 @@ function OrderTable() {
             products[productNames[i]] = [name, price, url, url2, url3, detail];
         }
 
-        orderSnapshot.forEach(document => {
-            const order = document.data();
+        orderSnapshot.forEach(doc => {
+            const order = doc.data();
             const productNames = order.product_name_list;
             const amountList = order.amount_list;
-
-            const year = order.order_id.substr(0, 4);
-            const month = order.order_id.substr(4, 2);
-            const day = order.order_id.substr(6, 2);
-            const orderDate = year + "." + month + "." + day;
+            const orderDate = order.order_date;
 
             for (let i = 0; i < productNames.length; i++) {
                 const state = {
@@ -98,7 +94,7 @@ function OrderTable() {
                 };
 
                 orderItems.push(
-                    <tr key={document.id + i} className="order-item">
+                    <tr key={doc.id + i} className="order-item">
                         {i === 0 ? (
                             <td className="order-date" rowSpan={productNames.length}>
                                 {orderDate}
@@ -106,7 +102,7 @@ function OrderTable() {
                                 <Link
                                     to="/mypage/orderDetail"
                                     state={{
-                                        orderId: order.order_id
+                                        docId: doc.id
                                     }}
                                 >
                                     상세보기
