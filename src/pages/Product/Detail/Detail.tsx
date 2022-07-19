@@ -222,13 +222,7 @@ function ReviewSection(props: ReviewProp) {
         let totRating = 0;
         const reviews = [];
 
-        if (reviewSnapshot.empty) {
-            reviews.push(
-                <div className="review-container">
-                    <p style={{ textAlign: "center" }}>작성된 리뷰가 없습니다.</p>
-                </div>
-            );
-        } else {
+        if (!reviewSnapshot.empty) {
             reviewSnapshot.forEach(doc => {
                 const review = doc.data();
 
@@ -274,9 +268,8 @@ function ReviewSection(props: ReviewProp) {
 
             setTotRating(fixedRating);
             setTotWidth(totWidth);
+            setReviews(reviews);
         }
-
-        setReviews(reviews);
     }
 
     useEffect(() => {
@@ -309,7 +302,13 @@ function ReviewSection(props: ReviewProp) {
                         <span className="point" style={{ width: totWidth }}></span>
                     </div>
                 </div>
-                {reviews}
+                {reviews.length > 0 ? (
+                    reviews
+                ) : (
+                    <div className="review-container">
+                        <p style={{ textAlign: "center" }}>작성된 리뷰가 없습니다.</p>
+                    </div>
+                )}
             </div>
         </section>
     );

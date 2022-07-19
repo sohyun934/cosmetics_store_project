@@ -133,10 +133,7 @@ function ReviewSection(props) {
             const reviewSnapshot = yield (0, firestore_1.getDocs)(reviewQuery);
             let totRating = 0;
             const reviews = [];
-            if (reviewSnapshot.empty) {
-                reviews.push((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) })));
-            }
-            else {
+            if (!reviewSnapshot.empty) {
                 reviewSnapshot.forEach(doc => {
                     const review = doc.data();
                     const rating = review.rate;
@@ -150,8 +147,8 @@ function ReviewSection(props) {
                 const totWidth = String(Number(fixedRating) * 20) + "%";
                 setTotRating(fixedRating);
                 setTotWidth(totWidth);
+                setReviews(reviews);
             }
-            setReviews(reviews);
         });
     }
     (0, react_1.useEffect)(() => {
@@ -166,7 +163,7 @@ function ReviewSection(props) {
     //         if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
     //     }
     // }
-    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews] })) })));
+    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews.length > 0 ? (reviews) : ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) })))] })) })));
 }
 function Main() {
     let content;
