@@ -1,7 +1,7 @@
 import "./OrderComplete.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
@@ -167,22 +167,30 @@ interface CustomizedState {
 }
 
 function Main() {
+    const [orderDetail, setOrderDetail] = useState({});
+
+    const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
-    const orderId = state.orderId;
-    const [orderDetail, setOrderDetail] = useState({});
+
+    let orderId: string;
+    if (state) orderId = state.orderId;
 
     async function fetchOrder() {
         const docRef = doc(db, "order", orderId);
         const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            setOrderDetail(docSnap.data());
-        }
+        if (docSnap.exists()) setOrderDetail(docSnap.data());
     }
 
     useEffect(() => {
-        fetchOrder();
+        if (!state) {
+            // url로 직접 접속하는 경우 장바구니로 이동
+            alert("정상적이지 않은 접근입니다.");
+            navigate("/mypage/cart");
+        } else {
+            fetchOrder();
+        }
     }, []);
 
     return (

@@ -286,7 +286,10 @@ function Form() {
                 window.recaptchaVerifier = null;
                 window.confirmationResult = null;
 
-                navigate("/member/welcome", { replace: true });
+                navigate("/member/welcome", {
+                    replace: true,
+                    state: { join: "complete" }
+                });
             })
             .catch(error => {
                 alert("가입 과정 중 오류가 발생했습니다.\n" + error.message);

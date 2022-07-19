@@ -58,6 +58,7 @@ const getImage_1 = require("../../../utils/getImage");
 // }
 function OrderTable() {
     const [orderItems, setOrderItems] = (0, react_1.useState)([]);
+    const navigate = (0, react_router_dom_1.useNavigate)();
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
             const orderItems = [];
@@ -106,7 +107,8 @@ function OrderTable() {
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchOrder();
+        // url로 직접 접속, 새로고침 시 인증 페이지로 이동
+        fetchOrder().catch(() => navigate("/mypage/myPageAuthentification"));
     }, []);
     return ((0, jsx_runtime_1.jsxs)("table", Object.assign({ className: "order-table" }, { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uBB38\uC77C\uC790" }), (0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC0C1\uD488" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: orderItems.length > 0 ? (orderItems) : ((0, jsx_runtime_1.jsx)("tr", { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ colSpan: 6, style: { textAlign: "center" } }, { children: (0, jsx_runtime_1.jsx)("p", { children: "\uC8FC\uBB38 \uB0B4\uC5ED\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." }) })) })) })] })));
 }

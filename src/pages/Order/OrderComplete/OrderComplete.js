@@ -75,21 +75,30 @@ function PaySection(props) {
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "payment-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uACB0\uC81C \uC815\uBCF4" }), (0, jsx_runtime_1.jsx)("table", { children: (0, jsx_runtime_1.jsxs)("tbody", { children: [(0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD488 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.order_price, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.fee, "\uC6D0"] })] }), (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC804\uCCB4 \uAE08\uC561" }), (0, jsx_runtime_1.jsxs)("td", { children: [props.orderDetail.tot_price, "\uC6D0"] })] })] }) })] })));
 }
 function Main() {
+    const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
+    const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
-    const orderId = state.orderId;
-    const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
+    let orderId;
+    if (state)
+        orderId = state.orderId;
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
             const docRef = (0, firestore_1.doc)(firebase_1.db, "order", orderId);
             const docSnap = yield (0, firestore_1.getDoc)(docRef);
-            if (docSnap.exists()) {
+            if (docSnap.exists())
                 setOrderDetail(docSnap.data());
-            }
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchOrder();
+        if (!state) {
+            // url로 직접 접속하는 경우 장바구니로 이동
+            alert("정상적이지 않은 접근입니다.");
+            navigate("/mypage/cart");
+        }
+        else {
+            fetchOrder();
+        }
     }, []);
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(NoticeSection, {}), (0, jsx_runtime_1.jsx)(OrderItemSection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(DeliverySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(PaySection, { orderDetail: orderDetail })] })) }));
 }

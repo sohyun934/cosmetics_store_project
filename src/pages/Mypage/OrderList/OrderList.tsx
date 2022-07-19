@@ -2,7 +2,7 @@ import "./OrderList.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db, signedInUser } from "../../../firebase";
@@ -48,6 +48,7 @@ import { getImage } from "../../../utils/getImage";
 
 function OrderTable() {
     const [orderItems, setOrderItems] = useState([]);
+    const navigate = useNavigate();
 
     async function fetchOrder() {
         const orderItems = [];
@@ -138,7 +139,8 @@ function OrderTable() {
     }
 
     useEffect(() => {
-        fetchOrder();
+        // url로 직접 접속, 새로고침 시 인증 페이지로 이동
+        fetchOrder().catch(() => navigate("/mypage/myPageAuthentification"));
     }, []);
 
     return (

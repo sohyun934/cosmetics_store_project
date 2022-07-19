@@ -3,7 +3,7 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import ReviewPop from "../../../components/ReviewPop/ReviewPop";
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db, signedInUser } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
@@ -216,9 +216,12 @@ function Main() {
     const [reviewId, setReviewId] = useState("");
     const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
 
+    const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
-    const orderId = state.orderId;
+
+    let orderId: string;
+    if (state) orderId = state.orderId;
 
     async function fetchOrder() {
         const docRef = doc(db, "order", orderId);
@@ -228,7 +231,12 @@ function Main() {
     }
 
     useEffect(() => {
-        fetchOrder();
+        if (!state) {
+            // url로 직접 접속하는 경우 인증페이지로 이동
+            navigate("/mypage/myPageAuthentification");
+        } else {
+            fetchOrder();
+        }
     }, []);
 
     return (

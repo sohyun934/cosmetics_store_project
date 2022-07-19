@@ -11,13 +11,19 @@ const react_1 = require("react");
 const auth_1 = require("firebase/auth");
 const firebase_1 = require("../../../firebase");
 function Main() {
+    const navigate = (0, react_router_dom_1.useNavigate)();
     const [password, setPassword] = (0, react_1.useState)("");
     const [errorMsg, setErrorMsg] = (0, react_1.useState)("");
-    const user = firebase_1.auth.currentUser;
-    const credential = auth_1.EmailAuthProvider.credential(user.email, password);
-    const navigate = (0, react_router_dom_1.useNavigate)();
+    let signedInUser;
+    let credential;
+    (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
+        if (user) {
+            signedInUser = user;
+            credential = auth_1.EmailAuthProvider.credential(user.email, password);
+        }
+    });
     function passwordChk() {
-        (0, auth_1.reauthenticateWithCredential)(user, credential)
+        (0, auth_1.reauthenticateWithCredential)(signedInUser, credential)
             .then(() => {
             navigate("/mypage/modify", {
                 state: {

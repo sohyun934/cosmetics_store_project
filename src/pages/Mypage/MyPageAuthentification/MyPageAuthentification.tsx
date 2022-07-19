@@ -2,19 +2,26 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, signedInUser } from "../../../firebase";
+import { AuthCredential, EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, User } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 function Main() {
+    const navigate = useNavigate();
     const [password, setPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
-    const user = auth.currentUser;
-    const credential = EmailAuthProvider.credential(user.email, password);
-    const navigate = useNavigate();
+    let signedInUser: User;
+    let credential: AuthCredential;
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            signedInUser = user;
+            credential = EmailAuthProvider.credential(user.email, password);
+        }
+    });
 
     function passwordChk() {
-        reauthenticateWithCredential(user, credential)
+        reauthenticateWithCredential(signedInUser, credential)
             .then(() => {
                 navigate("/mypage/modify", {
                     state: {

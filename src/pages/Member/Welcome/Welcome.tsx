@@ -1,7 +1,8 @@
 import "./Welcome.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 function Main() {
     return (
@@ -19,7 +20,23 @@ function Main() {
     );
 }
 
+interface CustomizedState {
+    join: string;
+}
+
 function Welcome() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+
+    useEffect(() => {
+        if (!state) {
+            // url로 직접 접속하는 경우 메인페이지로 이동
+            alert("정상적이지 않은 접근입니다.");
+            navigate("/");
+        }
+    });
+
     return (
         <div>
             <Header />

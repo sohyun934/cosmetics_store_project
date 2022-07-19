@@ -41,10 +41,16 @@ function OrderForm() {
     const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
-    const orderList = state.orderList;
-    const orderPrice = state.orderPrice;
-    const fee = state.fee;
-    const totPrice = state.totPrice;
+    let orderList;
+    let orderPrice = "0";
+    let fee = "0";
+    let totPrice = "0";
+    if (state) {
+        orderList = state.orderList;
+        orderPrice = state.orderPrice;
+        fee = state.fee;
+        totPrice = state.totPrice;
+    }
     // 사용자 정보 가져오기
     function fetchUser() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -62,9 +68,17 @@ function OrderForm() {
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchUser().catch(() => {
+        // url로 직접 접속하는 경우 장바구니로 이동
+        if (!state) {
+            alert("정상적이지 않은 접근입니다.");
             navigate("/mypage/cart");
-        });
+        }
+        else {
+            // 새로고침 시 장바구니로 이동
+            fetchUser().catch(() => {
+                navigate("/mypage/cart");
+            });
+        }
     }, []);
     // 다음 우편번호 API
     function handleComplete(data) {

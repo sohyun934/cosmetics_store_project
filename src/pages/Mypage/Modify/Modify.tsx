@@ -9,7 +9,7 @@ import { auth, db, signedInUser } from "../../../firebase";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, User, UserCredential } from "firebase/auth";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 type Prop = {
     email: string;
@@ -57,6 +57,7 @@ function Form(props: Prop) {
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = useDaumPostcodePopup(scriptUrl);
 
+    const navigate = useNavigate();
     const location = useLocation();
 
     async function fetchUser() {
@@ -76,7 +77,8 @@ function Form(props: Prop) {
     }
 
     useEffect(() => {
-        fetchUser();
+        // url로 직접 접속, 새로고침 시 인증 페이지로 이동
+        fetchUser().catch(() => navigate("/mypage/myPageAuthentification"));
     }, []);
 
     // 다음 우편번호 API

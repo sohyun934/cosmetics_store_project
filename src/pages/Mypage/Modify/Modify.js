@@ -43,6 +43,7 @@ function Form(props) {
     const { register, handleSubmit, formState: { errors, isValid }, getValues } = (0, react_hook_form_1.useForm)({ mode: "all" });
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = (0, react_daum_postcode_1.useDaumPostcodePopup)(scriptUrl);
+    const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     function fetchUser() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,7 +61,8 @@ function Form(props) {
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchUser();
+        // url로 직접 접속, 새로고침 시 인증 페이지로 이동
+        fetchUser().catch(() => navigate("/mypage/myPageAuthentification"));
     }, []);
     // 다음 우편번호 API
     function handleComplete(data) {

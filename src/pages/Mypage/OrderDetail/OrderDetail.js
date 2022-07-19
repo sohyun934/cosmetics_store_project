@@ -94,9 +94,12 @@ function Main() {
     const [orderDetail, setOrderDetail] = (0, react_1.useState)({});
     const [reviewId, setReviewId] = (0, react_1.useState)("");
     const [reviewPop, setReviewPop] = (0, react_1.useState)(null);
+    const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
-    const orderId = state.orderId;
+    let orderId;
+    if (state)
+        orderId = state.orderId;
     function fetchOrder() {
         return __awaiter(this, void 0, void 0, function* () {
             const docRef = (0, firestore_1.doc)(firebase_1.db, "order", orderId);
@@ -106,7 +109,13 @@ function Main() {
         });
     }
     (0, react_1.useEffect)(() => {
-        fetchOrder();
+        if (!state) {
+            // url로 직접 접속하는 경우 인증페이지로 이동
+            navigate("/mypage/myPageAuthentification");
+        }
+        else {
+            fetchOrder();
+        }
     }, []);
     return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
                                 setReviewPop(null);
