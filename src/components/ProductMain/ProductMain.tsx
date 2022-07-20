@@ -1,10 +1,24 @@
 import MoveTop from "../MoveTop/MoveTop";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { collection, DocumentData, FieldPath, getDocs, limit, orderBy, OrderByDirection, query, QuerySnapshot, startAfter, where } from "firebase/firestore";
-import { db } from "../../firebase";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+    addDoc,
+    collection,
+    DocumentData,
+    FieldPath,
+    getDocs,
+    limit,
+    orderBy,
+    OrderByDirection,
+    query,
+    QuerySnapshot,
+    startAfter,
+    where
+} from "firebase/firestore";
+import { db, signedInUser } from "../../firebase";
 import { getImage } from "../../utils/getImage";
 import styled from "styled-components";
+import CartPop from "../../pages/Mypage/Cart/CartPop/CartPop";
 
 const StyledButton = styled.button`
     @media (min-width: 900px) {
@@ -15,9 +29,11 @@ const StyledButton = styled.button`
 function ProductMain() {
     const [more, setMore] = useState(false);
     const [products, setProducts] = useState([]);
-    const [wishToggle, setWishToggle] = useState(false);
     const [lastVisible, setLastVisible] = useState(null);
+    const [pop, setPop] = useState<string>("");
+    const [popContent, setPopContent] = useState<JSX.Element | null>(null);
 
+    const navigate = useNavigate();
     const pathname = useLocation().pathname.substring(1);
     const limitNum = 12;
 
@@ -44,8 +60,44 @@ function ProductMain() {
         }
     };
 
+    const closePop = () => {
+        setPop("");
+        setPopContent(null);
+    };
+
+    useEffect(() => {
+        if (pop === "cart") {
+            setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
+        } else if (pop === "overlap") {
+            setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
+        }
+    }, [pop]);
+
+    const handleAddCart = async (productName: string) => {
+        if (!signedInUser) {
+            navigate("/login");
+        } else {
+            const cartList = await getDocs(query(collection(db, "cart"), where("user_email", "==", signedInUser)));
+            const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", productName));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                await addDoc(collection(db, "cart"), {
+                    cart_id: cartList.size + 1,
+                    product_name: productName,
+                    user_email: signedInUser,
+                    amount: 1
+                });
+
+                setPop("cart");
+            } else {
+                setPop("overlap");
+            }
+        }
+    };
+
     // 상품 리스트 가져오기
-    async function fetchProducts(field: string | FieldPath, direction: OrderByDirection) {
+    const fetchProducts = async (field: string | FieldPath, direction: OrderByDirection) => {
         let productSnapshot: QuerySnapshot<DocumentData>;
         let productList: any[];
 
@@ -67,7 +119,13 @@ function ProductMain() {
             if (restProducts.size <= limitNum) setMore(false);
 
             // 더보기 버튼 클릭 시 상품 추가로 가져오기
-            const more = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), startAfter(lastVisible), limit(limitNum));
+            const more = query(
+                collection(db, "product"),
+                where("product_type", "==", pathname),
+                orderBy(field, direction),
+                startAfter(lastVisible),
+                limit(limitNum)
+            );
             productSnapshot = await getDocs(more);
 
             productList = [...products];
@@ -101,7 +159,6 @@ function ProductMain() {
                         >
                             <div className="thumb">
                                 <img src={urls[i]} alt={data.product_name} />
-                                <button className={wishToggle ? "wish-btn on " : "wish-btn"} onClick={() => setWishToggle(!wishToggle)}></button>
                             </div>
                             <div className="info">
                                 <div className="name">
@@ -113,7 +170,7 @@ function ProductMain() {
                             </div>
                         </Link>
                         <div className="util-btn-container">
-                            <button className="cart-btn gray-style-btn">
+                            <button className="cart-btn gray-style-btn" onClick={() => handleAddCart(data.product_name)}>
                                 <span>CART</span>
                             </button>
                         </div>
@@ -123,7 +180,7 @@ function ProductMain() {
         }
 
         setProducts(productList);
-    }
+    };
 
     useEffect(() => {
         fetchProducts("product_id", "desc");
@@ -171,6 +228,7 @@ function ProductMain() {
                     <></>
                 )}
             </section>
+            {popContent}
             <MoveTop />
         </main>
     );
