@@ -28,7 +28,7 @@ const StyledInput = styled_components_1.default.input `
         border-bottom: 1px solid #e5e5e5 !important;
     }
 `;
-function OrderForm() {
+function OrderForm(props) {
     const [name, setName] = (0, react_1.useState)("");
     const [email, setEmail] = (0, react_1.useState)("");
     const [phoneNumber, setPhoneNumber] = (0, react_1.useState)("");
@@ -39,23 +39,13 @@ function OrderForm() {
     const [disabled, setDisabled] = (0, react_1.useState)(true);
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = (0, react_daum_postcode_1.useDaumPostcodePopup)(scriptUrl);
+    const fromCart = props.state.fromCart;
+    const orderList = props.state.orderList;
+    const amount = props.state.amount;
+    const orderPrice = props.state.orderPrice;
+    const fee = props.state.fee;
+    const totPrice = props.state.totPrice;
     const navigate = (0, react_router_dom_1.useNavigate)();
-    const location = (0, react_router_dom_1.useLocation)();
-    const state = location.state;
-    let fromCart;
-    let orderList;
-    let amount;
-    let orderPrice = "0";
-    let fee = "0";
-    let totPrice = "0";
-    if (state) {
-        fromCart = state.fromCart;
-        orderList = state.orderList;
-        amount = state.amount;
-        orderPrice = state.orderPrice;
-        fee = state.fee;
-        totPrice = state.totPrice;
-    }
     // 사용자 정보 가져오기
     const fetchUser = () => __awaiter(this, void 0, void 0, function* () {
         const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser));
@@ -71,17 +61,10 @@ function OrderForm() {
         });
     });
     (0, react_1.useEffect)(() => {
-        if (!state) {
-            // url로 직접 접속하는 경우 이전 페이지로 이동
-            alert("정상적이지 않은 접근입니다.");
+        // 새로고침 시 이전페이지로 이동
+        fetchUser().catch(() => {
             navigate(-1);
-        }
-        else {
-            // 새로고침 시 이전 페이지로 이동
-            fetchUser().catch(() => {
-                navigate(-1);
-            });
-        }
+        });
     }, []);
     // 다음 우편번호 API
     const handleComplete = data => {
@@ -169,7 +152,17 @@ function OrderForm() {
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Delivery" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uBC1B\uB294 \uBD84", value: name, onChange: e => setName(e.target.value) }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638", value: phoneNumber, onChange: e => setPhoneNumber(e.target.value) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "postcode-wrap" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { className: "userPostcode", type: "text", placeholder: "\uC6B0\uD3B8\uBC88\uD638", value: postcode, onChange: e => setPostcode(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "search-btn", onClick: handleSearch })] })), (0, jsx_runtime_1.jsx)(StyledInput, { className: "userAddress", type: "text", placeholder: "\uAE30\uBCF8 \uC8FC\uC18C", value: address, onChange: e => setAddress(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("input", { className: "userDetailAddress", type: "text", placeholder: "\uC0C1\uC138 \uC8FC\uC18C", value: detailAddress, onChange: e => setDetailAddress(e.target.value) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-msg" }, { children: [(0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => setDeliveryMsg(e.target.value) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "" }, { children: "\uC9C1\uC811 \uC785\uB825" })), (0, jsx_runtime_1.jsx)("option", { children: "\uBC30\uC1A1 \uC804 \uC5F0\uB77D \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBD80\uC7AC \uC2DC \uACBD\uBE44\uC2E4\uC5D0 \uB9E1\uACA8\uC8FC\uC138\uC694." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBB38 \uC55E \uBC30\uC1A1 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." })] })), (0, jsx_runtime_1.jsx)("textarea", { rows: 5, cols: 50, maxLength: 50, placeholder: "\uBC30\uC1A1\uBA54\uC2DC\uC9C0 \uC9C1\uC811 \uC785\uB825 (50\uC790 \uC774\uB0B4)", value: deliveryMsg, onChange: e => setDeliveryMsg(e.target.value), style: { fontSize: "1rem" } })] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "check-out-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Check Out" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "check-out-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uC8FC\uBB38\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "cancel-btn border-style-btn", onClick: () => navigate(-1) }, { children: "\uCDE8\uC18C\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "pay-btn", onClick: handleOrder, disabled: disabled }, { children: "\uACB0\uC81C\uD558\uAE30" }))] }))] }))] })));
 }
 function Main() {
-    return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-container big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "ORDER" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsx)(OrderForm, {}) }))] })) }));
+    const navigate = (0, react_router_dom_1.useNavigate)();
+    const location = (0, react_router_dom_1.useLocation)();
+    const state = location.state;
+    (0, react_1.useEffect)(() => {
+        if (!state) {
+            // url로 직접 접속하는 경우 메인페이지로 이동
+            alert("정상적이지 않은 접근입니다.");
+            navigate("/");
+        }
+    });
+    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-container big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "ORDER" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsx)(OrderForm, { state: state }) }))] })) })) }));
 }
 function Order() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));

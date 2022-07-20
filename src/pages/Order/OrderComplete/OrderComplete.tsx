@@ -195,23 +195,27 @@ function Main() {
 
     useEffect(() => {
         if (!state) {
-            // url로 직접 접속하는 경우 장바구니로 이동
+            // url로 직접 접속하는 경우 메인페이지로 이동
             alert("정상적이지 않은 접근입니다.");
-            navigate("/mypage/cart");
+            navigate("/");
         } else {
             fetchOrder();
         }
     }, []);
 
     return (
-        <main>
-            <div className="order-detail big-container">
-                <NoticeSection />
-                <OrderItemSection orderDetail={orderDetail} />
-                <DeliverySection orderDetail={orderDetail} />
-                <PaySection orderDetail={orderDetail} />
-            </div>
-        </main>
+        <>
+            {state && (
+                <main>
+                    <div className="order-detail big-container">
+                        <NoticeSection />
+                        <OrderItemSection orderDetail={orderDetail} />
+                        <DeliverySection orderDetail={orderDetail} />
+                        <PaySection orderDetail={orderDetail} />
+                    </div>
+                </main>
+            )}
+        </>
     );
 }
 

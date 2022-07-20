@@ -35,14 +35,18 @@ function Welcome() {
             alert("정상적이지 않은 접근입니다.");
             navigate("/");
         }
-    });
+    }, [state]);
 
     return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
+        <>
+            {state && (
+                <div>
+                    <Header />
+                    <Main />
+                    <Footer />
+                </div>
+            )}
+        </>
     );
 }
 

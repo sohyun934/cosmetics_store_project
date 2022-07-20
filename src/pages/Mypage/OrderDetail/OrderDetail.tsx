@@ -249,34 +249,38 @@ function Main() {
     }, []);
 
     return (
-        <main className="wrap">
-            <div className="order-detail big-container">
-                <DetailSection orderDetail={orderDetail} orderNum={orderNum} />
-                <OrderItemSection
-                    open={(productName: string) =>
-                        setReviewPop(
-                            <ReviewPop
-                                close={(reviewId: string) => {
-                                    setReviewPop(null);
-                                    if (reviewId) setReviewId(reviewId);
-                                }}
-                                productName={productName}
-                            />
-                        )
-                    }
-                    orderDetail={orderDetail}
-                    reviewId={reviewId}
-                />
-                <DeliverySection orderDetail={orderDetail} />
-                <PaySection orderDetail={orderDetail} />
-                <div className="list-btn-wrap">
-                    <Link to="/mypage/orderList" className="order-list-btn border-style-btn">
-                        목록
-                    </Link>
-                </div>
-            </div>
-            {reviewPop}
-        </main>
+        <>
+            {state && (
+                <main className="wrap">
+                    <div className="order-detail big-container">
+                        <DetailSection orderDetail={orderDetail} orderNum={orderNum} />
+                        <OrderItemSection
+                            open={(productName: string) =>
+                                setReviewPop(
+                                    <ReviewPop
+                                        close={(reviewId: string) => {
+                                            setReviewPop(null);
+                                            if (reviewId) setReviewId(reviewId);
+                                        }}
+                                        productName={productName}
+                                    />
+                                )
+                            }
+                            orderDetail={orderDetail}
+                            reviewId={reviewId}
+                        />
+                        <DeliverySection orderDetail={orderDetail} />
+                        <PaySection orderDetail={orderDetail} />
+                        <div className="list-btn-wrap">
+                            <Link to="/mypage/orderList" className="order-list-btn border-style-btn">
+                                목록
+                            </Link>
+                        </div>
+                    </div>
+                    {reviewPop}
+                </main>
+            )}
+        </>
     );
 }
 

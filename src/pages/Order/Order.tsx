@@ -24,7 +24,11 @@ const StyledInput = styled.input`
     }
 `;
 
-function OrderForm() {
+type Prop = {
+    state: CustomizedState;
+};
+
+function OrderForm(props: Prop) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -37,25 +41,14 @@ function OrderForm() {
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = useDaumPostcodePopup(scriptUrl);
 
+    const fromCart = props.state.fromCart;
+    const orderList = props.state.orderList;
+    const amount = props.state.amount;
+    const orderPrice = props.state.orderPrice;
+    const fee = props.state.fee;
+    const totPrice = props.state.totPrice;
+
     const navigate = useNavigate();
-    const location = useLocation();
-    const state = location.state as CustomizedState;
-
-    let fromCart: boolean;
-    let orderList: string[];
-    let amount: number | undefined;
-    let orderPrice: string = "0";
-    let fee: string = "0";
-    let totPrice: string = "0";
-
-    if (state) {
-        fromCart = state.fromCart;
-        orderList = state.orderList;
-        amount = state.amount;
-        orderPrice = state.orderPrice;
-        fee = state.fee;
-        totPrice = state.totPrice;
-    }
 
     // 사용자 정보 가져오기
     const fetchUser = async () => {
@@ -75,16 +68,10 @@ function OrderForm() {
     };
 
     useEffect(() => {
-        if (!state) {
-            // url로 직접 접속하는 경우 이전 페이지로 이동
-            alert("정상적이지 않은 접근입니다.");
+        // 새로고침 시 이전페이지로 이동
+        fetchUser().catch(() => {
             navigate(-1);
-        } else {
-            // 새로고침 시 이전 페이지로 이동
-            fetchUser().catch(() => {
-                navigate(-1);
-            });
-        }
+        });
     }, []);
 
     // 다음 우편번호 API
@@ -272,15 +259,31 @@ function OrderForm() {
 }
 
 function Main() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+
+    useEffect(() => {
+        if (!state) {
+            // url로 직접 접속하는 경우 메인페이지로 이동
+            alert("정상적이지 않은 접근입니다.");
+            navigate("/");
+        }
+    });
+
     return (
-        <main>
-            <div className="order-container big-container">
-                <h1>ORDER</h1>
-                <div className="section-container">
-                    <OrderForm />
-                </div>
-            </div>
-        </main>
+        <>
+            {state && (
+                <main>
+                    <div className="order-container big-container">
+                        <h1>ORDER</h1>
+                        <div className="section-container">
+                            <OrderForm state={state} />
+                        </div>
+                    </div>
+                </main>
+            )}
+        </>
     );
 }
 

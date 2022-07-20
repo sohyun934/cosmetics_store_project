@@ -119,11 +119,11 @@ function Main() {
             fetchOrder();
         }
     }, []);
-    return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail, orderNum: orderNum }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
-                                setReviewPop(null);
-                                if (reviewId)
-                                    setReviewId(reviewId);
-                            }, productName: productName })), orderDetail: orderDetail, reviewId: reviewId }), (0, jsx_runtime_1.jsx)(DeliverySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(PaySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] })));
+    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "wrap" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-detail big-container" }, { children: [(0, jsx_runtime_1.jsx)(DetailSection, { orderDetail: orderDetail, orderNum: orderNum }), (0, jsx_runtime_1.jsx)(OrderItemSection, { open: (productName) => setReviewPop((0, jsx_runtime_1.jsx)(ReviewPop_1.default, { close: (reviewId) => {
+                                    setReviewPop(null);
+                                    if (reviewId)
+                                        setReviewId(reviewId);
+                                }, productName: productName })), orderDetail: orderDetail, reviewId: reviewId }), (0, jsx_runtime_1.jsx)(DeliverySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)(PaySection, { orderDetail: orderDetail }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] }))) }));
 }
 function OrderDetail() {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
