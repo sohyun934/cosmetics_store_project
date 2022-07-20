@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, A11y, Autoplay } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
-import WishPop from "../../../components/WishPop/WishPop";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getImage } from "../../../utils/getImage";
 import { db, signedInUser } from "../../../firebase";
@@ -135,7 +134,7 @@ function ProductSection(props: ProductionProp) {
                     <h2>
                         <strong>{productName}</strong>
                     </h2>
-                    <div className="price-wish-container flex">
+                    <div className="price-container flex">
                         <span className="price big-txt">
                             <strong>{strPrice}원</strong>
                         </span>
@@ -370,9 +369,7 @@ function Main() {
     }
 
     useEffect(() => {
-        if (pop === "wish") {
-            setPopContent(<WishPop close={closePop} />);
-        } else if (pop === "cart") {
+        if (pop === "cart") {
             setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
         } else if (pop === "overlap") {
             setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);

@@ -9,7 +9,6 @@ import Modify from "../pages/Mypage/Modify/Modify";
 import MyPageAuthentification from "../pages/Mypage/MyPageAuthentification/MyPageAuthentification";
 import OrderDetail from "../pages/Mypage/OrderDetail/OrderDetail";
 import OrderList from "../pages/Mypage/OrderList/OrderList";
-import WishList from "../pages/Mypage/WishList/WishList";
 import Order from "../pages/Order/Order";
 import OrderComplete from "../pages/Order/OrderComplete/OrderComplete";
 import Best from "../pages/Product/Best/Best";
@@ -35,7 +34,6 @@ function App() {
             <Route path="/mypage/myPageAuthentification" element={<MyPageAuthentification />} />
             <Route path="/mypage/orderDetail" element={<OrderDetail />} />
             <Route path="/mypage/OrderList" element={<OrderList />} />
-            <Route path="/mypage/WishList" element={<WishList />} />
             <Route path="/order" element={<Order />} />
             <Route path="/order/orderComplete" element={<OrderComplete />} />
             <Route path="/privacyPolicy" element={<PrivacyPolicy />} />

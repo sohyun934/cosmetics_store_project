@@ -9,7 +9,6 @@ function Lnb(props: Prop) {
     const lnb = [
         { path: "modify", title: "회원정보" },
         { path: "orderList", title: "주문내역" },
-        { path: "wishList", title: "위시리스트" },
         { path: "cart", title: "장바구니" }
     ];
 
