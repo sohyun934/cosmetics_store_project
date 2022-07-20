@@ -50,7 +50,7 @@ function CartForm() {
     const navigate = useNavigate();
 
     // 주문서 가격 설정
-    function handlePrice(orderPrice: number): void {
+    const handlePrice = (orderPrice: number) => {
         setOrderPrice(String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
 
         let fee = 0;
@@ -58,10 +58,10 @@ function CartForm() {
         setFee(String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
 
         setTotPrice(String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-    }
+    };
 
     // 장바구니 상품 수량 변경
-    async function handleAmt(i: number, id: string, amount: number): Promise<void> {
+    const handleAmt = async (i: number, id: string, amount: number) => {
         const cartItemRef = doc(db, "cart", id);
 
         await updateDoc(cartItemRef, {
@@ -77,10 +77,10 @@ function CartForm() {
 
             window.confirm("수량 변경이 완료되었습니다.");
         });
-    }
+    };
 
     // 장바구니 리스트 가져오기
-    async function fetchCart(userEmail: string) {
+    const fetchCart = async (userEmail: string) => {
         const q = query(collection(db, "cart"), where("user_email", "==", userEmail), orderBy("cart_id", "desc"));
         const querySnapshot = await getDocs(q);
 
@@ -136,46 +136,46 @@ function CartForm() {
         setCartAmountList(cartAmountList);
         setCartPriceList(cartPriceList);
         setCartList(cartList);
-    }
+    };
 
-    function getCartList() {
+    const getCartList = () => {
         onAuthStateChanged(auth, user => {
             if (user) fetchCart(user.email);
         });
-    }
+    };
 
     useEffect(() => {
         getCartList();
     }, []);
 
     // 체크박스 단일 선택
-    function handleSingleCheck(isChecked: boolean, id: string) {
+    const handleSingleCheck = (isChecked: boolean, id: string) => {
         if (isChecked) {
             setCheckList(checkList => [...checkList, id]);
         } else {
             setCheckList(checkList => checkList.filter(el => el !== id));
         }
-    }
+    };
 
     // 체크박스 전체 선택
-    function handleAllCheck(isChecked: boolean) {
+    const handleAllCheck = (isChecked: boolean) => {
         if (isChecked) {
             setCheckList(cartIdList);
         } else {
             setCheckList([]);
         }
-    }
+    };
 
     // 장바구니 개별 삭제
-    async function delCartItem(id: string) {
+    const handleDel = async (id: string) => {
         await deleteDoc(doc(db, "cart", id)).then(() => {
             setCheckList([]);
             getCartList();
         });
-    }
+    };
 
     // 장바구니 선택 삭제
-    async function delCartItems(e: React.MouseEvent<HTMLElement>) {
+    const handlePartDel = async (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
 
         if (checkList.length === 0) {
@@ -190,10 +190,10 @@ function CartForm() {
                 }
             }
         }
-    }
+    };
 
     // 장바구니 전체 삭제
-    async function delCartList(e: React.MouseEvent<HTMLElement>) {
+    const handleAllDel = async (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
 
         if (window.confirm("장바구니를 비우시겠습니까?")) {
@@ -204,10 +204,10 @@ function CartForm() {
                 });
             }
         }
-    }
+    };
 
     // 선택 주문
-    async function handleOrder() {
+    const handleOrder = async () => {
         if (checkList.length === 0) {
             alert("선택된 상품이 없습니다.");
         } else {
@@ -226,10 +226,13 @@ function CartForm() {
                 orderPrice += cart.amount * product.product_price;
             }
 
-            if (orderPrice > 0 && orderPrice < 30000) fee = 3000;
+            if (orderPrice > 0 && orderPrice < 30000) {
+                fee = 3000;
+            }
 
             navigate("/order", {
                 state: {
+                    fromCart: true,
                     orderList: checkList,
                     orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
                     fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
@@ -237,19 +240,20 @@ function CartForm() {
                 }
             });
         }
-    }
+    };
 
     // 전체 주문
-    function handleAllOrder() {
+    const handleAllOrder = () => {
         navigate("/order", {
             state: {
+                fromCart: true,
                 orderList: cartIdList,
                 orderPrice: orderPrice,
                 fee: fee,
                 totPrice: totPrice
             }
         });
-    }
+    };
 
     return (
         <form className="flex" action="#" method="post">
@@ -277,7 +281,7 @@ function CartForm() {
                                             </StyledSelect>
                                         </td>
                                         <td className="del-util">
-                                            <button type="button" className="del-btn" onClick={() => delCartItem(cartIdList[i])}></button>
+                                            <button type="button" className="del-btn" onClick={() => handleDel(cartIdList[i])}></button>
                                         </td>
                                     </tr>
                                 );
@@ -295,10 +299,10 @@ function CartForm() {
                         checked={cartList.length !== 0 && checkList.length === cartList.length ? true : false}
                         onChange={e => handleAllCheck(e.target.checked)}
                     />
-                    <a href="/" onClick={delCartItems}>
+                    <a href="/" onClick={handlePartDel}>
                         선택삭제
                     </a>
-                    <a href="/" onClick={delCartList}>
+                    <a href="/" onClick={handleAllDel}>
                         전체삭제
                     </a>
                 </div>
