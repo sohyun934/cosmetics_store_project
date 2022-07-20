@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -24,9 +24,12 @@ export const db = getFirestore(app, {
 export const auth = getAuth();
 export let signedInUser;
 
-onAuthStateChanged(auth, user => {
-    if (user) signedInUser = user.email;
-    else signedInUser = null;
+// Modifying the Auth state persistence
+setPersistence(auth, browserSessionPersistence).then(() => {
+    onAuthStateChanged(auth, user => {
+        if (user) signedInUser = user.email;
+        else signedInUser = null;
+    });
 });
 
 export const storage = getStorage();
