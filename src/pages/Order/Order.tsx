@@ -2,7 +2,7 @@ import "./Order.css";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { db, signedInUser } from "../../firebase";
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
@@ -10,7 +10,9 @@ import styled from "styled-components";
 import { getDate } from "../../utils/getDate";
 
 interface CustomizedState {
+    fromCart: boolean;
     orderList: string[];
+    amount: number | undefined;
     orderPrice: string;
     fee: string;
     totPrice: string;
@@ -39,20 +41,24 @@ function OrderForm() {
     const location = useLocation();
     const state = location.state as CustomizedState;
 
+    let fromCart: boolean;
     let orderList: string[];
+    let amount: number | undefined;
     let orderPrice: string = "0";
     let fee: string = "0";
     let totPrice: string = "0";
 
     if (state) {
+        fromCart = state.fromCart;
         orderList = state.orderList;
+        amount = state.amount;
         orderPrice = state.orderPrice;
         fee = state.fee;
         totPrice = state.totPrice;
     }
 
     // 사용자 정보 가져오기
-    async function fetchUser() {
+    const fetchUser = async () => {
         const q = query(collection(db, "users"), where("email", "==", signedInUser));
 
         const querySnapshot = await getDocs(q);
@@ -66,23 +72,23 @@ function OrderForm() {
             setAddress(user.address);
             setDetailAddress(user.detail_address);
         });
-    }
+    };
 
     useEffect(() => {
-        // url로 직접 접속하는 경우 장바구니로 이동
         if (!state) {
+            // url로 직접 접속하는 경우 이전 페이지로 이동
             alert("정상적이지 않은 접근입니다.");
-            navigate("/mypage/cart");
+            navigate(-1);
         } else {
-            // 새로고침 시 장바구니로 이동
+            // 새로고침 시 이전 페이지로 이동
             fetchUser().catch(() => {
-                navigate("/mypage/cart");
+                navigate(-1);
             });
         }
     }, []);
 
     // 다음 우편번호 API
-    function handleComplete(data) {
+    const handleComplete = data => {
         let addr = "";
 
         // 사용자가 도로명 주소를 선택했을 경우
@@ -92,11 +98,11 @@ function OrderForm() {
 
         setPostcode(data.zonecode);
         setAddress(addr);
-    }
+    };
 
-    function handleClick() {
+    const handleSearch = () => {
         open({ onComplete: handleComplete });
-    }
+    };
 
     // 유효성 검증 후 결제하기 버튼 활성화
     useEffect(() => {
@@ -104,48 +110,46 @@ function OrderForm() {
         else setDisabled(true);
     }, [name, phoneNumber, postcode, address, detailAddress]);
 
-    // function getToday() {
-    //     const date = new Date();
-    //     const year = date.getFullYear();
-    //     const month = ("0" + (1 + date.getMonth())).slice(-2);
-    //     const day = ("0" + date.getDate()).slice(-2);
-
-    //     return year + month + day;
-    // }
-
     // 난수 생성
-    function generateRandomCode(n: number) {
+    const getRandomCode = (n: number) => {
         let str = "";
         for (let i = 0; i < n; i++) str += Math.floor(Math.random() * 10);
 
         return str;
-    }
+    };
 
     // 주문 진행
-    async function order() {
+    const handleOrder = async () => {
         const querySnapshot = await getDocs(collection(db, "order"));
         const orderId = String(querySnapshot.size + 1);
 
         const date = getDate();
-        const randomCode = generateRandomCode(4);
+        const randomCode = getRandomCode(4);
         const orderNum = date.join("") + randomCode;
 
         const amountList = [];
         const productNameList = [];
 
-        for (let i = 0; i < orderList.length; i++) {
-            const cartRef = doc(db, "cart", orderList[i]);
-            const cartSnap = await getDoc(cartRef);
+        if (fromCart) {
+            // 장바구니에서 주문
+            for (let i = 0; i < orderList.length; i++) {
+                const cartRef = doc(db, "cart", orderList[i]);
+                const cartSnap = await getDoc(cartRef);
 
-            if (cartSnap.exists()) {
-                const cart = cartSnap.data();
+                if (cartSnap.exists()) {
+                    const cart = cartSnap.data();
 
-                amountList.push(cart.amount);
-                productNameList.push(cart.product_name);
+                    amountList.push(cart.amount);
+                    productNameList.push(cart.product_name);
 
-                // 장바구니에서 삭제
-                await deleteDoc(doc(db, "cart", orderList[i]));
+                    // 장바구니에서 삭제
+                    await deleteDoc(doc(db, "cart", orderList[i]));
+                }
             }
+        } else {
+            // 상품 상세페이지에서 주문
+            amountList.push(amount);
+            productNameList.push(orderList[0]);
         }
 
         // firestore에 주문 정보 등록
@@ -173,10 +177,10 @@ function OrderForm() {
                 }
             });
         });
-    }
+    };
 
     return (
-        <form className="flex" action="#" method="post">
+        <form className="flex">
             <section className="delivery-section">
                 <h2>Delivery</h2>
                 <div className="input-container">
@@ -191,7 +195,7 @@ function OrderForm() {
                             onChange={e => setPostcode(e.target.value)}
                             readOnly
                         />
-                        <button type="button" className="search-btn" onClick={handleClick}></button>
+                        <button type="button" className="search-btn" onClick={handleSearch}></button>
                     </div>
                     <StyledInput
                         className="userAddress"
@@ -255,10 +259,10 @@ function OrderForm() {
                     </div>
                 </div>
                 <div className="btn-container flex">
-                    <Link to="/mypage/cart" className="cancel-btn border-style-btn">
+                    <button type="button" className="cancel-btn border-style-btn" onClick={() => navigate(-1)}>
                         취소하기
-                    </Link>
-                    <button type="button" className="pay-btn" onClick={order} disabled={disabled}>
+                    </button>
+                    <button type="button" className="pay-btn" onClick={handleOrder} disabled={disabled}>
                         결제하기
                     </button>
                 </div>

@@ -30,20 +30,17 @@ const getImage_1 = require("../../../utils/getImage");
 const firebase_1 = require("../../../firebase");
 const firestore_1 = require("firebase/firestore");
 function ProductSection(props) {
-    const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    const [wishToggle, setWishToggle] = (0, react_1.useState)(false);
-    const [totPrice, setTotPrice] = (0, react_1.useState)(props.price);
+    const productName = props.name;
+    const price = Number(props.price);
+    const strPrice = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const [totPrice, setTotPrice] = (0, react_1.useState)(strPrice);
     const [amount, setAmount] = (0, react_1.useState)(1);
     const navigate = (0, react_router_dom_1.useNavigate)();
-    function openWishPop() {
-        if (wishToggle === false)
-            props.open("wish");
-        setWishToggle(!wishToggle);
-    }
-    function minus() {
+    // 수량 변경
+    const handleMinus = () => {
         setAmount(amount === 1 ? 1 : amount - 1);
-    }
-    function changeAmt(e) {
+    };
+    const handleAmt = (e) => {
         const amount = Number(e.target.value);
         if (amount > 3) {
             alert("최대 주문수량은 3개 입니다.");
@@ -60,40 +57,58 @@ function ProductSection(props) {
         else {
             setAmount(Number(e.target.value));
         }
-    }
-    function plus() {
+    };
+    const handlePlus = () => {
         setAmount(amount === 3 ? 3 : amount + 1);
         if (amount === 3)
             alert("최대 주문수량은 3개 입니다.");
-    }
+    };
+    // 수량 변경에 따른 총액 변경
     (0, react_1.useEffect)(() => {
-        setTotPrice(String(Number(props.price) * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-    }, [props.price, amount]);
-    function addCart() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!firebase_1.signedInUser) {
-                navigate("/login");
+        setTotPrice(String(price * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+    }, [price, amount]);
+    // 장바구니 담기
+    const handleAddCart = () => __awaiter(this, void 0, void 0, function* () {
+        if (!firebase_1.signedInUser) {
+            navigate("/login");
+        }
+        else {
+            const cartList = yield (0, firestore_1.getDocs)((0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser)));
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser), (0, firestore_1.where)("product_name", "==", productName));
+            const querySnapshot = yield (0, firestore_1.getDocs)(q);
+            if (querySnapshot.empty) {
+                yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.db, "cart"), {
+                    cart_id: cartList.size + 1,
+                    product_name: productName,
+                    user_email: firebase_1.signedInUser,
+                    amount: amount
+                });
+                props.open("cart");
             }
             else {
-                const cartList = yield (0, firestore_1.getDocs)((0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser)));
-                const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser), (0, firestore_1.where)("product_name", "==", props.name));
-                const querySnapshot = yield (0, firestore_1.getDocs)(q);
-                if (querySnapshot.empty) {
-                    yield (0, firestore_1.addDoc)((0, firestore_1.collection)(firebase_1.db, "cart"), {
-                        cart_id: cartList.size + 1,
-                        product_name: props.name,
-                        user_email: firebase_1.signedInUser,
-                        amount: amount
-                    });
-                    props.open("cart");
-                }
-                else {
-                    props.open("overlap");
-                }
+                props.open("overlap");
+            }
+        }
+    });
+    // 주문하기
+    const handleOrder = () => __awaiter(this, void 0, void 0, function* () {
+        const orderPrice = price * amount;
+        let fee = 0;
+        if (orderPrice > 0 && orderPrice < 30000) {
+            fee = 3000;
+        }
+        navigate("/order", {
+            state: {
+                fromCart: false,
+                orderList: [productName],
+                amount: amount,
+                orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
             }
         });
-    }
-    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section flex" }, { children: [(0, jsx_runtime_1.jsxs)(react_2.Swiper, Object.assign({ className: "thumb", modules: [swiper_1.Pagination, swiper_1.A11y, swiper_1.Autoplay], spaceBetween: 0, slidesPerView: 1, pagination: { clickable: true }, loop: true, autoplay: { delay: 3000 } }, { children: [(0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[0], alt: `${props.name}01` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[1], alt: `${props.name}02` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[2], alt: `${props.name}03` }) })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "info" }, { children: (0, jsx_runtime_1.jsxs)("form", Object.assign({ method: "post" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: (0, jsx_runtime_1.jsx)("strong", { children: props.name }) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "price-wish-container flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price, "\uC6D0"] }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "wish-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: wishToggle ? "wish-btn on" : "wish-btn", onClick: openWishPop }) }))] })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cnt-container flex" }, { children: [(0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: minus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: amount, onChange: changeAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: plus })] })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", { children: "30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "util-btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "cart-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn", type: "button", onClick: addCart }, { children: "\uC7A5\uBC14\uAD6C\uB2C8" })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "order-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "order-btn" }, { children: "\uAD6C\uB9E4\uD558\uAE30" })) }))] }))] })) }))] })));
+    });
+    return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section flex" }, { children: [(0, jsx_runtime_1.jsxs)(react_2.Swiper, Object.assign({ className: "thumb", modules: [swiper_1.Pagination, swiper_1.A11y, swiper_1.Autoplay], spaceBetween: 0, slidesPerView: 1, pagination: { clickable: true }, loop: true, autoplay: { delay: 3000 } }, { children: [(0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[0], alt: `${productName}01` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[1], alt: `${productName}02` }) }), (0, jsx_runtime_1.jsx)(react_2.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: props.urls[2], alt: `${productName}03` }) })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "info" }, { children: (0, jsx_runtime_1.jsxs)("form", Object.assign({ method: "post" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: (0, jsx_runtime_1.jsx)("strong", { children: productName }) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price-wish-container flex" }, { children: (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [strPrice, "\uC6D0"] }) })) })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cnt-container flex" }, { children: [(0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "cnt-box" }, { children: [(0, jsx_runtime_1.jsx)("button", { type: "button", className: "minus", onClick: handleMinus }), (0, jsx_runtime_1.jsx)("input", { type: "text", className: "cnt", value: amount, onChange: handleAmt }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "plus", onClick: handlePlus })] })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price big-txt" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", { children: "30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "util-btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "cart-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "cart-btn gray-style-btn", onClick: handleAddCart }, { children: "\uC7A5\uBC14\uAD6C\uB2C8" })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "order-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "order-btn", onClick: handleOrder }, { children: "\uAD6C\uB9E4\uD558\uAE30" })) }))] }))] })) }))] })));
 }
 function Nav(props) {
     const productName = props.productName;

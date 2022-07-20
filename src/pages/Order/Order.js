@@ -42,47 +42,49 @@ function OrderForm() {
     const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
     const state = location.state;
+    let fromCart;
     let orderList;
+    let amount;
     let orderPrice = "0";
     let fee = "0";
     let totPrice = "0";
     if (state) {
+        fromCart = state.fromCart;
         orderList = state.orderList;
+        amount = state.amount;
         orderPrice = state.orderPrice;
         fee = state.fee;
         totPrice = state.totPrice;
     }
     // 사용자 정보 가져오기
-    function fetchUser() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser));
-            const querySnapshot = yield (0, firestore_1.getDocs)(q);
-            querySnapshot.forEach(doc => {
-                const user = doc.data();
-                setName(user.name);
-                setEmail(user.email);
-                setPhoneNumber(user.phoneNumber);
-                setPostcode(user.post_code);
-                setAddress(user.address);
-                setDetailAddress(user.detail_address);
-            });
+    const fetchUser = () => __awaiter(this, void 0, void 0, function* () {
+        const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "users"), (0, firestore_1.where)("email", "==", firebase_1.signedInUser));
+        const querySnapshot = yield (0, firestore_1.getDocs)(q);
+        querySnapshot.forEach(doc => {
+            const user = doc.data();
+            setName(user.name);
+            setEmail(user.email);
+            setPhoneNumber(user.phoneNumber);
+            setPostcode(user.post_code);
+            setAddress(user.address);
+            setDetailAddress(user.detail_address);
         });
-    }
+    });
     (0, react_1.useEffect)(() => {
-        // url로 직접 접속하는 경우 장바구니로 이동
         if (!state) {
+            // url로 직접 접속하는 경우 이전 페이지로 이동
             alert("정상적이지 않은 접근입니다.");
-            navigate("/mypage/cart");
+            navigate(-1);
         }
         else {
-            // 새로고침 시 장바구니로 이동
+            // 새로고침 시 이전 페이지로 이동
             fetchUser().catch(() => {
-                navigate("/mypage/cart");
+                navigate(-1);
             });
         }
     }, []);
     // 다음 우편번호 API
-    function handleComplete(data) {
+    const handleComplete = data => {
         let addr = "";
         // 사용자가 도로명 주소를 선택했을 경우
         if (data.userSelectedType === "R")
@@ -92,10 +94,10 @@ function OrderForm() {
             addr = data.jibunAddress;
         setPostcode(data.zonecode);
         setAddress(addr);
-    }
-    function handleClick() {
+    };
+    const handleSearch = () => {
         open({ onComplete: handleComplete });
-    }
+    };
     // 유효성 검증 후 결제하기 버튼 활성화
     (0, react_1.useEffect)(() => {
         if (name && phoneNumber && postcode && address && detailAddress)
@@ -103,30 +105,24 @@ function OrderForm() {
         else
             setDisabled(true);
     }, [name, phoneNumber, postcode, address, detailAddress]);
-    // function getToday() {
-    //     const date = new Date();
-    //     const year = date.getFullYear();
-    //     const month = ("0" + (1 + date.getMonth())).slice(-2);
-    //     const day = ("0" + date.getDate()).slice(-2);
-    //     return year + month + day;
-    // }
     // 난수 생성
-    function generateRandomCode(n) {
+    const getRandomCode = (n) => {
         let str = "";
         for (let i = 0; i < n; i++)
             str += Math.floor(Math.random() * 10);
         return str;
-    }
+    };
     // 주문 진행
-    function order() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const querySnapshot = yield (0, firestore_1.getDocs)((0, firestore_1.collection)(firebase_1.db, "order"));
-            const orderId = String(querySnapshot.size + 1);
-            const date = (0, getDate_1.getDate)();
-            const randomCode = generateRandomCode(4);
-            const orderNum = date.join("") + randomCode;
-            const amountList = [];
-            const productNameList = [];
+    const handleOrder = () => __awaiter(this, void 0, void 0, function* () {
+        const querySnapshot = yield (0, firestore_1.getDocs)((0, firestore_1.collection)(firebase_1.db, "order"));
+        const orderId = String(querySnapshot.size + 1);
+        const date = (0, getDate_1.getDate)();
+        const randomCode = getRandomCode(4);
+        const orderNum = date.join("") + randomCode;
+        const amountList = [];
+        const productNameList = [];
+        if (fromCart) {
+            // 장바구니에서 주문
             for (let i = 0; i < orderList.length; i++) {
                 const cartRef = (0, firestore_1.doc)(firebase_1.db, "cart", orderList[i]);
                 const cartSnap = yield (0, firestore_1.getDoc)(cartRef);
@@ -138,34 +134,39 @@ function OrderForm() {
                     yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", orderList[i]));
                 }
             }
-            // firestore에 주문 정보 등록
-            yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderNum), {
-                order_id: orderId,
-                order_date: date.join("."),
-                order_list: orderList,
-                amount_list: amountList,
-                product_name_list: productNameList,
-                name: name,
-                email: email,
-                phone_number: phoneNumber,
-                postcode: postcode,
-                address: address,
-                detail_address: detailAddress,
-                delivery_msg: deliveryMsg,
-                order_price: orderPrice,
-                fee: fee,
-                tot_price: totPrice
-            }).then(() => {
-                navigate("/order/orderComplete", {
-                    replace: true,
-                    state: {
-                        docId: orderNum
-                    }
-                });
+        }
+        else {
+            // 상품 상세페이지에서 주문
+            amountList.push(amount);
+            productNameList.push(orderList[0]);
+        }
+        // firestore에 주문 정보 등록
+        yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderNum), {
+            order_id: orderId,
+            order_date: date.join("."),
+            order_list: orderList,
+            amount_list: amountList,
+            product_name_list: productNameList,
+            name: name,
+            email: email,
+            phone_number: phoneNumber,
+            postcode: postcode,
+            address: address,
+            detail_address: detailAddress,
+            delivery_msg: deliveryMsg,
+            order_price: orderPrice,
+            fee: fee,
+            tot_price: totPrice
+        }).then(() => {
+            navigate("/order/orderComplete", {
+                replace: true,
+                state: {
+                    docId: orderNum
+                }
             });
         });
-    }
-    return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Delivery" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uBC1B\uB294 \uBD84", value: name, onChange: e => setName(e.target.value) }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638", value: phoneNumber, onChange: e => setPhoneNumber(e.target.value) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "postcode-wrap" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { className: "userPostcode", type: "text", placeholder: "\uC6B0\uD3B8\uBC88\uD638", value: postcode, onChange: e => setPostcode(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "search-btn", onClick: handleClick })] })), (0, jsx_runtime_1.jsx)(StyledInput, { className: "userAddress", type: "text", placeholder: "\uAE30\uBCF8 \uC8FC\uC18C", value: address, onChange: e => setAddress(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("input", { className: "userDetailAddress", type: "text", placeholder: "\uC0C1\uC138 \uC8FC\uC18C", value: detailAddress, onChange: e => setDetailAddress(e.target.value) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-msg" }, { children: [(0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => setDeliveryMsg(e.target.value) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "" }, { children: "\uC9C1\uC811 \uC785\uB825" })), (0, jsx_runtime_1.jsx)("option", { children: "\uBC30\uC1A1 \uC804 \uC5F0\uB77D \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBD80\uC7AC \uC2DC \uACBD\uBE44\uC2E4\uC5D0 \uB9E1\uACA8\uC8FC\uC138\uC694." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBB38 \uC55E \uBC30\uC1A1 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." })] })), (0, jsx_runtime_1.jsx)("textarea", { rows: 5, cols: 50, maxLength: 50, placeholder: "\uBC30\uC1A1\uBA54\uC2DC\uC9C0 \uC9C1\uC811 \uC785\uB825 (50\uC790 \uC774\uB0B4)", value: deliveryMsg, onChange: e => setDeliveryMsg(e.target.value), style: { fontSize: "1rem" } })] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "check-out-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Check Out" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "check-out-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uC8FC\uBB38\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/cart", className: "cancel-btn border-style-btn" }, { children: "\uCDE8\uC18C\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "pay-btn", onClick: order, disabled: disabled }, { children: "\uACB0\uC81C\uD558\uAE30" }))] }))] }))] })));
+    });
+    return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Delivery" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uBC1B\uB294 \uBD84", value: name, onChange: e => setName(e.target.value) }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638", value: phoneNumber, onChange: e => setPhoneNumber(e.target.value) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "postcode-wrap" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { className: "userPostcode", type: "text", placeholder: "\uC6B0\uD3B8\uBC88\uD638", value: postcode, onChange: e => setPostcode(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "search-btn", onClick: handleSearch })] })), (0, jsx_runtime_1.jsx)(StyledInput, { className: "userAddress", type: "text", placeholder: "\uAE30\uBCF8 \uC8FC\uC18C", value: address, onChange: e => setAddress(e.target.value), readOnly: true }), (0, jsx_runtime_1.jsx)("input", { className: "userDetailAddress", type: "text", placeholder: "\uC0C1\uC138 \uC8FC\uC18C", value: detailAddress, onChange: e => setDetailAddress(e.target.value) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-msg" }, { children: [(0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => setDeliveryMsg(e.target.value) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "" }, { children: "\uC9C1\uC811 \uC785\uB825" })), (0, jsx_runtime_1.jsx)("option", { children: "\uBC30\uC1A1 \uC804 \uC5F0\uB77D \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBD80\uC7AC \uC2DC \uACBD\uBE44\uC2E4\uC5D0 \uB9E1\uACA8\uC8FC\uC138\uC694." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBB38 \uC55E \uBC30\uC1A1 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." })] })), (0, jsx_runtime_1.jsx)("textarea", { rows: 5, cols: 50, maxLength: 50, placeholder: "\uBC30\uC1A1\uBA54\uC2DC\uC9C0 \uC9C1\uC811 \uC785\uB825 (50\uC790 \uC774\uB0B4)", value: deliveryMsg, onChange: e => setDeliveryMsg(e.target.value), style: { fontSize: "1rem" } })] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "check-out-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Check Out" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "check-out-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uC8FC\uBB38\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "cancel-btn border-style-btn", onClick: () => navigate(-1) }, { children: "\uCDE8\uC18C\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "pay-btn", onClick: handleOrder, disabled: disabled }, { children: "\uACB0\uC81C\uD558\uAE30" }))] }))] }))] })));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-container big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "ORDER" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsx)(OrderForm, {}) }))] })) }));

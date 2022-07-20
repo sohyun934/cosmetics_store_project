@@ -23,23 +23,20 @@ type ProductionProp = {
 };
 
 function ProductSection(props: ProductionProp) {
-    const price = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    const [wishToggle, setWishToggle] = useState(false);
-    const [totPrice, setTotPrice] = useState(props.price);
+    const productName = props.name;
+    const price = Number(props.price);
+    const strPrice = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const [totPrice, setTotPrice] = useState(strPrice);
     const [amount, setAmount] = useState(1);
+
     const navigate = useNavigate();
 
-    function openWishPop(): void {
-        if (wishToggle === false) props.open("wish");
-
-        setWishToggle(!wishToggle);
-    }
-
-    function minus(): void {
+    // 수량 변경
+    const handleMinus = () => {
         setAmount(amount === 1 ? 1 : amount - 1);
-    }
+    };
 
-    function changeAmt(e: React.ChangeEvent<HTMLInputElement>): void {
+    const handleAmt = (e: React.ChangeEvent<HTMLInputElement>) => {
         const amount = Number(e.target.value);
 
         if (amount > 3) {
@@ -54,30 +51,32 @@ function ProductSection(props: ProductionProp) {
         } else {
             setAmount(Number(e.target.value));
         }
-    }
+    };
 
-    function plus(): void {
+    const handlePlus = () => {
         setAmount(amount === 3 ? 3 : amount + 1);
 
         if (amount === 3) alert("최대 주문수량은 3개 입니다.");
-    }
+    };
 
+    // 수량 변경에 따른 총액 변경
     useEffect(() => {
-        setTotPrice(String(Number(props.price) * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-    }, [props.price, amount]);
+        setTotPrice(String(price * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+    }, [price, amount]);
 
-    async function addCart() {
+    // 장바구니 담기
+    const handleAddCart = async () => {
         if (!signedInUser) {
             navigate("/login");
         } else {
             const cartList = await getDocs(query(collection(db, "cart"), where("user_email", "==", signedInUser)));
-            const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", props.name));
+            const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", productName));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
                 await addDoc(collection(db, "cart"), {
                     cart_id: cartList.size + 1,
-                    product_name: props.name,
+                    product_name: productName,
                     user_email: signedInUser,
                     amount: amount
                 });
@@ -87,7 +86,28 @@ function ProductSection(props: ProductionProp) {
                 props.open("overlap");
             }
         }
-    }
+    };
+
+    // 주문하기
+    const handleOrder = async () => {
+        const orderPrice = price * amount;
+        let fee = 0;
+
+        if (orderPrice > 0 && orderPrice < 30000) {
+            fee = 3000;
+        }
+
+        navigate("/order", {
+            state: {
+                fromCart: false,
+                orderList: [productName],
+                amount: amount,
+                orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+                totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+            }
+        });
+    };
 
     return (
         <section className="product-section flex">
@@ -101,34 +121,31 @@ function ProductSection(props: ProductionProp) {
                 autoplay={{ delay: 3000 }}
             >
                 <SwiperSlide>
-                    <img src={props.urls[0]} alt={`${props.name}01`} />
+                    <img src={props.urls[0]} alt={`${productName}01`} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <img src={props.urls[1]} alt={`${props.name}02`} />
+                    <img src={props.urls[1]} alt={`${productName}02`} />
                 </SwiperSlide>
                 <SwiperSlide>
-                    <img src={props.urls[2]} alt={`${props.name}03`} />
+                    <img src={props.urls[2]} alt={`${productName}03`} />
                 </SwiperSlide>
             </Swiper>
             <div className="info">
                 <form method="post">
                     <h2>
-                        <strong>{props.name}</strong>
+                        <strong>{productName}</strong>
                     </h2>
                     <div className="price-wish-container flex">
                         <span className="price big-txt">
-                            <strong>{price}원</strong>
-                        </span>
-                        <span className="wish-btn-wrap">
-                            <button type="button" className={wishToggle ? "wish-btn on" : "wish-btn"} onClick={openWishPop}></button>
+                            <strong>{strPrice}원</strong>
                         </span>
                     </div>
                     <hr />
                     <div className="cnt-container flex">
                         <span className="cnt-box">
-                            <button type="button" className="minus" onClick={minus}></button>
-                            <input type="text" className="cnt" value={amount} onChange={changeAmt} />
-                            <button type="button" className="plus" onClick={plus}></button>
+                            <button type="button" className="minus" onClick={handleMinus}></button>
+                            <input type="text" className="cnt" value={amount} onChange={handleAmt} />
+                            <button type="button" className="plus" onClick={handlePlus}></button>
                         </span>
                         <span className="price big-txt">
                             <strong>{totPrice}원</strong>
@@ -137,12 +154,14 @@ function ProductSection(props: ProductionProp) {
                     <p>30,000원 이상 구매 시 무료 배송</p>
                     <div className="util-btn-container flex">
                         <div className="cart-btn-wrap">
-                            <button className="cart-btn gray-style-btn" type="button" onClick={addCart}>
+                            <button type="button" className="cart-btn gray-style-btn" onClick={handleAddCart}>
                                 장바구니
                             </button>
                         </div>
                         <div className="order-btn-wrap">
-                            <button className="order-btn">구매하기</button>
+                            <button type="button" className="order-btn" onClick={handleOrder}>
+                                구매하기
+                            </button>
                         </div>
                     </div>
                 </form>
