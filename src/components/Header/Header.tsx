@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Link, NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebase";
+import path from "path";
 
 function LeftGnb() {
     return (
@@ -38,17 +39,18 @@ function SideGnbBtn(props: Prop) {
 }
 
 type SideGnbProp = {
-    logInOut: string;
+    isLoggedIn: boolean;
     logOut: Function;
-    navigate: NavigateFunction;
     closeGnb: Function;
 };
 
 function SideGnb(props: SideGnbProp) {
-    function logInOut(e: React.MouseEvent<HTMLButtonElement>) {
-        if (props.logInOut === "로그아웃") props.logOut(e);
-        else props.navigate("/login");
+    const isLoggedIn = props.isLoggedIn;
+    const navigate = useNavigate();
 
+    function handleLog(e: React.MouseEvent<HTMLButtonElement>) {
+        if (isLoggedIn) props.logOut(e);
+        else navigate("/login");
         props.closeGnb();
     }
 
@@ -65,8 +67,8 @@ function SideGnb(props: SideGnbProp) {
                     <Link to="/body">바디케어</Link>
                 </li>
                 <li>
-                    <button className="border-style-btn" style={{ marginTop: "20px" }} onClick={e => logInOut(e)}>
-                        {props.logInOut}
+                    <button className="border-style-btn" style={{ marginTop: "20px" }} onClick={handleLog}>
+                        {isLoggedIn ? "로그아웃" : "로그인"}
                     </button>
                 </li>
             </ul>
@@ -75,26 +77,33 @@ function SideGnb(props: SideGnbProp) {
 }
 
 type RightGnbProp = {
-    logOutDisplay: string;
+    isLoggedIn: boolean;
     logOut: Function;
 };
 
 function RightGnb(props: RightGnbProp) {
+    const isLoggedIn = props.isLoggedIn;
+
     return (
         <nav className="header-gnb-right">
             <ul className="flex">
-                <li style={{ display: props.logOutDisplay }}>
-                    <a href="/" onClick={e => props.logOut(e)} style={{ verticalAlign: "middle" }}>
-                        LOGOUT
-                    </a>
-                </li>
+                {isLoggedIn ? (
+                    <li>
+                        <a href="/" onClick={e => props.logOut(e)} style={{ verticalAlign: "middle" }}>
+                            LOGOUT
+                        </a>
+                    </li>
+                ) : (
+                    ""
+                )}
+
                 <li>
-                    <Link to={props.logOutDisplay === "none" ? "/login" : "/mypage/myPageAuthentification"}>
+                    <Link to={isLoggedIn ? "/mypage/myPageAuthentification" : "/login"}>
                         <img src={require("../../assets/common/mypage.png")} alt="마이페이지" />
                     </Link>
                 </li>
                 <li>
-                    <Link to={props.logOutDisplay === "none" ? "/login" : "/mypage/cart"}>
+                    <Link to={isLoggedIn ? "/mypage/cart" : "/login"}>
                         <img src={require("../../assets/common/cart.png")} alt="장바구니" />
                     </Link>
                 </li>
@@ -105,13 +114,13 @@ function RightGnb(props: RightGnbProp) {
 
 function Header() {
     const [toggle, setToggle] = useState(false);
-    const [logInOut, setLogInOut] = useState("로그인");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
 
     useEffect(() => {
         onAuthStateChanged(auth, user => {
-            if (user) setLogInOut("로그아웃");
+            if (user) setIsLoggedIn(true);
         });
     }, []);
 
@@ -120,8 +129,10 @@ function Header() {
 
         signOut(auth)
             .then(() => {
-                setLogInOut("로그인");
-                if (pathname.indexOf("mypage") !== -1) navigate("/", { replace: true });
+                setIsLoggedIn(false);
+
+                // 마이페이지, 주문 페이지에서 로그아웃 시 메인 페이지로 이동
+                if (pathname.indexOf("mypage") !== -1 || pathname.indexOf("order") !== -1) navigate("/", { replace: true });
             })
             .catch(error => {
                 alert("로그아웃 과정 중에 오류가 발생했습니다.\n" + error.message);
@@ -132,13 +143,13 @@ function Header() {
         <header className={toggle ? "header side-active" : "header"}>
             <LeftGnb />
             <SideGnbBtn activeSideGnb={() => setToggle(!toggle)} />
-            <SideGnb logInOut={logInOut} logOut={e => logOut(e)} navigate={navigate} closeGnb={() => setToggle(false)} />
+            <SideGnb isLoggedIn={isLoggedIn} logOut={logOut} closeGnb={() => setToggle(false)} />
             <div className="logo">
                 <Link to="/">
                     <img src={require("../../assets/common/logo.png")} alt="로고" />
                 </Link>
             </div>
-            <RightGnb logOutDisplay={logInOut === "로그인" ? "none" : "block"} logOut={e => logOut(e)} />
+            <RightGnb isLoggedIn={isLoggedIn} logOut={logOut} />
         </header>
     );
 }
