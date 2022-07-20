@@ -115,7 +115,7 @@ function OrderForm() {
     // 주문 진행
     const handleOrder = () => __awaiter(this, void 0, void 0, function* () {
         const querySnapshot = yield (0, firestore_1.getDocs)((0, firestore_1.collection)(firebase_1.db, "order"));
-        const orderId = String(querySnapshot.size + 1);
+        const orderId = querySnapshot.size + 1;
         const date = (0, getDate_1.getDate)();
         const randomCode = getRandomCode(4);
         const orderNum = date.join("") + randomCode;

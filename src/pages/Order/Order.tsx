@@ -121,7 +121,7 @@ function OrderForm() {
     // 주문 진행
     const handleOrder = async () => {
         const querySnapshot = await getDocs(collection(db, "order"));
-        const orderId = String(querySnapshot.size + 1);
+        const orderId = querySnapshot.size + 1;
 
         const date = getDate();
         const randomCode = getRandomCode(4);
