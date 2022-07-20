@@ -96,7 +96,7 @@ function CartForm() {
         const cartPriceList = [];
         const cartList = [];
 
-        querySnapshot.docs.map(async (doc, i) => {
+        querySnapshot.docs.forEach((doc, i) => {
             const cartItem = doc.data();
             const product = products[i].data();
             const state = {

@@ -15,7 +15,14 @@ import { getImage } from "../../utils/getImage";
 function Slider() {
     return (
         <div>
-            <Swiper modules={[Pagination, A11y, Autoplay]} spaceBetween={0} slidesPerView={1} pagination={{ clickable: true }} loop={true} autoplay={{ delay: 3000 }}>
+            <Swiper
+                modules={[Pagination, A11y, Autoplay]}
+                spaceBetween={0}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                loop={true}
+                autoplay={{ delay: 3000 }}
+            >
                 <SwiperSlide>
                     <img src={require("../../assets/main/main01.jpg")} alt="메인01" />
                 </SwiperSlide>
@@ -27,69 +34,6 @@ function Slider() {
                 </SwiperSlide>
             </Swiper>
         </div>
-    );
-}
-
-function NewSection() {
-    return (
-        <section className="new-section flex">
-            <div className="section-inner-left">
-                <h1 className="section-title">NEW</h1>
-                <p className="section-desc small-txt">가장 먼저 만나보는 더 내추럴의 신제품</p>
-                <Link to="/new" className="border-style-btn small-txt">
-                    새로운 제품 더보기
-                </Link>
-            </div>
-            <div className="section-inner-right">
-                <ul className="product-list flex">
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/new/new01.jpg")} alt="신제품01" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>티트리 밸런싱 클렌징 바 110G</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>22,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/new/new02.jpg")} alt="신제품02" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>로즈마리 헤어 씨크닝 컨디셔너 바 115G</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>22,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                    <li className="product">
-                        <Link to="/detail">
-                            <div className="thumb">
-                                <img src={require("../../assets/product/new/new03.jpg")} alt="신제품03" />
-                            </div>
-                            <div className="info">
-                                <div className="name">
-                                    <strong>로즈마리 스칼프 스케일링 샴푸 바 135G</strong>
-                                </div>
-                                <div className="price">
-                                    <strong>22,000원</strong>
-                                </div>
-                            </div>
-                        </Link>
-                    </li>
-                </ul>
-            </div>
-        </section>
     );
 }
 
@@ -149,12 +93,11 @@ function BodySection(props: SectionProp) {
 }
 
 function Main() {
-    // 각 section에서 상품 3개만 가져올건데 이거 제한 걸어야됨.
     const [hairProducts, setHairProducts] = useState<any[]>([]);
     const [skinProducts, setSkinProducts] = useState<any[]>([]);
     const [bodyProducts, setBodyProducts] = useState<any[]>([]);
 
-    async function fetchProducts(section: string) {
+    const fetchProducts = async (section: string) => {
         const q = query(collection(db, "product"), where("product_type", "==", section), orderBy("product_id", "desc"), limit(3));
         const productSnapshot = await getDocs(q);
 
@@ -164,7 +107,7 @@ function Main() {
 
         // firestore 데이터 가져와서 리스트 만들기
         const productList = [];
-        productSnapshot.docs.map(async (doc, i) => {
+        productSnapshot.docs.forEach((doc, i) => {
             const data = doc.data();
 
             productList.push(
@@ -203,7 +146,7 @@ function Main() {
         } else if (section === "body") {
             setBodyProducts(productList);
         }
-    }
+    };
 
     useEffect(() => {
         fetchProducts("hair");
@@ -214,7 +157,6 @@ function Main() {
     return (
         <main className="main-container">
             <Slider />
-            <NewSection />
             <HairSection products={hairProducts} />
             <SkinSection products={skinProducts} />
             <BodySection products={bodyProducts} />

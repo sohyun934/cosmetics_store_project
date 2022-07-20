@@ -10,12 +10,6 @@ function LeftGnb() {
         <nav className="header-gnb-left">
             <ul>
                 <li>
-                    <Link to="/new">신제품</Link>
-                </li>
-                <li>
-                    <Link to="/best">베스트</Link>
-                </li>
-                <li>
                     <Link to="/hair">헤어케어</Link>
                 </li>
                 <li>
@@ -61,12 +55,6 @@ function SideGnb(props: SideGnbProp) {
     return (
         <nav className="side-gnb">
             <ul>
-                <li>
-                    <Link to="/new">신제품</Link>
-                </li>
-                <li>
-                    <Link to="/best">베스트</Link>
-                </li>
                 <li>
                     <Link to="/hair">헤어케어</Link>
                 </li>

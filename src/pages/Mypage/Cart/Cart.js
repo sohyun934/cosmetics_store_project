@@ -97,7 +97,7 @@ function CartForm() {
         const cartAmountList = [];
         const cartPriceList = [];
         const cartList = [];
-        querySnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
+        querySnapshot.docs.forEach((doc, i) => {
             const cartItem = doc.data();
             const product = products[i].data();
             const state = {
@@ -113,7 +113,7 @@ function CartForm() {
             cartAmountList.push(cartItem.amount);
             cartPriceList.push(product.product_price);
             cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price }))] }))] }));
-        }));
+        });
         handlePrice(orderPrice);
         setCartIdList(cartIdList);
         setCartAmountList(cartAmountList);

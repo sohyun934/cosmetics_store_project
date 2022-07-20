@@ -28,30 +28,30 @@ function ReviewPop(props: Prop) {
 
     const lis = [];
 
-    function rateStar(e: React.MouseEvent<HTMLButtonElement>) {
+    const handleRate = (e: React.MouseEvent<HTMLButtonElement>) => {
         const target = (e.target as HTMLElement).parentNode as HTMLElement;
         target.classList.add("on");
 
         const nextTarget = target.previousSibling as HTMLElement;
         if (nextTarget) nextTarget.classList.remove("on");
-    }
+    };
 
     for (let i = 0; i < 5; i++) {
         lis.push(
             <li key={i} value={5 - i} className={mode === "update" && 5 - i === rate ? "on" : ""} onClick={() => setRate(5 - i)}>
-                <button type="button" onClick={rateStar}></button>
+                <button type="button" onClick={handleRate}></button>
             </li>
         );
     }
 
-    function countLetters(letters: number) {
+    const handleCount = (letters: number) => {
         setLetters(letters);
 
         if (letters >= 20) setDisabled(false);
         else setDisabled(true);
-    }
+    };
 
-    async function fetchReview() {
+    const fetchReview = async () => {
         const reviewsSnapshot = await getDocs(collection(db, "reviews"));
 
         const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", props.productName));
@@ -71,19 +71,13 @@ function ReviewPop(props: Prop) {
                 setDisabled(false);
             });
         }
-    }
+    };
 
     useEffect(() => {
         fetchReview();
     }, []);
 
-    async function writeReview() {
-        // const today = new Date();
-        // const year = today.getFullYear();
-        // const month = ("0" + (today.getMonth() + 1)).slice(-2);
-        // const day = ("0" + today.getDate()).slice(-2);
-        // const date = year + "." + month + "." + day;
-
+    const handleWrite = async () => {
         const date = getDate().join(".");
 
         if (mode === "write") {
@@ -117,7 +111,7 @@ function ReviewPop(props: Prop) {
                 props.close();
             });
         }
-    }
+    };
 
     return (
         <div>
@@ -138,7 +132,7 @@ function ReviewPop(props: Prop) {
                             maxLength={50}
                             value={content}
                             onChange={e => {
-                                countLetters(e.target.value.length);
+                                handleCount(e.target.value.length);
                                 setContent(e.target.value);
                             }}
                             placeholder="최소 20자 이상 입력"
@@ -152,7 +146,7 @@ function ReviewPop(props: Prop) {
                         <button type="button" className="cancel-btn radius-style-btn" onClick={() => props.close()}>
                             취소
                         </button>
-                        <StyledButton type="button" className="write-btn radius-style-btn" onClick={writeReview} disabled={disabled}>
+                        <StyledButton type="button" className="write-btn radius-style-btn" onClick={handleWrite} disabled={disabled}>
                             등록
                         </StyledButton>
                     </div>

@@ -38,14 +38,6 @@ function ProductMain() {
     const limitNum = 12;
 
     const category = {
-        new: {
-            title: "NEW",
-            desc: "가장 먼저 만나보는 더 내추럴의 신제품"
-        },
-        best: {
-            title: "BEST",
-            desc: "가장 사랑 받는 더 내추럴의 베스트 제품"
-        },
         hair: {
             title: "HAIR CARE",
             desc: "다양한 헤어케어를 경험해보세요"
@@ -141,7 +133,7 @@ function ProductMain() {
             const urls = await Promise.all(promises);
 
             // firestore 데이터 가져와서 리스트 만들기
-            productSnapshot.docs.map(async (doc, i) => {
+            productSnapshot.docs.forEach((doc, i) => {
                 const data = doc.data();
 
                 productList.push(
@@ -187,7 +179,7 @@ function ProductMain() {
     }, []);
 
     // 상품 리스트 정렬
-    function sortProducts(e: React.ChangeEvent<HTMLSelectElement>) {
+    const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (e.target.value === "new") {
             fetchProducts("product_id", "desc");
         } else if (e.target.value === "low-price") {
@@ -195,7 +187,7 @@ function ProductMain() {
         } else if (e.target.value === "high-price") {
             fetchProducts("product_price", "desc");
         }
-    }
+    };
 
     return (
         <main>
@@ -205,7 +197,7 @@ function ProductMain() {
                     <p>{category[pathname].desc}</p>
                 </div>
                 <div className="list-filter">
-                    <select onChange={e => sortProducts(e)}>
+                    <select onChange={e => handleSort(e)}>
                         <option value="new">등록순</option>
                         {/* <option value="rank">판매순</option> */}
                         <option value="low-price">낮은가격순</option>

@@ -36,14 +36,6 @@ function ProductMain() {
     const pathname = (0, react_router_dom_1.useLocation)().pathname.substring(1);
     const limitNum = 12;
     const category = {
-        new: {
-            title: "NEW",
-            desc: "가장 먼저 만나보는 더 내추럴의 신제품"
-        },
-        best: {
-            title: "BEST",
-            desc: "가장 사랑 받는 더 내추럴의 베스트 제품"
-        },
         hair: {
             title: "HAIR CARE",
             desc: "다양한 헤어케어를 경험해보세요"
@@ -126,7 +118,7 @@ function ProductMain() {
             const promises = productSnapshot.docs.map(doc => (0, getImage_1.getImage)(doc.data().product_thumb_01));
             const urls = yield Promise.all(promises);
             // firestore 데이터 가져와서 리스트 만들기
-            productSnapshot.docs.map((doc, i) => __awaiter(this, void 0, void 0, function* () {
+            productSnapshot.docs.forEach((doc, i) => {
                 const data = doc.data();
                 productList.push((0, jsx_runtime_1.jsxs)("li", Object.assign({ className: "product" }, { children: [(0, jsx_runtime_1.jsxs)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: {
                                 name: data.product_name,
@@ -136,7 +128,7 @@ function ProductMain() {
                                 thumb03: data.product_thumb_03,
                                 detail: data.product_detail
                             } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [data.product_price, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "util-btn-container" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn", onClick: () => handleAddCart(data.product_name) }, { children: (0, jsx_runtime_1.jsx)("span", { children: "CART" }) })) }))] }), doc.id));
-            }));
+            });
         }
         setProducts(productList);
     });
@@ -144,7 +136,7 @@ function ProductMain() {
         fetchProducts("product_id", "desc");
     }, []);
     // 상품 리스트 정렬
-    function sortProducts(e) {
+    const handleSort = (e) => {
         if (e.target.value === "new") {
             fetchProducts("product_id", "desc");
         }
@@ -154,8 +146,8 @@ function ProductMain() {
         else if (e.target.value === "high-price") {
             fetchProducts("product_price", "desc");
         }
-    }
-    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => sortProducts(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), more ? ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
+    };
+    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => handleSort(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), more ? ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
                                 fetchProducts("product_id", "desc");
                             } }, { children: "\uB354\uBCF4\uAE30" })) }))) : ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, {}))] })), popContent, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
