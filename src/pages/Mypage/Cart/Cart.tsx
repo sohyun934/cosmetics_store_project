@@ -244,15 +244,19 @@ function CartForm() {
 
     // 전체 주문
     const handleAllOrder = () => {
-        navigate("/order", {
-            state: {
-                fromCart: true,
-                orderList: cartIdList,
-                orderPrice: orderPrice,
-                fee: fee,
-                totPrice: totPrice
-            }
-        });
+        if (cartIdList.length === 0) {
+            alert("장바구니에 담긴 상품이 없습니다.");
+        } else {
+            navigate("/order", {
+                state: {
+                    fromCart: true,
+                    orderList: cartIdList,
+                    orderPrice: orderPrice,
+                    fee: fee,
+                    totPrice: totPrice
+                }
+            });
+        }
     };
 
     return (

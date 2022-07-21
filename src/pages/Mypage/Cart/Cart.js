@@ -216,15 +216,20 @@ function CartForm() {
     });
     // 전체 주문
     const handleAllOrder = () => {
-        navigate("/order", {
-            state: {
-                fromCart: true,
-                orderList: cartIdList,
-                orderPrice: orderPrice,
-                fee: fee,
-                totPrice: totPrice
-            }
-        });
+        if (cartIdList.length === 0) {
+            alert("장바구니에 담긴 상품이 없습니다.");
+        }
+        else {
+            navigate("/order", {
+                state: {
+                    fromCart: true,
+                    orderList: cartIdList,
+                    orderPrice: orderPrice,
+                    fee: fee,
+                    totPrice: totPrice
+                }
+            });
+        }
     };
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList.length > 0 ? (cartList.map((val, i) => {
                                 return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cartIdList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cartIdList[i]) }) })), val, (0, jsx_runtime_1.jsx)("td", { children: (0, jsx_runtime_1.jsxs)(StyledSelect, Object.assign({ defaultValue: cartAmountList[i], onChange: e => handleAmt(i, cartIdList[i], Number(e.target.value)) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "1" }, { children: "1" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "2" }, { children: "2" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "3" }, { children: "3" }))] })) }), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => handleDel(cartIdList[i]) }) }))] }), i));
