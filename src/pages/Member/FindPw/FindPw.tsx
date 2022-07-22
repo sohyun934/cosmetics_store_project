@@ -52,7 +52,13 @@ function Main() {
                         </p>
                     </div>
                     <div className="btn-wrap">
-                        <button type="button" className="find-btn" style={{ marginTop: "20px" }} onClick={fetchUser} disabled={successMsg === "block" ? true : false}>
+                        <button
+                            type="button"
+                            className="find-btn"
+                            style={{ marginTop: "20px" }}
+                            onClick={fetchUser}
+                            disabled={successMsg === "block" ? true : false}
+                        >
                             이메일 인증
                         </button>
                     </div>

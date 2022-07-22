@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { useState } from "react";
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
@@ -27,8 +28,11 @@ export let signedInUser;
 // Modifying the Auth state persistence
 setPersistence(auth, browserSessionPersistence).then(() => {
     onAuthStateChanged(auth, user => {
-        if (user) signedInUser = user.email;
-        else signedInUser = null;
+        if (user) {
+            signedInUser = user.email;
+        } else {
+            signedInUser = null;
+        }
     });
 });
 

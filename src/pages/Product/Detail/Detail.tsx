@@ -2,7 +2,6 @@ import "./Detail.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import MoveTop from "../../../components/MoveTop/MoveTop";
-import ReviewPop from "../../../components/ReviewPop/ReviewPop";
 import CartPop from "../../Mypage/Cart/CartPop/CartPop";
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getImage } from "../../../utils/getImage";
 import { db, signedInUser } from "../../../firebase";
 import { addDoc, collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { getFormatPrice } from "../../../utils/getFormatPrice";
 
 type ProductionProp = {
     name: string;
@@ -24,7 +24,7 @@ type ProductionProp = {
 function ProductSection(props: ProductionProp) {
     const productName = props.name;
     const price = Number(props.price);
-    const strPrice = props.price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    const strPrice = getFormatPrice(props.price);
     const [totPrice, setTotPrice] = useState(strPrice);
     const [amount, setAmount] = useState(1);
 
@@ -55,18 +55,20 @@ function ProductSection(props: ProductionProp) {
     const handlePlus = () => {
         setAmount(amount === 3 ? 3 : amount + 1);
 
-        if (amount === 3) alert("최대 주문수량은 3개 입니다.");
+        if (amount === 3) {
+            alert("최대 주문수량은 3개 입니다.");
+        }
     };
 
     // 수량 변경에 따른 총액 변경
     useEffect(() => {
-        setTotPrice(String(price * amount).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+        setTotPrice(getFormatPrice(String(price * amount)));
     }, [price, amount]);
 
     // 장바구니 담기
     const handleAddCart = async () => {
         if (!signedInUser) {
-            navigate("/login");
+            navigate("/login", { state: { moveTo: -1 } });
         } else {
             const cartList = await getDocs(query(collection(db, "cart"), where("user_email", "==", signedInUser)));
             const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", productName));
@@ -89,23 +91,27 @@ function ProductSection(props: ProductionProp) {
 
     // 주문하기
     const handleOrder = async () => {
-        const orderPrice = price * amount;
-        let fee = 0;
+        if (!signedInUser) {
+            navigate("/login", { state: { moveTo: -1 } });
+        } else {
+            let fee = 0;
+            const orderPrice = price * amount;
 
-        if (orderPrice > 0 && orderPrice < 30000) {
-            fee = 3000;
-        }
-
-        navigate("/order", {
-            state: {
-                fromCart: false,
-                orderList: [productName],
-                amount: amount,
-                orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+            if (orderPrice > 0 && orderPrice < 30000) {
+                fee = 3000;
             }
-        });
+
+            navigate("/order", {
+                state: {
+                    fromCart: false,
+                    orderList: [productName],
+                    amount: amount,
+                    orderPrice: getFormatPrice(String(orderPrice)),
+                    fee: getFormatPrice(String(fee)),
+                    totPrice: getFormatPrice(String(orderPrice + fee))
+                }
+            });
+        }
     };
 
     return (
@@ -176,29 +182,28 @@ type NavProp = {
 
 function Nav(props: NavProp) {
     const productName = props.productName;
-
     const [detailClass, setDetailClass] = useState(" on");
     const [reviewClass, setReviewClass] = useState("");
     const [reviewCnt, setReviewCnt] = useState(0);
 
-    function onDetail() {
-        props.onChangeTap("detail");
-        setDetailClass(" on");
-        setReviewClass("");
-    }
+    const handleContent = (tap: string) => {
+        if (tap === "detail") {
+            props.onChangeTap("detail");
+            setDetailClass(" on");
+            setReviewClass("");
+        } else {
+            props.onChangeTap("review");
+            setDetailClass("");
+            setReviewClass(" on");
+        }
+    };
 
-    function onReview() {
-        props.onChangeTap("review");
-        setDetailClass("");
-        setReviewClass(" on");
-    }
-
-    async function fetchReviews() {
+    const fetchReviews = async () => {
         const reviewQuery = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
         const reviewSnapshot = await getDocs(reviewQuery);
 
         setReviewCnt(reviewSnapshot.size);
-    }
+    };
 
     useEffect(() => {
         fetchReviews();
@@ -208,12 +213,12 @@ function Nav(props: NavProp) {
         <nav className="menu-lnb">
             <ul className="flex">
                 <li>
-                    <button className={"border-style-btn" + detailClass} onClick={onDetail}>
+                    <button className={"border-style-btn" + detailClass} onClick={() => handleContent("detail")}>
                         상세정보
                     </button>
                 </li>
                 <li>
-                    <button className={"border-style-btn" + reviewClass} onClick={onReview}>
+                    <button className={"border-style-btn" + reviewClass} onClick={() => handleContent("review")}>
                         구매후기 ({reviewCnt})
                     </button>
                 </li>
@@ -228,12 +233,11 @@ type ReviewProp = {
 
 function ReviewSection(props: ReviewProp) {
     const productName = props.productName;
-
     const [reviews, setReviews] = useState([]);
     const [totRating, setTotRating] = useState("0.0");
     const [totWidth, setTotWidth] = useState("");
 
-    async function fetchReviews() {
+    const fetchReviews = async () => {
         const reviewQuery = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
         const reviewSnapshot = await getDocs(reviewQuery);
 
@@ -288,7 +292,7 @@ function ReviewSection(props: ReviewProp) {
             setTotWidth(totWidth);
             setReviews(reviews);
         }
-    }
+    };
 
     useEffect(() => {
         fetchReviews();
@@ -342,49 +346,34 @@ interface CustomizedState {
 }
 
 function Main() {
-    let content;
     const [tap, setTap] = useState("detail");
-    const [pop, setPop] = useState<string>("");
-    const [popContent, setPopContent] = useState<JSX.Element | null>(null);
+    const [pop, setPop] = useState({ state: "", content: null });
+    const [urls, setUrls] = useState<string[]>([]);
 
     const location = useLocation();
     const state = location.state as CustomizedState;
     const name = state.name;
     const price = state.price;
-    const [urls, setUrls] = useState<string[]>([]);
-
-    if (tap === "detail") {
-        content = (
-            <div className="detail-wrap">
-                <img src={urls[3]} alt="상세정보" />
-            </div>
-        );
-    } else if (tap === "review") {
-        content = <ReviewSection productName={name} />;
-    }
 
     function closePop() {
-        setPop("");
-        setPopContent(null);
+        setPop({ state: "", content: null });
     }
 
     useEffect(() => {
-        if (pop === "cart") {
-            setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
-        } else if (pop === "overlap") {
-            setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
-        } else if (pop === "review") {
-            setPopContent(<ReviewPop close={closePop} productName={name} />);
+        if (pop.state === "cart") {
+            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="상품이 장바구니에 담겼습니다." /> }));
+        } else if (pop.state === "overlap") {
+            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." /> }));
         }
-    }, [pop]);
+    }, [pop.state]);
 
     useEffect(() => {
-        async function getImageUrls() {
+        const getImageUrls = async () => {
             const imgs = [state.thumb01, state.thumb02, state.thumb03, state.detail];
             const promises = imgs.map(thumb => getImage(thumb));
             const urls = await Promise.all(promises);
             setUrls(urls);
-        }
+        };
 
         getImageUrls();
     }, []);
@@ -392,11 +381,17 @@ function Main() {
     return (
         <main>
             <div className="detail-container big-container">
-                <ProductSection name={name} price={price} urls={urls} open={(_pop: string) => setPop(_pop)} />
+                <ProductSection name={name} price={price} urls={urls} open={(_pop: string) => setPop(pop => ({ ...pop, state: _pop }))} />
                 <Nav onChangeTap={(_tap: string) => setTap(_tap)} productName={name}></Nav>
-                {content}
+                {tap === "detail" ? (
+                    <div className="detail-wrap">
+                        <img src={urls[3]} alt="상세정보" />
+                    </div>
+                ) : (
+                    <ReviewSection productName={name} />
+                )}
             </div>
-            {popContent}
+            {pop.content}
             <MoveTop />
         </main>
     );

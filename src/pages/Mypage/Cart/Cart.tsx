@@ -9,6 +9,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc,
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 import { onAuthStateChanged } from "firebase/auth";
+import { getFormatPrice } from "../../../utils/getFormatPrice";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -37,27 +38,22 @@ const StyledSelect = styled.select`
 `;
 
 function CartForm() {
-    const [cartList, setCartList] = useState([]);
-    const [cartIdList, setCartIdList] = useState([]);
-    const [cartAmountList, setCartAmountList] = useState([]);
-    const [cartPriceList, setCartPriceList] = useState([]);
-    const [checkList, setCheckList] = useState([]);
-
-    const [orderPrice, setOrderPrice] = useState("0");
-    const [fee, setFee] = useState("0");
-    const [totPrice, setTotPrice] = useState("0");
-
     const navigate = useNavigate();
+    const [checkList, setCheckList] = useState([]);
+    const [price, setPrice] = useState({ orderPrice: "0", fee: "0", totPrice: "0" });
+    const [cart, setCart] = useState({ list: [], idList: [], amountList: [], priceList: [] });
 
     // 주문서 가격 설정
     const handlePrice = (orderPrice: number) => {
-        setOrderPrice(String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-
         let fee = 0;
         if (orderPrice > 0 && orderPrice < 30000) fee = 3000;
-        setFee(String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
 
-        setTotPrice(String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+        setPrice(price => ({
+            ...price,
+            orderPrice: getFormatPrice(String(orderPrice)),
+            fee: getFormatPrice(String(fee)),
+            totPrice: getFormatPrice(String(orderPrice + fee))
+        }));
     };
 
     // 장바구니 상품 수량 변경
@@ -67,12 +63,12 @@ function CartForm() {
         await updateDoc(cartItemRef, {
             amount: amount
         }).then(() => {
-            const newAmountList = [...cartAmountList];
+            const newAmountList = [...cart.amountList];
             newAmountList[i] = amount;
-            setCartAmountList(newAmountList);
+            setCart(cart => ({ ...cart, amountList: newAmountList }));
 
             let orderPrice = 0;
-            for (let i = 0; i < cartPriceList.length; i++) orderPrice += cartPriceList[i] * newAmountList[i];
+            for (let i = 0; i < cart.priceList.length; i++) orderPrice += cart.priceList[i] * newAmountList[i];
             handlePrice(orderPrice);
 
             window.confirm("수량 변경이 완료되었습니다.");
@@ -109,6 +105,7 @@ function CartForm() {
             };
 
             orderPrice += product.product_price * cartItem.amount;
+
             cartIdList.push(doc.id);
             cartAmountList.push(cartItem.amount);
             cartPriceList.push(product.product_price);
@@ -132,10 +129,7 @@ function CartForm() {
         });
 
         handlePrice(orderPrice);
-        setCartIdList(cartIdList);
-        setCartAmountList(cartAmountList);
-        setCartPriceList(cartPriceList);
-        setCartList(cartList);
+        setCart(cart => ({ ...cart, list: cartList, idList: cartIdList, amountList: cartAmountList, priceList: cartPriceList }));
     };
 
     const getCartList = () => {
@@ -160,7 +154,7 @@ function CartForm() {
     // 체크박스 전체 선택
     const handleAllCheck = (isChecked: boolean) => {
         if (isChecked) {
-            setCheckList(cartIdList);
+            setCheckList(cart.idList);
         } else {
             setCheckList([]);
         }
@@ -197,7 +191,7 @@ function CartForm() {
         e.preventDefault();
 
         if (window.confirm("장바구니를 비우시겠습니까?")) {
-            for (let id of cartIdList) {
+            for (let id of cart.idList) {
                 await deleteDoc(doc(db, "cart", id)).then(() => {
                     setCheckList([]);
                     getCartList();
@@ -211,8 +205,8 @@ function CartForm() {
         if (checkList.length === 0) {
             alert("선택된 상품이 없습니다.");
         } else {
-            let orderPrice = 0;
             let fee = 0;
+            let orderPrice = 0;
 
             for (let i = 0; i < checkList.length; i++) {
                 const cartRef = doc(db, "cart", checkList[i]);
@@ -234,9 +228,9 @@ function CartForm() {
                 state: {
                     fromCart: true,
                     orderList: checkList,
-                    orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                    fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                    totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                    orderPrice: getFormatPrice(String(orderPrice)),
+                    fee: getFormatPrice(String(fee)),
+                    totPrice: getFormatPrice(String(orderPrice + fee))
                 }
             });
         }
@@ -244,16 +238,16 @@ function CartForm() {
 
     // 전체 주문
     const handleAllOrder = () => {
-        if (cartIdList.length === 0) {
+        if (cart.idList.length === 0) {
             alert("장바구니에 담긴 상품이 없습니다.");
         } else {
             navigate("/order", {
                 state: {
                     fromCart: true,
-                    orderList: cartIdList,
-                    orderPrice: orderPrice,
-                    fee: fee,
-                    totPrice: totPrice
+                    orderList: cart.idList,
+                    orderPrice: price.orderPrice,
+                    fee: price.fee,
+                    totPrice: price.totPrice
                 }
             });
         }
@@ -265,27 +259,30 @@ function CartForm() {
                 <h2>Cart</h2>
                 <table className="cart-list">
                     <tbody>
-                        {cartList.length > 0 ? (
-                            cartList.map((val, i) => {
+                        {cart.list.length > 0 ? (
+                            cart.list.map((val, i) => {
                                 return (
                                     <tr key={i} className="cart-item">
                                         <td className="del-chk">
                                             <StyledInput
                                                 type="checkbox"
-                                                checked={checkList.includes(cartIdList[i]) ? true : false}
-                                                onChange={e => handleSingleCheck(e.target.checked, cartIdList[i])}
+                                                checked={checkList.includes(cart.idList[i]) ? true : false}
+                                                onChange={e => handleSingleCheck(e.target.checked, cart.idList[i])}
                                             />
                                         </td>
                                         {val}
                                         <td>
-                                            <StyledSelect defaultValue={cartAmountList[i]} onChange={e => handleAmt(i, cartIdList[i], Number(e.target.value))}>
+                                            <StyledSelect
+                                                defaultValue={cart.amountList[i]}
+                                                onChange={e => handleAmt(i, cart.idList[i], Number(e.target.value))}
+                                            >
                                                 <option value="1">1</option>
                                                 <option value="2">2</option>
                                                 <option value="3">3</option>
                                             </StyledSelect>
                                         </td>
                                         <td className="del-util">
-                                            <button type="button" className="del-btn" onClick={() => handleDel(cartIdList[i])}></button>
+                                            <button type="button" className="del-btn" onClick={() => handleDel(cart.idList[i])}></button>
                                         </td>
                                     </tr>
                                 );
@@ -300,7 +297,7 @@ function CartForm() {
                 <div className="cart-del-wrap small-txt">
                     <StyledInput
                         type="checkbox"
-                        checked={cartList.length !== 0 && checkList.length === cartList.length ? true : false}
+                        checked={cart.list.length !== 0 && checkList.length === cart.list.length ? true : false}
                         onChange={e => handleAllCheck(e.target.checked)}
                     />
                     <a href="/" onClick={handlePartDel}>
@@ -318,13 +315,13 @@ function CartForm() {
                     <div className="order-price flex">
                         <span className="title">주문금액</span>
                         <span className="price">
-                            <strong>{orderPrice}원</strong>
+                            <strong>{price.orderPrice}원</strong>
                         </span>
                     </div>
                     <div className="delivery-fee flex">
                         <span className="title">배송비</span>
                         <span className="fee">
-                            <strong>{fee}원</strong>
+                            <strong>{price.fee}원</strong>
                         </span>
                     </div>
                     <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
@@ -334,7 +331,7 @@ function CartForm() {
                             <strong>합계</strong>
                         </span>
                         <span className="price">
-                            <strong>{totPrice}원</strong>
+                            <strong>{price.totPrice}원</strong>
                         </span>
                     </div>
                 </div>

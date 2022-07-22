@@ -24,6 +24,7 @@ const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../../firebase");
 const getImage_1 = require("../../../utils/getImage");
 const auth_1 = require("firebase/auth");
+const getFormatPrice_1 = require("../../../utils/getFormatPrice");
 const StyledInput = styled_components_1.default.input `
     appearance: none;
     border: 1.5px solid #aaa;
@@ -49,23 +50,16 @@ const StyledSelect = styled_components_1.default.select `
     margin-left: 10px;
 `;
 function CartForm() {
-    const [cartList, setCartList] = (0, react_1.useState)([]);
-    const [cartIdList, setCartIdList] = (0, react_1.useState)([]);
-    const [cartAmountList, setCartAmountList] = (0, react_1.useState)([]);
-    const [cartPriceList, setCartPriceList] = (0, react_1.useState)([]);
-    const [checkList, setCheckList] = (0, react_1.useState)([]);
-    const [orderPrice, setOrderPrice] = (0, react_1.useState)("0");
-    const [fee, setFee] = (0, react_1.useState)("0");
-    const [totPrice, setTotPrice] = (0, react_1.useState)("0");
     const navigate = (0, react_router_dom_1.useNavigate)();
+    const [checkList, setCheckList] = (0, react_1.useState)([]);
+    const [price, setPrice] = (0, react_1.useState)({ orderPrice: "0", fee: "0", totPrice: "0" });
+    const [cart, setCart] = (0, react_1.useState)({ list: [], idList: [], amountList: [], priceList: [] });
     // 주문서 가격 설정
     const handlePrice = (orderPrice) => {
-        setOrderPrice(String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
         let fee = 0;
         if (orderPrice > 0 && orderPrice < 30000)
             fee = 3000;
-        setFee(String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
-        setTotPrice(String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","));
+        setPrice(price => (Object.assign(Object.assign({}, price), { orderPrice: (0, getFormatPrice_1.getFormatPrice)(String(orderPrice)), fee: (0, getFormatPrice_1.getFormatPrice)(String(fee)), totPrice: (0, getFormatPrice_1.getFormatPrice)(String(orderPrice + fee)) })));
     };
     // 장바구니 상품 수량 변경
     const handleAmt = (i, id, amount) => __awaiter(this, void 0, void 0, function* () {
@@ -73,12 +67,12 @@ function CartForm() {
         yield (0, firestore_1.updateDoc)(cartItemRef, {
             amount: amount
         }).then(() => {
-            const newAmountList = [...cartAmountList];
+            const newAmountList = [...cart.amountList];
             newAmountList[i] = amount;
-            setCartAmountList(newAmountList);
+            setCart(cart => (Object.assign(Object.assign({}, cart), { amountList: newAmountList })));
             let orderPrice = 0;
-            for (let i = 0; i < cartPriceList.length; i++)
-                orderPrice += cartPriceList[i] * newAmountList[i];
+            for (let i = 0; i < cart.priceList.length; i++)
+                orderPrice += cart.priceList[i] * newAmountList[i];
             handlePrice(orderPrice);
             window.confirm("수량 변경이 완료되었습니다.");
         });
@@ -115,10 +109,7 @@ function CartForm() {
             cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price }))] }))] }));
         });
         handlePrice(orderPrice);
-        setCartIdList(cartIdList);
-        setCartAmountList(cartAmountList);
-        setCartPriceList(cartPriceList);
-        setCartList(cartList);
+        setCart(cart => (Object.assign(Object.assign({}, cart), { list: cartList, idList: cartIdList, amountList: cartAmountList, priceList: cartPriceList })));
     });
     const getCartList = () => {
         (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
@@ -141,7 +132,7 @@ function CartForm() {
     // 체크박스 전체 선택
     const handleAllCheck = (isChecked) => {
         if (isChecked) {
-            setCheckList(cartIdList);
+            setCheckList(cart.idList);
         }
         else {
             setCheckList([]);
@@ -175,7 +166,7 @@ function CartForm() {
     const handleAllDel = (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
         if (window.confirm("장바구니를 비우시겠습니까?")) {
-            for (let id of cartIdList) {
+            for (let id of cart.idList) {
                 yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", id)).then(() => {
                     setCheckList([]);
                     getCartList();
@@ -189,8 +180,8 @@ function CartForm() {
             alert("선택된 상품이 없습니다.");
         }
         else {
-            let orderPrice = 0;
             let fee = 0;
+            let orderPrice = 0;
             for (let i = 0; i < checkList.length; i++) {
                 const cartRef = (0, firestore_1.doc)(firebase_1.db, "cart", checkList[i]);
                 const cartSnap = yield (0, firestore_1.getDoc)(cartRef);
@@ -207,33 +198,33 @@ function CartForm() {
                 state: {
                     fromCart: true,
                     orderList: checkList,
-                    orderPrice: String(orderPrice).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                    fee: String(fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
-                    totPrice: String(orderPrice + fee).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                    orderPrice: (0, getFormatPrice_1.getFormatPrice)(String(orderPrice)),
+                    fee: (0, getFormatPrice_1.getFormatPrice)(String(fee)),
+                    totPrice: (0, getFormatPrice_1.getFormatPrice)(String(orderPrice + fee))
                 }
             });
         }
     });
     // 전체 주문
     const handleAllOrder = () => {
-        if (cartIdList.length === 0) {
+        if (cart.idList.length === 0) {
             alert("장바구니에 담긴 상품이 없습니다.");
         }
         else {
             navigate("/order", {
                 state: {
                     fromCart: true,
-                    orderList: cartIdList,
-                    orderPrice: orderPrice,
-                    fee: fee,
-                    totPrice: totPrice
+                    orderList: cart.idList,
+                    orderPrice: price.orderPrice,
+                    fee: price.fee,
+                    totPrice: price.totPrice
                 }
             });
         }
     };
-    return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cartList.length > 0 ? (cartList.map((val, i) => {
-                                return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cartIdList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cartIdList[i]) }) })), val, (0, jsx_runtime_1.jsx)("td", { children: (0, jsx_runtime_1.jsxs)(StyledSelect, Object.assign({ defaultValue: cartAmountList[i], onChange: e => handleAmt(i, cartIdList[i], Number(e.target.value)) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "1" }, { children: "1" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "2" }, { children: "2" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "3" }, { children: "3" }))] })) }), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => handleDel(cartIdList[i]) }) }))] }), i));
-                            })) : ((0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uAE34 \uC0C1\uD488\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." })) }), "empty")) }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: cartList.length !== 0 && checkList.length === cartList.length ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: handlePartDel }, { children: "\uC120\uD0DD\uC0AD\uC81C" })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: handleAllDel }, { children: "\uC804\uCCB4\uC0AD\uC81C" }))] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Order" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uC8FC\uBB38\uAE08\uC561" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uBC30\uC1A1\uBE44" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-wrap flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "part-order-btn gray-style-btn", onClick: handleOrder }, { children: "\uC120\uD0DD\uC0C1\uD488 \uAD6C\uB9E4\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "all-order-btn", onClick: handleAllOrder }, { children: "\uC804\uCCB4 \uAD6C\uB9E4\uD558\uAE30" }))] }))] }))] })));
+    return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex", action: "#", method: "post" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "cart-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Cart" }), (0, jsx_runtime_1.jsx)("table", Object.assign({ className: "cart-list" }, { children: (0, jsx_runtime_1.jsx)("tbody", { children: cart.list.length > 0 ? (cart.list.map((val, i) => {
+                                return ((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "cart-item" }, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-chk" }, { children: (0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: checkList.includes(cart.idList[i]) ? true : false, onChange: e => handleSingleCheck(e.target.checked, cart.idList[i]) }) })), val, (0, jsx_runtime_1.jsx)("td", { children: (0, jsx_runtime_1.jsxs)(StyledSelect, Object.assign({ defaultValue: cart.amountList[i], onChange: e => handleAmt(i, cart.idList[i], Number(e.target.value)) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "1" }, { children: "1" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "2" }, { children: "2" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "3" }, { children: "3" }))] })) }), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "del-util" }, { children: (0, jsx_runtime_1.jsx)("button", { type: "button", className: "del-btn", onClick: () => handleDel(cart.idList[i]) }) }))] }), i));
+                            })) : ((0, jsx_runtime_1.jsx)("tr", Object.assign({ className: "cart-item" }, { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "empty" }, { children: "\uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uAE34 \uC0C1\uD488\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." })) }), "empty")) }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "cart-del-wrap small-txt" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { type: "checkbox", checked: cart.list.length !== 0 && checkList.length === cart.list.length ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: handlePartDel }, { children: "\uC120\uD0DD\uC0AD\uC81C" })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: handleAllDel }, { children: "\uC804\uCCB4\uC0AD\uC81C" }))] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Order" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uC8FC\uBB38\uAE08\uC561" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price.orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: "\uBC30\uC1A1\uBE44" })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price.fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "title" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [price.totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-wrap flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "part-order-btn gray-style-btn", onClick: handleOrder }, { children: "\uC120\uD0DD\uC0C1\uD488 \uAD6C\uB9E4\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "all-order-btn", onClick: handleAllOrder }, { children: "\uC804\uCCB4 \uAD6C\uB9E4\uD558\uAE30" }))] }))] }))] })));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "cart" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-container" }, { children: (0, jsx_runtime_1.jsx)(CartForm, {}) }))] })) }));

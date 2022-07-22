@@ -16,28 +16,29 @@ function SideGnbBtn(props) {
 function SideGnb(props) {
     const isLoggedIn = props.isLoggedIn;
     const navigate = (0, react_router_dom_1.useNavigate)();
-    function handleLog(e) {
+    const handleLog = (e) => {
         if (isLoggedIn)
             props.logOut(e);
         else
-            navigate("/login");
+            navigate("/login", { state: { moveTo: -1 } });
         props.closeGnb();
-    }
+    };
     return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "side-gnb" }, { children: (0, jsx_runtime_1.jsxs)("ul", { children: [(0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/hair" }, { children: "\uD5E4\uC5B4\uCF00\uC5B4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/skin" }, { children: "\uC2A4\uD0A8\uCF00\uC5B4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/body" }, { children: "\uBC14\uB514\uCF00\uC5B4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "border-style-btn", style: { marginTop: "20px" }, onClick: handleLog }, { children: isLoggedIn ? "로그아웃" : "로그인" })) })] }) })));
 }
 function RightGnb(props) {
     const isLoggedIn = props.isLoggedIn;
-    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "header-gnb-right" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [isLoggedIn ? ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: e => props.logOut(e), style: { verticalAlign: "middle" } }, { children: "LOGOUT" })) })) : (""), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/myPageAuthentification" : "/login" }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/mypage.png"), alt: "\uB9C8\uC774\uD398\uC774\uC9C0" }) })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/cart" : "/login" }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/cart.png"), alt: "\uC7A5\uBC14\uAD6C\uB2C8" }) })) })] })) })));
+    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "header-gnb-right" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [isLoggedIn && ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: e => props.logOut(e), style: { verticalAlign: "middle" } }, { children: "LOGOUT" })) })), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/myPageAuthentification" : "/login", state: { moveTo: "/mypage/myPageAuthentification" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/mypage.png"), alt: "\uB9C8\uC774\uD398\uC774\uC9C0" }) })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/cart" : "/login", state: { moveTo: "/mypage/cart" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/cart.png"), alt: "\uC7A5\uBC14\uAD6C\uB2C8" }) })) })] })) })));
 }
 function Header() {
-    const [toggle, setToggle] = (0, react_1.useState)(false);
-    const [isLoggedIn, setIsLoggedIn] = (0, react_1.useState)(false);
     const navigate = (0, react_router_dom_1.useNavigate)();
     const pathname = (0, react_router_dom_1.useLocation)().pathname;
+    const [toggle, setToggle] = (0, react_1.useState)(false);
+    const [isLoggedIn, setIsLoggedIn] = (0, react_1.useState)(false);
     (0, react_1.useEffect)(() => {
         (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
-            if (user)
+            if (user) {
                 setIsLoggedIn(true);
+            }
         });
     }, []);
     function logOut(e) {

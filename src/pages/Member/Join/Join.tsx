@@ -58,47 +58,59 @@ function PrivacyPop(props: PopProp) {
 }
 
 type Prop = {
-    allChkConfirm: Function;
+    allChk: Function;
 };
 
 function Agree(props: Prop) {
-    const [allChk, setAllChk] = useState(false);
-    const [termsChk, setTermsChk] = useState(false);
-    const [privacyChk, setPrivacyChk] = useState(false);
+    const [checkList, setCheckList] = useState([]);
     const [termsPop, setTermsPop] = useState<null | JSX.Element>(null);
     const [privacyPop, setPrivacyPop] = useState<null | JSX.Element>(null);
 
     const termsPopContent = <TermsPop closePop={() => setTermsPop(null)} />;
     const privacyPopContent = <PrivacyPop closePop={() => setPrivacyPop(null)} />;
 
-    const allChkEvent = () => {
-        setAllChk(!allChk);
-        setTermsChk(!allChk);
-        setPrivacyChk(!allChk);
+    // 체크박스 단일 선택
+    const handleSingleCheck = (isChecked: boolean, checkItem: string) => {
+        if (isChecked) {
+            setCheckList(checkList => [...checkList, checkItem]);
+        } else {
+            setCheckList(checkList => checkList.filter(el => el !== checkItem));
+        }
+    };
+
+    // 체크박스 전체 선택
+    const handleAllCheck = (isChecked: boolean) => {
+        if (isChecked) {
+            setCheckList(["termsOfService", "privacy"]);
+        } else {
+            setCheckList([]);
+        }
     };
 
     useEffect(() => {
-        if (termsChk && privacyChk) {
-            setAllChk(true);
-        } else {
-            setAllChk(false);
-        }
-    }, [termsChk, privacyChk]);
-
-    useEffect(() => {
-        props.allChkConfirm(allChk);
-    }, [allChk, props]);
+        props.allChk(checkList.length === 2);
+    }, [checkList, props]);
 
     return (
         <div className="agree-container small-txt">
             <div>
-                <StyledInput id="agreeAllChk" type="checkbox" checked={allChk} onChange={allChkEvent} />
+                <StyledInput
+                    id="agreeAllChk"
+                    type="checkbox"
+                    checked={checkList.length === 2 ? true : false}
+                    onChange={e => handleAllCheck(e.target.checked)}
+                />
                 <label htmlFor="agreeAllChk">
                     <strong>전체약관 항목에 동의합니다.</strong>
                 </label>
             </div>
             <div>
-                <StyledInput id="agreeServiceChk" type="checkbox" checked={termsChk} onChange={() => setTermsChk(!termsChk)} />
+                <StyledInput
+                    id="agreeServiceChk"
+                    type="checkbox"
+                    checked={checkList.includes("termsOfService") ? true : false}
+                    onChange={e => handleSingleCheck(e.target.checked, "termsOfService")}
+                />
                 <label htmlFor="agreeServiceChk">
                     <strong>이용약관 동의 (필수)</strong>
                 </label>
@@ -115,7 +127,12 @@ function Agree(props: Prop) {
             </div>
             {termsPop}
             <div>
-                <StyledInput id="agreePrivacyChk" type="checkbox" checked={privacyChk} onChange={() => setPrivacyChk(!privacyChk)} />
+                <StyledInput
+                    id="agreePrivacyChk"
+                    type="checkbox"
+                    checked={checkList.includes("privacy") ? true : false}
+                    onChange={e => handleSingleCheck(e.target.checked, "privacy")}
+                />
                 <label htmlFor="agreePrivacyChk">
                     <strong>개인정보 수집 및 이용 동의 (필수)</strong>
                 </label>
@@ -188,8 +205,11 @@ function Form() {
 
     useEffect(() => {
         if (email) {
-            if (!errors.email?.type) setEmailSuccessMsg("block");
-            else setEmailSuccessMsg("none");
+            if (!errors.email?.type) {
+                setEmailSuccessMsg("block");
+            } else {
+                setEmailSuccessMsg("none");
+            }
         }
     }, [email, errors.email?.type]);
 
@@ -206,7 +226,7 @@ function Form() {
                     "authCodeBtn",
                     {
                         size: "invisible",
-                        callback: response => {
+                        callback: (response: any) => {
                             // reCAPTCHA solved, allow signInWithPhoneNumber.
                         }
                     },
@@ -375,7 +395,7 @@ function Form() {
                     </p>
                 </div>
             </div>
-            <Agree allChkConfirm={allChk => setAllChk(allChk)} />
+            <Agree allChk={(allChk: boolean) => setAllChk(allChk)} />
             <div className="join-btn-wrap">
                 <button className={"join-btn"} disabled={disabled}>
                     가입하기

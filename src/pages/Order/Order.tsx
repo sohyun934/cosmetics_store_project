@@ -29,26 +29,33 @@ type Prop = {
 };
 
 function OrderForm(props: Prop) {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [postcode, setPostcode] = useState("");
-    const [address, setAddress] = useState("");
-    const [detailAddress, setDetailAddress] = useState("");
+    const [user, setUser] = useState({
+        name: "",
+        email: "",
+        phoneNumber: "",
+        postCode: "",
+        address: "",
+        detailAddress: ""
+    });
+
+    const checkOut = {
+        orderPrice: props.state.orderPrice,
+        fee: props.state.fee,
+        totPrice: props.state.totPrice
+    };
+
+    const order = {
+        fromCart: props.state.fromCart,
+        orderList: props.state.orderList,
+        amount: props.state.amount
+    };
+
+    const navigate = useNavigate();
     const [deliveryMsg, setDeliveryMsg] = useState("");
     const [disabled, setDisabled] = useState(true);
 
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = useDaumPostcodePopup(scriptUrl);
-
-    const fromCart = props.state.fromCart;
-    const orderList = props.state.orderList;
-    const amount = props.state.amount;
-    const orderPrice = props.state.orderPrice;
-    const fee = props.state.fee;
-    const totPrice = props.state.totPrice;
-
-    const navigate = useNavigate();
 
     // 사용자 정보 가져오기
     const fetchUser = async () => {
@@ -58,12 +65,14 @@ function OrderForm(props: Prop) {
         querySnapshot.forEach(doc => {
             const user = doc.data();
 
-            setName(user.name);
-            setEmail(user.email);
-            setPhoneNumber(user.phoneNumber);
-            setPostcode(user.post_code);
-            setAddress(user.address);
-            setDetailAddress(user.detail_address);
+            setUser({
+                name: user.name,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                postCode: user.post_code,
+                address: user.address,
+                detailAddress: user.detail_address
+            });
         });
     };
 
@@ -83,8 +92,7 @@ function OrderForm(props: Prop) {
         // 사용자가 지번 주소를 선택했을 경우(J)
         else addr = data.jibunAddress;
 
-        setPostcode(data.zonecode);
-        setAddress(addr);
+        setUser(user => ({ ...user, postCode: data.zonecode, address: addr }));
     };
 
     const handleSearch = () => {
@@ -93,14 +101,17 @@ function OrderForm(props: Prop) {
 
     // 유효성 검증 후 결제하기 버튼 활성화
     useEffect(() => {
-        if (name && phoneNumber && postcode && address && detailAddress) setDisabled(false);
+        if (user.name && user.phoneNumber && user.postCode && user.address && user.detailAddress) setDisabled(false);
         else setDisabled(true);
-    }, [name, phoneNumber, postcode, address, detailAddress]);
+    }, [user]);
 
     // 난수 생성
     const getRandomCode = (n: number) => {
         let str = "";
-        for (let i = 0; i < n; i++) str += Math.floor(Math.random() * 10);
+
+        for (let i = 0; i < n; i++) {
+            str += Math.floor(Math.random() * 10);
+        }
 
         return str;
     };
@@ -117,10 +128,10 @@ function OrderForm(props: Prop) {
         const amountList = [];
         const productNameList = [];
 
-        if (fromCart) {
+        if (order.fromCart) {
             // 장바구니에서 주문
-            for (let i = 0; i < orderList.length; i++) {
-                const cartRef = doc(db, "cart", orderList[i]);
+            for (let i = 0; i < order.orderList.length; i++) {
+                const cartRef = doc(db, "cart", order.orderList[i]);
                 const cartSnap = await getDoc(cartRef);
 
                 if (cartSnap.exists()) {
@@ -130,32 +141,32 @@ function OrderForm(props: Prop) {
                     productNameList.push(cart.product_name);
 
                     // 장바구니에서 삭제
-                    await deleteDoc(doc(db, "cart", orderList[i]));
+                    await deleteDoc(doc(db, "cart", order.orderList[i]));
                 }
             }
         } else {
             // 상품 상세페이지에서 주문
-            amountList.push(amount);
-            productNameList.push(orderList[0]);
+            amountList.push(order.amount);
+            productNameList.push(order.orderList[0]);
         }
 
         // firestore에 주문 정보 등록
         await setDoc(doc(db, "order", orderNum), {
             order_id: orderId,
             order_date: date.join("."),
-            order_list: orderList,
+            order_list: order.orderList,
             amount_list: amountList,
             product_name_list: productNameList,
-            name: name,
-            email: email,
-            phone_number: phoneNumber,
-            postcode: postcode,
-            address: address,
-            detail_address: detailAddress,
+            name: user.name,
+            email: user.email,
+            phone_number: user.phoneNumber,
+            post_code: user.postCode,
+            address: user.address,
+            detail_address: user.detailAddress,
             delivery_msg: deliveryMsg,
-            order_price: orderPrice,
-            fee: fee,
-            tot_price: totPrice
+            order_price: checkOut.orderPrice,
+            fee: checkOut.fee,
+            tot_price: checkOut.totPrice
         }).then(() => {
             navigate("/order/orderComplete", {
                 replace: true,
@@ -171,15 +182,20 @@ function OrderForm(props: Prop) {
             <section className="delivery-section">
                 <h2>Delivery</h2>
                 <div className="input-container">
-                    <input type="text" placeholder="받는 분" value={name} onChange={e => setName(e.target.value)} />
-                    <input type="text" placeholder="핸드폰번호" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+                    <input type="text" placeholder="받는 분" value={user.name} onChange={e => setUser(user => ({ ...user, name: e.target.value }))} />
+                    <input
+                        type="text"
+                        placeholder="핸드폰번호"
+                        value={user.phoneNumber}
+                        onChange={e => setUser(user => ({ ...user, phoneNumber: e.target.value }))}
+                    />
                     <div className="postcode-wrap">
                         <StyledInput
                             className="userPostcode"
                             type="text"
                             placeholder="우편번호"
-                            value={postcode}
-                            onChange={e => setPostcode(e.target.value)}
+                            value={user.postCode}
+                            onChange={e => setUser(user => ({ ...user, postCode: e.target.value }))}
                             readOnly
                         />
                         <button type="button" className="search-btn" onClick={handleSearch}></button>
@@ -188,16 +204,16 @@ function OrderForm(props: Prop) {
                         className="userAddress"
                         type="text"
                         placeholder="기본 주소"
-                        value={address}
-                        onChange={e => setAddress(e.target.value)}
+                        value={user.address}
+                        onChange={e => setUser(user => ({ ...user, address: e.target.value }))}
                         readOnly
                     />
                     <input
                         className="userDetailAddress"
                         type="text"
                         placeholder="상세 주소"
-                        value={detailAddress}
-                        onChange={e => setDetailAddress(e.target.value)}
+                        value={user.detailAddress}
+                        onChange={e => setUser(user => ({ ...user, detailAddress: e.target.value }))}
                     />
                 </div>
                 <div className="delivery-msg">
@@ -225,13 +241,13 @@ function OrderForm(props: Prop) {
                     <div className="check-out-price flex">
                         <span>주문금액</span>
                         <span className="price">
-                            <strong>{orderPrice}원</strong>
+                            <strong>{checkOut.orderPrice}원</strong>
                         </span>
                     </div>
                     <div className="delivery-fee flex">
                         <span>배송비</span>
                         <span className="fee">
-                            <strong>{fee}원</strong>
+                            <strong>{checkOut.fee}원</strong>
                         </span>
                     </div>
                     <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
@@ -241,7 +257,7 @@ function OrderForm(props: Prop) {
                             <strong>합계</strong>
                         </span>
                         <span className="price">
-                            <strong>{totPrice}원</strong>
+                            <strong>{checkOut.totPrice}원</strong>
                         </span>
                     </div>
                 </div>

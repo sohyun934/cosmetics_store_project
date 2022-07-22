@@ -63,7 +63,7 @@ function ProductMain() {
     }, [pop]);
     const handleAddCart = (productName) => __awaiter(this, void 0, void 0, function* () {
         if (!firebase_1.signedInUser) {
-            navigate("/login");
+            navigate("/login", { state: { moveTo: -1 } });
         }
         else {
             const cartList = yield (0, firestore_1.getDocs)((0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "cart"), (0, firestore_1.where)("user_email", "==", firebase_1.signedInUser)));

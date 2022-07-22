@@ -1,10 +1,9 @@
 import "../../styles/style.css";
 import "./Header.css";
 import React, { useEffect, useState } from "react";
-import { Link, NavigateFunction, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import path from "path";
 
 function LeftGnb() {
     return (
@@ -48,11 +47,11 @@ function SideGnb(props: SideGnbProp) {
     const isLoggedIn = props.isLoggedIn;
     const navigate = useNavigate();
 
-    function handleLog(e: React.MouseEvent<HTMLButtonElement>) {
+    const handleLog = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (isLoggedIn) props.logOut(e);
-        else navigate("/login");
+        else navigate("/login", { state: { moveTo: -1 } });
         props.closeGnb();
-    }
+    };
 
     return (
         <nav className="side-gnb">
@@ -87,23 +86,20 @@ function RightGnb(props: RightGnbProp) {
     return (
         <nav className="header-gnb-right">
             <ul className="flex">
-                {isLoggedIn ? (
+                {isLoggedIn && (
                     <li>
                         <a href="/" onClick={e => props.logOut(e)} style={{ verticalAlign: "middle" }}>
                             LOGOUT
                         </a>
                     </li>
-                ) : (
-                    ""
                 )}
-
                 <li>
-                    <Link to={isLoggedIn ? "/mypage/myPageAuthentification" : "/login"}>
+                    <Link to={isLoggedIn ? "/mypage/myPageAuthentification" : "/login"} state={{ moveTo: "/mypage/myPageAuthentification" }}>
                         <img src={require("../../assets/common/mypage.png")} alt="마이페이지" />
                     </Link>
                 </li>
                 <li>
-                    <Link to={isLoggedIn ? "/mypage/cart" : "/login"}>
+                    <Link to={isLoggedIn ? "/mypage/cart" : "/login"} state={{ moveTo: "/mypage/cart" }}>
                         <img src={require("../../assets/common/cart.png")} alt="장바구니" />
                     </Link>
                 </li>
@@ -113,14 +109,16 @@ function RightGnb(props: RightGnbProp) {
 }
 
 function Header() {
-    const [toggle, setToggle] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const pathname = useLocation().pathname;
+    const [toggle, setToggle] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
         onAuthStateChanged(auth, user => {
-            if (user) setIsLoggedIn(true);
+            if (user) {
+                setIsLoggedIn(true);
+            }
         });
     }, []);
 

@@ -45,33 +45,36 @@ function PrivacyPop(props) {
     return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "popup-container privacy-pop" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "\uAC1C\uC778\uC815\uBCF4 \uCC98\uB9AC\uBC29\uCE68" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsx)(PrivacyPolicy_1.PrivacyPolicyDetail, {}), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "pop-close-btn", onClick: () => props.closePop() })] })), (0, jsx_runtime_1.jsx)("div", { className: "dim" })] }));
 }
 function Agree(props) {
-    const [allChk, setAllChk] = (0, react_1.useState)(false);
-    const [termsChk, setTermsChk] = (0, react_1.useState)(false);
-    const [privacyChk, setPrivacyChk] = (0, react_1.useState)(false);
+    const [checkList, setCheckList] = (0, react_1.useState)([]);
     const [termsPop, setTermsPop] = (0, react_1.useState)(null);
     const [privacyPop, setPrivacyPop] = (0, react_1.useState)(null);
     const termsPopContent = (0, jsx_runtime_1.jsx)(TermsPop, { closePop: () => setTermsPop(null) });
     const privacyPopContent = (0, jsx_runtime_1.jsx)(PrivacyPop, { closePop: () => setPrivacyPop(null) });
-    const allChkEvent = () => {
-        setAllChk(!allChk);
-        setTermsChk(!allChk);
-        setPrivacyChk(!allChk);
-    };
-    (0, react_1.useEffect)(() => {
-        if (termsChk && privacyChk) {
-            setAllChk(true);
+    // 체크박스 단일 선택
+    const handleSingleCheck = (isChecked, checkItem) => {
+        if (isChecked) {
+            setCheckList(checkList => [...checkList, checkItem]);
         }
         else {
-            setAllChk(false);
+            setCheckList(checkList => checkList.filter(el => el !== checkItem));
         }
-    }, [termsChk, privacyChk]);
+    };
+    // 체크박스 전체 선택
+    const handleAllCheck = (isChecked) => {
+        if (isChecked) {
+            setCheckList(["termsOfService", "privacy"]);
+        }
+        else {
+            setCheckList([]);
+        }
+    };
     (0, react_1.useEffect)(() => {
-        props.allChkConfirm(allChk);
-    }, [allChk, props]);
-    return ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "agree-container small-txt" }, { children: [(0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeAllChk", type: "checkbox", checked: allChk, onChange: allChkEvent }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeAllChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC804\uCCB4\uC57D\uAD00 \uD56D\uBAA9\uC5D0 \uB3D9\uC758\uD569\uB2C8\uB2E4." }) }))] }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeServiceChk", type: "checkbox", checked: termsChk, onChange: () => setTermsChk(!termsChk) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeServiceChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC774\uC6A9\uC57D\uAD00 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "terms-pop-link", onClick: event => {
+        props.allChk(checkList.length === 2);
+    }, [checkList, props]);
+    return ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "agree-container small-txt" }, { children: [(0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeAllChk", type: "checkbox", checked: checkList.length === 2 ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeAllChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC804\uCCB4\uC57D\uAD00 \uD56D\uBAA9\uC5D0 \uB3D9\uC758\uD569\uB2C8\uB2E4." }) }))] }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeServiceChk", type: "checkbox", checked: checkList.includes("termsOfService") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "termsOfService") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeServiceChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC774\uC6A9\uC57D\uAD00 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "terms-pop-link", onClick: event => {
                             event.preventDefault();
                             setTermsPop(termsPopContent);
-                        } }, { children: "\uBCF4\uAE30" }))] }), termsPop, (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreePrivacyChk", type: "checkbox", checked: privacyChk, onChange: () => setPrivacyChk(!privacyChk) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreePrivacyChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uAC1C\uC778\uC815\uBCF4 \uC218\uC9D1 \uBC0F \uC774\uC6A9 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "privacy-pop-link", onClick: event => {
+                        } }, { children: "\uBCF4\uAE30" }))] }), termsPop, (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreePrivacyChk", type: "checkbox", checked: checkList.includes("privacy") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "privacy") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreePrivacyChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uAC1C\uC778\uC815\uBCF4 \uC218\uC9D1 \uBC0F \uC774\uC6A9 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "privacy-pop-link", onClick: event => {
                             event.preventDefault();
                             setPrivacyPop(privacyPopContent);
                         } }, { children: "\uBCF4\uAE30" }))] }), privacyPop] })));
@@ -102,10 +105,12 @@ function Form() {
     (0, react_1.useEffect)(() => {
         var _a;
         if (email) {
-            if (!((_a = errors.email) === null || _a === void 0 ? void 0 : _a.type))
+            if (!((_a = errors.email) === null || _a === void 0 ? void 0 : _a.type)) {
                 setEmailSuccessMsg("block");
-            else
+            }
+            else {
                 setEmailSuccessMsg("none");
+            }
         }
     }, [email, (_a = errors.email) === null || _a === void 0 ? void 0 : _a.type]);
     // 휴대폰 인증 번호 전송
@@ -120,7 +125,7 @@ function Form() {
                 // 인증 번호 최초 요청 시
                 window.recaptchaVerifier = new auth_1.RecaptchaVerifier("authCodeBtn", {
                     size: "invisible",
-                    callback: response => {
+                    callback: (response) => {
                         // reCAPTCHA solved, allow signInWithPhoneNumber.
                     }
                 }, firebase_1.auth);
@@ -220,7 +225,7 @@ function Form() {
                     }))), errors.name && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uD734\uB300\uD3F0 \uBC88\uD638" }, register("phoneNumber", {
                                 required: true,
                                 pattern: regExpPhoneNumber
-                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ id: "authCodeBtn", type: "button", className: "small-txt radius-style-btn", onClick: getAuthCode }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), ((_j = errors.phoneNumber) === null || _j === void 0 ? void 0 : _j.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), ((_k = errors.phoneNumber) === null || _k === void 0 ? void 0 : _k.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uAC00 \uC720\uD6A8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), errors.phoneNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.phoneNumber.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: codeInputDisplay === "none" ? "none" : "block" } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uBC1C\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ style: { display: codeInputDisplay } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("authCode", { validate: value => value.length === 6 }))) })), ((_l = errors.authCode) === null || _l === void 0 ? void 0 : _l.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), errors.authCode && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.authCode.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: authSuccessMsg } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uC77C\uCE58\uD569\uB2C8\uB2E4." }))] }))] })), (0, jsx_runtime_1.jsx)(Agree, { allChkConfirm: allChk => setAllChk(allChk) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn", disabled: disabled }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
+                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ id: "authCodeBtn", type: "button", className: "small-txt radius-style-btn", onClick: getAuthCode }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), ((_j = errors.phoneNumber) === null || _j === void 0 ? void 0 : _j.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), ((_k = errors.phoneNumber) === null || _k === void 0 ? void 0 : _k.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uAC00 \uC720\uD6A8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), errors.phoneNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.phoneNumber.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: codeInputDisplay === "none" ? "none" : "block" } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uBC1C\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ style: { display: codeInputDisplay } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("authCode", { validate: value => value.length === 6 }))) })), ((_l = errors.authCode) === null || _l === void 0 ? void 0 : _l.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), errors.authCode && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.authCode.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: authSuccessMsg } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uC77C\uCE58\uD569\uB2C8\uB2E4." }))] }))] })), (0, jsx_runtime_1.jsx)(Agree, { allChk: (allChk) => setAllChk(allChk) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn", disabled: disabled }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "join-container middle-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", Object.assign({ className: "join-title" }, { children: "SIGN UP" })), (0, jsx_runtime_1.jsx)(Form, {})] })) }));

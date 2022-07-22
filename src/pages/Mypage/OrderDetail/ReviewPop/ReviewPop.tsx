@@ -1,9 +1,9 @@
 import "./ReviewPop.css";
 import React, { useEffect, useState } from "react";
 import { addDoc, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
-import { db, signedInUser } from "../../firebase";
+import { db, signedInUser } from "../../../../firebase";
 import styled from "styled-components";
-import { getDate } from "../../utils/getDate";
+import { getDate } from "../../../../utils/getDate";
 
 type Prop = {
     close: Function;

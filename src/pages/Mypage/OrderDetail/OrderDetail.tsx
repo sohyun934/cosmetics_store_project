@@ -1,12 +1,15 @@
 import "./OrderDetail.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
-import ReviewPop from "../../../components/ReviewPop/ReviewPop";
+import ReviewPop from "./ReviewPop/ReviewPop";
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { db, signedInUser } from "../../../firebase";
+import { auth, db, signedInUser } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
+import { DeliverySection, PaySection } from "../../Order/OrderComplete/OrderComplete";
+import { onAuthStateChanged } from "firebase/auth";
+import { getFormatPrice } from "../../../utils/getFormatPrice";
 
 type DetailSectionProp = {
     orderDetail: any;
@@ -33,19 +36,18 @@ function DetailSection(props: DetailSectionProp) {
 }
 
 type OrderItemSectionProp = {
-    open: Function;
     orderDetail: any;
     reviewId: string;
+    open: Function;
 };
 
 function OrderItemSection(props: OrderItemSectionProp) {
     const orderDetail = props.orderDetail;
     const orderList = orderDetail.order_list;
     const reviewId = props.reviewId;
-
     const [products, setProducts] = useState([]);
 
-    async function fetchProducts() {
+    const fetchProducts = async () => {
         const products = [];
 
         if (orderList) {
@@ -58,7 +60,7 @@ function OrderItemSection(props: OrderItemSectionProp) {
                 const product = productSnap.data();
 
                 const thumb = await getImage(product.product_thumb_01);
-                const price = product.product_price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+                const price = getFormatPrice(product.product_price);
                 const state = {
                     name: product.product_name,
                     price: product.product_price,
@@ -91,9 +93,6 @@ function OrderItemSection(props: OrderItemSectionProp) {
                                     <strong>주문완료</strong>
                                 </div>
                                 <div>
-                                    {/* <div>
-                                        <button className="radius-style-btn">주문취소</button>
-                                    </div> */}
                                     <div>
                                         <button className="review-pop-btn radius-style-btn" onClick={() => props.open(productName)}>
                                             {reviewSnapshot.empty ? "리뷰작성" : "리뷰수정"}
@@ -108,7 +107,7 @@ function OrderItemSection(props: OrderItemSectionProp) {
 
             setProducts(products);
         }
-    }
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -132,128 +131,38 @@ function OrderItemSection(props: OrderItemSectionProp) {
     );
 }
 
-type SectionProp = {
-    orderDetail: any;
-};
-
-function DeliverySection(props: SectionProp) {
-    const name = props.orderDetail.name;
-    const postCode = props.orderDetail.postcode;
-    const address = props.orderDetail.address;
-    const detailAddress = props.orderDetail.detail_address;
-    const deliveryMsg = props.orderDetail.delivery_msg;
-
-    let firstNumber: string;
-    let thirdNumber: string;
-    let phoneNumber: string = props.orderDetail.phone_number;
-
-    if (phoneNumber) {
-        firstNumber = phoneNumber.slice(0, 3);
-        thirdNumber = phoneNumber.slice(-4);
-        phoneNumber = firstNumber + "-****-" + thirdNumber;
-    }
-
-    return (
-        <section className="delivery-section">
-            <h3>배송지 정보</h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>받는분</th>
-                        <td>{name}</td>
-                    </tr>
-                    <tr>
-                        <th>연락처</th>
-                        <td>{phoneNumber}</td>
-                    </tr>
-                    <tr>
-                        <th>주소</th>
-                        <td>
-                            ({postCode})
-                            <br />
-                            {address + " " + detailAddress}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>배송 메시지</th>
-                        <td>{deliveryMsg ? deliveryMsg : "\u00A0"}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    );
-}
-
-function PaySection(props: SectionProp) {
-    const orderPrice = props.orderDetail.order_price;
-    const fee = props.orderDetail.fee;
-    const totPrice = props.orderDetail.tot_price;
-
-    return (
-        <section className="payment-section">
-            <h3>결제 정보</h3>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>상품 금액</th>
-                        <td>{orderPrice}원</td>
-                    </tr>
-                    <tr>
-                        <th>배송비</th>
-                        <td>{fee}원</td>
-                    </tr>
-                    <tr>
-                        <th>전체 금액</th>
-                        <td>{totPrice}원</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    );
-}
-
-interface CustomizedState {
-    docId: string;
-}
-
 function Main() {
-    const [orderNum, setOrderNum] = useState("");
-    const [orderDetail, setOrderDetail] = useState({});
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const docId = query.get("orderNo");
+
+    const [orderDetail, setOrderDetail] = useState({ id: "", data: {} });
     const [reviewId, setReviewId] = useState("");
     const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
 
-    const navigate = useNavigate();
-    const location = useLocation();
-    const state = location.state as CustomizedState;
-
-    let docId: string;
-    if (state) docId = state.docId;
-
-    async function fetchOrder() {
+    const fetchOrder = async () => {
         const docRef = doc(db, "order", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            setOrderNum(docSnap.id);
-            setOrderDetail(docSnap.data());
+            setOrderDetail({ id: docSnap.id, data: docSnap.data() });
         }
-    }
+    };
 
     useEffect(() => {
-        if (!state) {
-            // url로 직접 접속하는 경우 인증페이지로 이동
-            navigate("/mypage/myPageAuthentification");
-        } else {
-            fetchOrder();
-        }
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                fetchOrder();
+            }
+        });
     }, []);
 
     return (
         <>
-            {state && (
+            {Object.keys(orderDetail.data).length > 0 && (
                 <main className="wrap">
                     <div className="order-detail big-container">
-                        <DetailSection orderDetail={orderDetail} orderNum={orderNum} />
+                        <DetailSection orderDetail={orderDetail.data} orderNum={orderDetail.id} />
                         <OrderItemSection
                             open={(productName: string) =>
                                 setReviewPop(
@@ -266,11 +175,11 @@ function Main() {
                                     />
                                 )
                             }
-                            orderDetail={orderDetail}
+                            orderDetail={orderDetail.data}
                             reviewId={reviewId}
                         />
-                        <DeliverySection orderDetail={orderDetail} />
-                        <PaySection orderDetail={orderDetail} />
+                        <DeliverySection orderDetail={orderDetail.data} />
+                        <PaySection orderDetail={orderDetail.data} />
                         <div className="list-btn-wrap">
                             <Link to="/mypage/orderList" className="order-list-btn border-style-btn">
                                 목록

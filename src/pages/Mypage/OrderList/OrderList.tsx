@@ -2,11 +2,12 @@ import "./OrderList.css";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
-import { db, signedInUser } from "../../../firebase";
+import { auth, db } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 // function SearchSection() {
 //     let onBtn: null | HTMLButtonElement = null;
@@ -48,12 +49,11 @@ import { getImage } from "../../../utils/getImage";
 
 function OrderTable() {
     const [orderItems, setOrderItems] = useState([]);
-    const navigate = useNavigate();
 
-    async function fetchOrder() {
+    const fetchOrder = async (user: User) => {
         const orderItems = [];
 
-        const q = query(collection(db, "order"), where("email", "==", signedInUser), orderBy("order_id", "desc"));
+        const q = query(collection(db, "order"), where("email", "==", user.email), orderBy("order_id", "desc"));
         const orderSnapshot = await getDocs(q);
 
         const productNames = [];
@@ -99,14 +99,7 @@ function OrderTable() {
                             <td className="order-date" rowSpan={productNames.length}>
                                 {orderDate}
                                 <div className="order-num"></div>
-                                <Link
-                                    to="/mypage/orderDetail"
-                                    state={{
-                                        docId: doc.id
-                                    }}
-                                >
-                                    상세보기
-                                </Link>
+                                <Link to={`/mypage/orderDetail?orderNo=${doc.id}`}>상세보기</Link>
                             </td>
                         ) : (
                             ""
@@ -132,36 +125,43 @@ function OrderTable() {
         });
 
         setOrderItems(orderItems);
-    }
+    };
 
     useEffect(() => {
-        // url로 직접 접속, 새로고침 시 인증 페이지로 이동
-        fetchOrder().catch(() => navigate("/mypage/myPageAuthentification"));
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                fetchOrder(user);
+            }
+        });
     }, []);
 
     return (
-        <table className="order-table">
-            <thead>
-                <tr>
-                    <th>주문일자</th>
-                    <th colSpan={2}>상품</th>
-                    <th>수량</th>
-                    <th>금액</th>
-                    <th>상태</th>
-                </tr>
-            </thead>
-            <tbody>
-                {orderItems.length > 0 ? (
-                    orderItems
-                ) : (
-                    <tr>
-                        <td colSpan={6} style={{ textAlign: "center" }}>
-                            <p>주문 내역이 없습니다.</p>
-                        </td>
-                    </tr>
-                )}
-            </tbody>
-        </table>
+        <>
+            {
+                <table className="order-table">
+                    <thead>
+                        <tr>
+                            <th>주문일자</th>
+                            <th colSpan={2}>상품</th>
+                            <th>수량</th>
+                            <th>금액</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orderItems.length > 0 ? (
+                            orderItems
+                        ) : (
+                            <tr>
+                                <td colSpan={6} style={{ textAlign: "center" }}>
+                                    <p>주문 내역이 없습니다.</p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            }
+        </>
     );
 }
 

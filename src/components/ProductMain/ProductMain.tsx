@@ -67,7 +67,7 @@ function ProductMain() {
 
     const handleAddCart = async (productName: string) => {
         if (!signedInUser) {
-            navigate("/login");
+            navigate("/login", { state: { moveTo: -1 } });
         } else {
             const cartList = await getDocs(query(collection(db, "cart"), where("user_email", "==", signedInUser)));
             const q = query(collection(db, "cart"), where("user_email", "==", signedInUser), where("product_name", "==", productName));

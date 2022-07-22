@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
+import { getFormatPrice } from "../../../utils/getFormatPrice";
 
 type SectionProp = {
     orderDetail: any;
@@ -25,23 +26,24 @@ function NoticeSection() {
 }
 
 function OrderItemSection(props: SectionProp) {
-    const orderList = props.orderDetail.order_list;
+    const orderDetail = props.orderDetail;
+    const orderList = orderDetail.order_list;
     const [products, setProducts] = useState([]);
 
-    async function fetchProducts() {
+    const fetchProducts = async () => {
         const products = [];
 
         if (orderList) {
             for (let i = 0; i < orderList.length; i++) {
-                const amount = props.orderDetail.amount_list[i];
+                const amount = orderDetail.amount_list[i];
 
-                const productName = props.orderDetail.product_name_list[i];
+                const productName = orderDetail.product_name_list[i];
                 const productRef = doc(db, "product", productName);
                 const productSnap = await getDoc(productRef);
                 const product = productSnap.data();
 
                 const thumb = await getImage(product.product_thumb_01);
-                const price = product.product_price.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+                const price = getFormatPrice(product.product_price);
                 const state = {
                     name: product.product_name,
                     price: product.product_price,
@@ -73,7 +75,7 @@ function OrderItemSection(props: SectionProp) {
 
             setProducts(products);
         }
-    }
+    };
 
     useEffect(() => {
         fetchProducts();
@@ -96,22 +98,15 @@ function OrderItemSection(props: SectionProp) {
     );
 }
 
-function DeliverySection(props: SectionProp) {
-    const name = props.orderDetail.name;
-    const postCode = props.orderDetail.postcode;
-    const address = props.orderDetail.address;
-    const detailAddress = props.orderDetail.detail_address;
-    const deliveryMsg = props.orderDetail.delivery_msg;
+type DeliverySectionProp = {
+    orderDetail: any;
+};
 
-    let firstNumber: string;
-    let thirdNumber: string;
-    let phoneNumber: string = props.orderDetail.phone_number;
-
-    if (phoneNumber) {
-        firstNumber = phoneNumber.slice(0, 3);
-        thirdNumber = phoneNumber.slice(-4);
-        phoneNumber = firstNumber + "-****-" + thirdNumber;
-    }
+export function DeliverySection(props: DeliverySectionProp) {
+    const orderDetail = props.orderDetail;
+    const firstNumber = orderDetail.phone_number.slice(0, 3);
+    const thirdNumber = orderDetail.phone_number.slice(-4);
+    const phoneNumber = firstNumber + "-****-" + thirdNumber;
 
     return (
         <section className="delivery-section">
@@ -120,7 +115,7 @@ function DeliverySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>받는분</th>
-                        <td>{name}</td>
+                        <td>{orderDetail.name}</td>
                     </tr>
                     <tr>
                         <th>연락처</th>
@@ -129,14 +124,14 @@ function DeliverySection(props: SectionProp) {
                     <tr>
                         <th>주소</th>
                         <td>
-                            ({postCode})
+                            ({orderDetail.post_code})
                             <br />
-                            {address + " " + detailAddress}
+                            {orderDetail.address + " " + orderDetail.detail_address}
                         </td>
                     </tr>
                     <tr>
                         <th>배송 메시지</th>
-                        <td>{deliveryMsg ? deliveryMsg : "\u00A0"}</td>
+                        <td>{orderDetail.deliveryMsg ? orderDetail.deliveryMsg : "\u00A0"}</td>
                     </tr>
                 </tbody>
             </table>
@@ -144,10 +139,8 @@ function DeliverySection(props: SectionProp) {
     );
 }
 
-function PaySection(props: SectionProp) {
-    const orderPrice = props.orderDetail.order_price;
-    const fee = props.orderDetail.fee;
-    const totPrice = props.orderDetail.tot_price;
+export function PaySection(props: SectionProp) {
+    const orderDetail = props.orderDetail;
 
     return (
         <section className="payment-section">
@@ -156,15 +149,15 @@ function PaySection(props: SectionProp) {
                 <tbody>
                     <tr>
                         <th>상품 금액</th>
-                        <td>{orderPrice}원</td>
+                        <td>{orderDetail.order_price}원</td>
                     </tr>
                     <tr>
                         <th>배송비</th>
-                        <td>{fee}원</td>
+                        <td>{orderDetail.fee}원</td>
                     </tr>
                     <tr>
                         <th>전체 금액</th>
-                        <td>{totPrice}원</td>
+                        <td>{orderDetail.tot_price}원</td>
                     </tr>
                 </tbody>
             </table>
@@ -177,21 +170,20 @@ interface CustomizedState {
 }
 
 function Main() {
-    const [orderDetail, setOrderDetail] = useState({});
-
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
+    const [orderDetail, setOrderDetail] = useState({});
 
     let docId: string;
     if (state) docId = state.docId;
 
-    async function fetchOrder() {
+    const fetchOrder = async () => {
         const docRef = doc(db, "order", docId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) setOrderDetail(docSnap.data());
-    }
+    };
 
     useEffect(() => {
         if (!state) {
@@ -205,7 +197,7 @@ function Main() {
 
     return (
         <>
-            {state && (
+            {state && Object.keys(orderDetail).length > 0 && (
                 <main>
                     <div className="order-detail big-container">
                         <NoticeSection />

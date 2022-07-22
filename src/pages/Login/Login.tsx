@@ -1,7 +1,7 @@
 import "./Login.css";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, To, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -21,6 +21,10 @@ const StyledInput = styled.input`
     }
 `;
 
+interface CustomizedState {
+    moveTo: To;
+}
+
 function FormAndUtil() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,6 +32,9 @@ function FormAndUtil() {
     const [isChecked, setIsChecked] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const state = location.state as CustomizedState;
+    const moveTo = state.moveTo;
 
     useEffect(() => {
         if (getCookie("email")) {
@@ -36,7 +43,7 @@ function FormAndUtil() {
         }
     }, []);
 
-    function getCookie(name: string) {
+    const getCookie = (name: string) => {
         const search = name + "=";
         if (document.cookie.length > 0) {
             let offset = document.cookie.indexOf(search);
@@ -47,15 +54,15 @@ function FormAndUtil() {
                 return unescape(document.cookie.substring(offset, end));
             }
         }
-    }
+    };
 
-    function setCookie(name: string, value: string, expiredays: number) {
+    const setCookie = (name: string, value: string, expiredays: number) => {
         const todayDate = new Date();
         todayDate.setDate(todayDate.getDate() + expiredays);
         document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toUTCString() + ";";
-    }
+    };
 
-    function logIn() {
+    const logIn = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 // Signed in
@@ -67,7 +74,7 @@ function FormAndUtil() {
                 }
 
                 setErrorMsg("");
-                navigate("/");
+                navigate(moveTo);
             })
             .catch(error => {
                 const errorCode = error.code;
@@ -75,21 +82,21 @@ function FormAndUtil() {
                     setErrorMsg("이메일을 입력해주세요.");
                 } else if (errorCode === "auth/internal-error") {
                     setErrorMsg("비밀번호를 입력해주세요.");
-                } else if (errorCode === "auth/user-not-found") {
-                    setErrorMsg("존재하지 않는 이메일 계정입니다.");
-                } else if (errorCode === "auth/wrong-password") {
-                    setErrorMsg("비밀번호가 일치하지 않습니다.");
+                } else if (errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") {
+                    setErrorMsg("이메일 또는 비밀번호가 일치하지 않습니다.");
                 }
             });
-    }
+    };
 
-    function handleKeyPress(e: React.KeyboardEvent<HTMLInputElement>) {
-        if (e.key === "Enter") logIn();
-    }
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            logIn();
+        }
+    };
 
     return (
         <div>
-            <form className="login-form" action="#" method="post">
+            <form className="login-form">
                 <div className="input-container">
                     <div className="input-wrap">
                         <input type="text" placeholder="이메일" value={email} onChange={e => setEmail(e.target.value)} onKeyPress={handleKeyPress} />
