@@ -210,7 +210,7 @@ function ProductMain() {
             <section className="product-section">
                 <div className="section-title">
                     <h1>{category[pathname].title}</h1>
-                    <p>{category[pathname].desc}</p>
+                    <p style={{ wordBreak: "keep-all" }}>{category[pathname].desc}</p>
                 </div>
                 <div className="list-filter">
                     <select onChange={e => handleSort(e)}>

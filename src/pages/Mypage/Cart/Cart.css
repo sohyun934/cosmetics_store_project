@@ -49,7 +49,7 @@
 }
 
 .cart-list .info > div {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .cart-list .info .cnt-box button {
@@ -103,6 +103,13 @@
 
     .cart-section {
         margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 300px) {
+    .cart-section,
+    .order-section .section-inner {
+        padding: 20px;
     }
 }
 

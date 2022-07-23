@@ -63,10 +63,6 @@
 
 /* order-wrap */
 
-.order-list .order-table {
-    margin-top: 20px;
-}
-
 .order-list .order-table .order-item {
     text-align: center;
 }
@@ -114,7 +110,6 @@
 
     .order-list .section-inner-right {
         text-align: left;
-        margin-top: 10px;
     }
 
     .order-list .section-inner-right input {

@@ -40,12 +40,12 @@ const StyledInput = styled_components_1.default.input `
     }
 `;
 const StyledSelect = styled_components_1.default.select `
-    width: 45px;
-    height: 25px;
+    width: 2.8rem;
+    height: 1.5rem;
     padding: 0 0 0 5px;
     border: 1px solid #d0d0d0;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 0.75rem;
     background: white;
     margin-left: 10px;
 `;
@@ -106,7 +106,7 @@ function CartForm() {
             cartIdList.push(doc.id);
             cartAmountList.push(cartItem.amount);
             cartPriceList.push(product.product_price);
-            cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: product.product_price }))] }))] }));
+            cartList.push((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)("td", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: cartItem.product_name }) })) })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: cartItem.product_name })) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "price" }, { children: [product.product_price, "\uC6D0"] }))] }))] }));
         });
         handlePrice(orderPrice);
         setCart(cart => (Object.assign(Object.assign({}, cart), { list: cartList, idList: cartIdList, amountList: cartAmountList, priceList: cartPriceList })));

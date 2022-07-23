@@ -431,15 +431,7 @@ button:disabled {
     }
 
     .product-section .product-list .product {
-        width: 50%;
-    }
-
-    .product-section .product-list .product:nth-child(odd) {
-        padding-right: 10px;
-    }
-
-    .product-section .product-list .product:nth-child(even) {
-        padding-left: 10px;
+        width: 100%;
     }
 
     .product-section .more-btn-wrap {
@@ -450,7 +442,6 @@ button:disabled {
 
     .popup-container {
         width: 100%;
-        height: 100%;
         box-sizing: border-box;
         border-radius: 0;
     }

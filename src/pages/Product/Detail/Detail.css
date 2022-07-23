@@ -18,6 +18,10 @@
     font-family: "Noto Sans KR", Malgun Gothic, sans-serif;
 }
 
+.detail-container .product-section .price {
+    font-family: "Nanum Myeongjo", serif;
+}
+
 .detail-container .product-section .info .cnt-container,
 .product-section .info .price-container,
 .review-section .section-inner .section-top {

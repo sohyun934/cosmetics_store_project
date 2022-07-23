@@ -27,12 +27,12 @@ const StyledInput = styled.input`
 `;
 
 const StyledSelect = styled.select`
-    width: 45px;
-    height: 25px;
+    width: 2.8rem;
+    height: 1.5rem;
     padding: 0 0 0 5px;
     border: 1px solid #d0d0d0;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 0.75rem;
     background: white;
     margin-left: 10px;
 `;
@@ -122,7 +122,7 @@ function CartForm() {
                                 {cartItem.product_name}
                             </Link>
                         </div>
-                        <div className="price">{product.product_price}</div>
+                        <div className="price">{product.product_price}원</div>
                     </td>
                 </>
             );
