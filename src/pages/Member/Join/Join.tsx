@@ -9,7 +9,7 @@ import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../../firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword } from "firebase/auth";
+import { RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -197,11 +197,11 @@ function Form() {
     const navigate = useNavigate();
 
     // 이메일 중복 확인
-    async function fetchUser() {
+    const fetchUser = async () => {
         const q = query(collection(db, "users"), where("email", "==", getValues("email")));
         const userSnapshot = await getDocs(q);
         return userSnapshot.size > 0;
-    }
+    };
 
     useEffect(() => {
         if (email) {
@@ -214,7 +214,7 @@ function Form() {
     }, [email, errors.email?.type]);
 
     // 휴대폰 인증 번호 전송
-    function getAuthCode() {
+    const handlePhoneAuth = () => {
         const phoneNumber = getValues("phoneNumber");
 
         if (!phoneNumber) {
@@ -252,7 +252,7 @@ function Form() {
                     });
                 });
         }
-    }
+    };
 
     // 휴대폰 인증 번호 검증
     useEffect(() => {
@@ -263,10 +263,13 @@ function Form() {
             } else {
                 window.confirmationResult
                     .confirm(authCode)
-                    .then(result => {
+                    .then((result: any) => {
                         setAuthSucessMsg("block");
+
+                        // 인증 후 자동 로그인 해제
+                        signOut(auth).then(() => {});
                     })
-                    .catch(error => {
+                    .catch((error: { code: string }) => {
                         setAuthSucessMsg("none");
 
                         if (error.code === "auth/invalid-verification-code") {
@@ -374,7 +377,7 @@ function Form() {
                             pattern: regExpPhoneNumber
                         })}
                     />
-                    <button id="authCodeBtn" type="button" className="small-txt radius-style-btn" onClick={getAuthCode}>
+                    <button id="authCodeBtn" type="button" className="small-txt radius-style-btn" onClick={handlePhoneAuth}>
                         인증번호 요청
                     </button>
                 </div>

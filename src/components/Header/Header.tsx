@@ -118,6 +118,8 @@ function Header() {
         onAuthStateChanged(auth, user => {
             if (user) {
                 setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
             }
         });
     }, []);

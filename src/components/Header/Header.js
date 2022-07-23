@@ -39,6 +39,9 @@ function Header() {
             if (user) {
                 setIsLoggedIn(true);
             }
+            else {
+                setIsLoggedIn(false);
+            }
         });
     }, []);
     function logOut(e) {
