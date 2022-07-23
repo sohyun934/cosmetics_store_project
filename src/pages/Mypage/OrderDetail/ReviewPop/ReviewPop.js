@@ -16,9 +16,9 @@ const jsx_runtime_1 = require("react/jsx-runtime");
 require("./ReviewPop.css");
 const react_1 = require("react");
 const firestore_1 = require("firebase/firestore");
-const firebase_1 = require("../../firebase");
+const firebase_1 = require("../../../../firebase");
 const styled_components_1 = __importDefault(require("styled-components"));
-const getDate_1 = require("../../utils/getDate");
+const getDate_1 = require("../../../../utils/getDate");
 const StyledButton = styled_components_1.default.button `
     background: black;
     color: white;

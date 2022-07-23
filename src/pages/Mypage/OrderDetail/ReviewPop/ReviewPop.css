@@ -1,41 +1,42 @@
 .review-pop .text-container {
-	background: #F6F6F6;
-	margin-top: 20px;
+    background: #f6f6f6;
+    margin-top: 20px;
     padding: 10px;
-    border: 1px solid #D0D0D0;		
+    border: 1px solid #d0d0d0;
 }
 
 .review-pop .total-point {
-	text-align: center;
-	padding: 30px 0;
+    text-align: center;
+    padding: 30px 0;
 }
 
 .review-pop .total-point ul {
-	flex-direction: row-reverse;
-	justify-content: center;
+    flex-direction: row-reverse;
+    justify-content: center;
 }
 
 .review-pop .total-point ul li button {
     width: 2rem;
     height: 2rem;
-    background: url("../../assets/product/detail/star_off.png") no-repeat;
+    background: url("../../../../assets/product/detail/star_off.png") no-repeat;
     background-size: 2rem auto;
     vertical-align: middle;
-	margin: 0 2px;
+    margin: 0 2px;
 }
 
-.review-pop .total-point ul li.on button, .review-pop .total-point ul li.on ~ li button {
-	background: url("../../assets/product/detail/star_on.png") no-repeat;
-	background-size: 2rem auto;
+.review-pop .total-point ul li.on button,
+.review-pop .total-point ul li.on ~ li button {
+    background: url("../../../../assets/product/detail/star_on.png") no-repeat;
+    background-size: 2rem auto;
 }
 
 .review-pop .text-container textarea {
-	background: #F6F6F6;
-	height: 110px;	
-	border: 0;
-	resize: none;
+    background: #f6f6f6;
+    height: 110px;
+    border: 0;
+    resize: none;
 }
 
 .review-pop .pop-btn-container button {
-	font-size: 1rem;
+    font-size: 1rem;
 }

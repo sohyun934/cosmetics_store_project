@@ -16,7 +16,7 @@ const jsx_runtime_1 = require("react/jsx-runtime");
 require("./OrderDetail.css");
 const Header_1 = __importDefault(require("../../../components/Header/Header"));
 const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
-const ReviewPop_1 = __importDefault(require("../../../components/ReviewPop/ReviewPop"));
+const ReviewPop_1 = __importDefault(require("./ReviewPop/ReviewPop"));
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
 const firestore_1 = require("firebase/firestore");
