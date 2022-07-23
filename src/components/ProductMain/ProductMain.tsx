@@ -26,16 +26,21 @@ const StyledButton = styled.button`
     }
 `;
 
+interface Order {
+    field: string | FieldPath;
+    direction: OrderByDirection;
+}
+
 function ProductMain() {
-    const [more, setMore] = useState(false);
+    const [pop, setPop] = useState({ state: "", content: null });
     const [products, setProducts] = useState([]);
+    const [moreBtn, setMoreBtn] = useState(false);
     const [lastVisible, setLastVisible] = useState(null);
-    const [pop, setPop] = useState<string>("");
-    const [popContent, setPopContent] = useState<JSX.Element | null>(null);
+    const [order, setOrder] = useState<Order>({ field: "product_id", direction: "desc" });
 
     const navigate = useNavigate();
     const pathname = useLocation().pathname.substring(1);
-    const limitNum = 12;
+    const limitNum = 9;
 
     const category = {
         hair: {
@@ -53,17 +58,16 @@ function ProductMain() {
     };
 
     const closePop = () => {
-        setPop("");
-        setPopContent(null);
+        setPop(pop => ({ ...pop, state: "", content: null }));
     };
 
     useEffect(() => {
-        if (pop === "cart") {
-            setPopContent(<CartPop close={closePop} title="상품이 장바구니에 담겼습니다." />);
-        } else if (pop === "overlap") {
-            setPopContent(<CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." />);
+        if (pop.state === "cart") {
+            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="상품이 장바구니에 담겼습니다." /> }));
+        } else if (pop.state === "overlap") {
+            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." /> }));
         }
-    }, [pop]);
+    }, [pop.state]);
 
     const handleAddCart = async (productName: string) => {
         if (!signedInUser) {
@@ -81,36 +85,26 @@ function ProductMain() {
                     amount: 1
                 });
 
-                setPop("cart");
+                setPop(pop => ({ ...pop, state: "cart" }));
             } else {
-                setPop("overlap");
+                setPop(pop => ({ ...pop, state: "overlap" }));
             }
         }
     };
 
     // 상품 리스트 가져오기
-    const fetchProducts = async (field: string | FieldPath, direction: OrderByDirection) => {
+    const fetchProducts = async (field: string | FieldPath, direction: OrderByDirection, isClicked: boolean) => {
         let productSnapshot: QuerySnapshot<DocumentData>;
         let productList: any[];
 
-        if (products.length === 0) {
-            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
-            const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction));
-            const totProducts = await getDocs(q);
-            if (totProducts.size > limitNum) setMore(true);
-
-            // 상품 가져오기
-            const first = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), limit(limitNum));
-            productSnapshot = await getDocs(first);
-
-            productList = [];
-        } else {
+        // 더보기 버튼을 클릭한 경우
+        if (isClicked) {
             // 나머지 상품 갯수가 limit 이하인 경우 더보기 버튼 감추기
             const q = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), startAfter(lastVisible));
             const restProducts = await getDocs(q);
-            if (restProducts.size <= limitNum) setMore(false);
+            if (restProducts.size <= limitNum) setMoreBtn(false);
 
-            // 더보기 버튼 클릭 시 상품 추가로 가져오기
+            // 상품 추가로 가져오기
             const more = query(
                 collection(db, "product"),
                 where("product_type", "==", pathname),
@@ -118,9 +112,22 @@ function ProductMain() {
                 startAfter(lastVisible),
                 limit(limitNum)
             );
-            productSnapshot = await getDocs(more);
 
+            productSnapshot = await getDocs(more);
             productList = [...products];
+        } else {
+            const q = query(collection(db, "product"), where("product_type", "==", pathname));
+            const totProducts = await getDocs(q);
+
+            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
+            if (totProducts.size > limitNum) {
+                setMoreBtn(true);
+            }
+
+            // 상품 가져오기
+            const first = query(collection(db, "product"), where("product_type", "==", pathname), orderBy(field, direction), limit(limitNum));
+            productSnapshot = await getDocs(first);
+            productList = [];
         }
 
         setLastVisible(productSnapshot.docs[productSnapshot.docs.length - 1]);
@@ -175,18 +182,27 @@ function ProductMain() {
     };
 
     useEffect(() => {
-        fetchProducts("product_id", "desc");
+        fetchProducts("product_id", "desc", false);
     }, []);
 
     // 상품 리스트 정렬
     const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        let field: string | FieldPath = "product_id";
+        let direction: OrderByDirection = "desc";
+
         if (e.target.value === "new") {
-            fetchProducts("product_id", "desc");
+            field = "product_id";
+            direction = "desc";
         } else if (e.target.value === "low-price") {
-            fetchProducts("product_price", "asc");
+            field = "product_price";
+            direction = "asc";
         } else if (e.target.value === "high-price") {
-            fetchProducts("product_price", "desc");
+            field = "product_price";
+            direction = "desc";
         }
+
+        fetchProducts(field, direction, false);
+        setOrder(orderBy => ({ ...orderBy, field: field, direction: direction }));
     };
 
     return (
@@ -205,22 +221,20 @@ function ProductMain() {
                     </select>
                 </div>
                 <ul className="product-list flex">{products}</ul>
-                {more ? (
+                {moreBtn && (
                     <div style={{ textAlign: "center", padding: "0 20px" }}>
                         <StyledButton
                             className="border-style-btn"
                             onClick={() => {
-                                fetchProducts("product_id", "desc");
+                                fetchProducts(order.field, order.direction, true);
                             }}
                         >
                             더보기
                         </StyledButton>
                     </div>
-                ) : (
-                    <></>
                 )}
             </section>
-            {popContent}
+            {pop.content}
             <MoveTop />
         </main>
     );

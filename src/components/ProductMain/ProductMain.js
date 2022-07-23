@@ -27,14 +27,14 @@ const StyledButton = styled_components_1.default.button `
     }
 `;
 function ProductMain() {
-    const [more, setMore] = (0, react_1.useState)(false);
+    const [pop, setPop] = (0, react_1.useState)({ state: "", content: null });
     const [products, setProducts] = (0, react_1.useState)([]);
+    const [moreBtn, setMoreBtn] = (0, react_1.useState)(false);
     const [lastVisible, setLastVisible] = (0, react_1.useState)(null);
-    const [pop, setPop] = (0, react_1.useState)("");
-    const [popContent, setPopContent] = (0, react_1.useState)(null);
+    const [order, setOrder] = (0, react_1.useState)({ field: "product_id", direction: "desc" });
     const navigate = (0, react_router_dom_1.useNavigate)();
     const pathname = (0, react_router_dom_1.useLocation)().pathname.substring(1);
-    const limitNum = 12;
+    const limitNum = 9;
     const category = {
         hair: {
             title: "HAIR CARE",
@@ -50,17 +50,16 @@ function ProductMain() {
         }
     };
     const closePop = () => {
-        setPop("");
-        setPopContent(null);
+        setPop(pop => (Object.assign(Object.assign({}, pop), { state: "", content: null })));
     };
     (0, react_1.useEffect)(() => {
-        if (pop === "cart") {
-            setPopContent((0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC0C1\uD488\uC774 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACBC\uC2B5\uB2C8\uB2E4." }));
+        if (pop.state === "cart") {
+            setPop(pop => (Object.assign(Object.assign({}, pop), { content: (0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC0C1\uD488\uC774 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACBC\uC2B5\uB2C8\uB2E4." }) })));
         }
-        else if (pop === "overlap") {
-            setPopContent((0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC774\uBBF8 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACA8\uC788\uB294 \uC0C1\uD488\uC785\uB2C8\uB2E4." }));
+        else if (pop.state === "overlap") {
+            setPop(pop => (Object.assign(Object.assign({}, pop), { content: (0, jsx_runtime_1.jsx)(CartPop_1.default, { close: closePop, title: "\uC774\uBBF8 \uC7A5\uBC14\uAD6C\uB2C8\uC5D0 \uB2F4\uACA8\uC788\uB294 \uC0C1\uD488\uC785\uB2C8\uB2E4." }) })));
         }
-    }, [pop]);
+    }, [pop.state]);
     const handleAddCart = (productName) => __awaiter(this, void 0, void 0, function* () {
         if (!firebase_1.signedInUser) {
             navigate("/login", { state: { moveTo: -1 } });
@@ -76,38 +75,40 @@ function ProductMain() {
                     user_email: firebase_1.signedInUser,
                     amount: 1
                 });
-                setPop("cart");
+                setPop(pop => (Object.assign(Object.assign({}, pop), { state: "cart" })));
             }
             else {
-                setPop("overlap");
+                setPop(pop => (Object.assign(Object.assign({}, pop), { state: "overlap" })));
             }
         }
     });
     // 상품 리스트 가져오기
-    const fetchProducts = (field, direction) => __awaiter(this, void 0, void 0, function* () {
+    const fetchProducts = (field, direction, isClicked) => __awaiter(this, void 0, void 0, function* () {
         let productSnapshot;
         let productList;
-        if (products.length === 0) {
-            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
-            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction));
-            const totProducts = yield (0, firestore_1.getDocs)(q);
-            if (totProducts.size > limitNum)
-                setMore(true);
-            // 상품 가져오기
-            const first = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction), (0, firestore_1.limit)(limitNum));
-            productSnapshot = yield (0, firestore_1.getDocs)(first);
-            productList = [];
-        }
-        else {
+        // 더보기 버튼을 클릭한 경우
+        if (isClicked) {
             // 나머지 상품 갯수가 limit 이하인 경우 더보기 버튼 감추기
             const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction), (0, firestore_1.startAfter)(lastVisible));
             const restProducts = yield (0, firestore_1.getDocs)(q);
             if (restProducts.size <= limitNum)
-                setMore(false);
-            // 더보기 버튼 클릭 시 상품 추가로 가져오기
+                setMoreBtn(false);
+            // 상품 추가로 가져오기
             const more = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction), (0, firestore_1.startAfter)(lastVisible), (0, firestore_1.limit)(limitNum));
             productSnapshot = yield (0, firestore_1.getDocs)(more);
             productList = [...products];
+        }
+        else {
+            const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname));
+            const totProducts = yield (0, firestore_1.getDocs)(q);
+            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
+            if (totProducts.size > limitNum) {
+                setMoreBtn(true);
+            }
+            // 상품 가져오기
+            const first = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction), (0, firestore_1.limit)(limitNum));
+            productSnapshot = yield (0, firestore_1.getDocs)(first);
+            productList = [];
         }
         setLastVisible(productSnapshot.docs[productSnapshot.docs.length - 1]);
         if (productSnapshot.empty) {
@@ -133,22 +134,29 @@ function ProductMain() {
         setProducts(productList);
     });
     (0, react_1.useEffect)(() => {
-        fetchProducts("product_id", "desc");
+        fetchProducts("product_id", "desc", false);
     }, []);
     // 상품 리스트 정렬
     const handleSort = (e) => {
+        let field = "product_id";
+        let direction = "desc";
         if (e.target.value === "new") {
-            fetchProducts("product_id", "desc");
+            field = "product_id";
+            direction = "desc";
         }
         else if (e.target.value === "low-price") {
-            fetchProducts("product_price", "asc");
+            field = "product_price";
+            direction = "asc";
         }
         else if (e.target.value === "high-price") {
-            fetchProducts("product_price", "desc");
+            field = "product_price";
+            direction = "desc";
         }
+        fetchProducts(field, direction, false);
+        setOrder(orderBy => (Object.assign(Object.assign({}, orderBy), { field: field, direction: direction })));
     };
-    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => handleSort(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), more ? ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
-                                fetchProducts("product_id", "desc");
-                            } }, { children: "\uB354\uBCF4\uAE30" })) }))) : ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, {}))] })), popContent, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
+    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", { children: category[pathname].desc })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => handleSort(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), moreBtn && ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
+                                fetchProducts(order.field, order.direction, true);
+                            } }, { children: "\uB354\uBCF4\uAE30" })) })))] })), pop.content, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
 exports.default = ProductMain;
