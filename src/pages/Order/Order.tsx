@@ -68,7 +68,7 @@ function OrderForm(props: Prop) {
             setUser({
                 name: user.name,
                 email: user.email,
-                phoneNumber: user.phoneNumber,
+                phoneNumber: user.phone_number,
                 postCode: user.post_code,
                 address: user.address,
                 detailAddress: user.detail_address
@@ -194,7 +194,7 @@ function OrderForm(props: Prop) {
                             className="userPostcode"
                             type="text"
                             placeholder="우편번호"
-                            value={user.postCode}
+                            value={user.postCode || ""}
                             onChange={e => setUser(user => ({ ...user, postCode: e.target.value }))}
                             readOnly
                         />
@@ -204,7 +204,7 @@ function OrderForm(props: Prop) {
                         className="userAddress"
                         type="text"
                         placeholder="기본 주소"
-                        value={user.address}
+                        value={user.address || ""}
                         onChange={e => setUser(user => ({ ...user, address: e.target.value }))}
                         readOnly
                     />
@@ -212,7 +212,7 @@ function OrderForm(props: Prop) {
                         className="userDetailAddress"
                         type="text"
                         placeholder="상세 주소"
-                        value={user.detailAddress}
+                        value={user.detailAddress || ""}
                         onChange={e => setUser(user => ({ ...user, detailAddress: e.target.value }))}
                     />
                 </div>

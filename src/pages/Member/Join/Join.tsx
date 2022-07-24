@@ -192,7 +192,6 @@ function Form() {
     const [codeInputDisplay, setCodeInputDisplay] = useState("none");
     const [authSuccessMsg, setAuthSucessMsg] = useState("none");
     const [allChk, setAllChk] = useState(false);
-    const [disabled, setDisabled] = useState(true);
 
     const navigate = useNavigate();
 
@@ -289,21 +288,13 @@ function Form() {
     }, [authCode, setError]);
 
     // 신규 회원 데이터 create
-    useEffect(() => {
-        if (isValid && allChk) {
-            setDisabled(false);
-        } else {
-            setDisabled(true);
-        }
-    }, [isValid, allChk]);
-
     const onSubmit: SubmitHandler<Inputs> = data => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(async () => {
                 await addDoc(collection(db, "users"), {
-                    email: data.email,
                     name: data.name,
-                    phoneNumber: data.phoneNumber
+                    email: data.email,
+                    phone_number: data.phoneNumber
                 });
 
                 window.recaptchaVerifier = null;
@@ -400,7 +391,7 @@ function Form() {
             </div>
             <Agree allChk={(allChk: boolean) => setAllChk(allChk)} />
             <div className="join-btn-wrap">
-                <button className={"join-btn"} disabled={disabled}>
+                <button className={"join-btn"} disabled={!isValid || !allChk}>
                     가입하기
                 </button>
             </div>

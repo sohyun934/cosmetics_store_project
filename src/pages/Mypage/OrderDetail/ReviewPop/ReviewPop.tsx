@@ -18,15 +18,11 @@ const StyledButton = styled.button`
 `;
 
 function ReviewPop(props: Prop) {
+    const lis = [];
     const [mode, setMode] = useState("write");
     const [docId, setDocId] = useState("");
     const [reviewId, setReviewId] = useState(0);
-    const [rate, setRate] = useState(0);
-    const [content, setContent] = useState("");
-    const [letters, setLetters] = useState(0);
-    const [disabled, setDisabled] = useState(true);
-
-    const lis = [];
+    const [reviewState, setReviewState] = useState({ rate: 0, content: "", letters: 0 });
 
     const handleRate = (e: React.MouseEvent<HTMLButtonElement>) => {
         const target = (e.target as HTMLElement).parentNode as HTMLElement;
@@ -38,17 +34,19 @@ function ReviewPop(props: Prop) {
 
     for (let i = 0; i < 5; i++) {
         lis.push(
-            <li key={i} value={5 - i} className={mode === "update" && 5 - i === rate ? "on" : ""} onClick={() => setRate(5 - i)}>
+            <li
+                key={i}
+                value={5 - i}
+                className={mode === "update" && 5 - i === reviewState.rate ? "on" : ""}
+                onClick={() => setReviewState(reviewState => ({ ...reviewState, rate: 5 - i }))}
+            >
                 <button type="button" onClick={handleRate}></button>
             </li>
         );
     }
 
     const handleCount = (letters: number) => {
-        setLetters(letters);
-
-        if (letters >= 20) setDisabled(false);
-        else setDisabled(true);
+        setReviewState(reviewState => ({ ...reviewState, letters: letters }));
     };
 
     const fetchReview = async () => {
@@ -65,10 +63,7 @@ function ReviewPop(props: Prop) {
                 const review = doc.data();
 
                 setDocId(doc.id);
-                setRate(review.rate);
-                setContent(review.content);
-                setLetters(review.content.length);
-                setDisabled(false);
+                setReviewState(reviewState => ({ ...reviewState, rate: review.rate, content: review.content, letters: review.content.length }));
             });
         }
     };
@@ -90,10 +85,10 @@ function ReviewPop(props: Prop) {
                 await addDoc(collection(db, "reviews"), {
                     review_id: reviewId,
                     product_name: props.productName,
-                    rate: rate,
+                    rate: reviewState.rate,
                     user_name: user.name,
                     email: user.email,
-                    content: content,
+                    content: reviewState.content,
                     date: date
                 }).then(() => {
                     alert("리뷰 등록이 완료되었습니다.");
@@ -104,8 +99,8 @@ function ReviewPop(props: Prop) {
             const reviewRef = doc(db, "reviews", docId);
 
             await updateDoc(reviewRef, {
-                rate: rate,
-                content: content
+                rate: reviewState.rate,
+                content: reviewState.content
             }).then(() => {
                 alert("리뷰 수정이 완료되었습니다.");
                 props.close();
@@ -130,23 +125,27 @@ function ReviewPop(props: Prop) {
                             cols={3}
                             rows={1}
                             maxLength={50}
-                            value={content}
+                            value={reviewState.content}
                             onChange={e => {
                                 handleCount(e.target.value.length);
-                                setContent(e.target.value);
+                                setReviewState(reviewState => ({ ...reviewState, content: e.target.value }));
                             }}
                             placeholder="최소 20자 이상 입력"
                         ></textarea>
                         <p>
-                            <span>{letters}</span>자 / 50자
+                            <span>{reviewState.letters}</span>자 / 50자
                         </p>
                     </div>
-                    <input type="file" />
                     <div className="pop-btn-container flex">
                         <button type="button" className="cancel-btn radius-style-btn" onClick={() => props.close()}>
                             취소
                         </button>
-                        <StyledButton type="button" className="write-btn radius-style-btn" onClick={handleWrite} disabled={disabled}>
+                        <StyledButton
+                            type="button"
+                            className="write-btn radius-style-btn"
+                            onClick={handleWrite}
+                            disabled={reviewState.letters < 20 || reviewState.rate === 0}
+                        >
                             등록
                         </StyledButton>
                     </div>
