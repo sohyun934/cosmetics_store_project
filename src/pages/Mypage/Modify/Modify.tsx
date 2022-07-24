@@ -4,12 +4,12 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
-import { EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, updatePassword, User } from "firebase/auth";
-import { useLocation, useNavigate } from "react-router-dom";
+import { deleteUser, EmailAuthProvider, getAuth, onAuthStateChanged, reauthenticateWithCredential, updatePassword, User } from "firebase/auth";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 interface Inputs {
     password: string;
@@ -27,7 +27,6 @@ const StyledInput = styled.input`
 `;
 
 function Form() {
-    const [disabled, setDisabled] = useState(true);
     const [userState, setUserState] = useState({
         name: "",
         email: "",
@@ -42,16 +41,17 @@ function Form() {
         handleSubmit,
         formState: { errors, isValid },
         getValues,
-        setValue
+        reset
     } = useForm<Inputs>({ mode: "onChange" });
 
     const regExpPw = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,16}$/;
     const scriptUrl = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
     const open = useDaumPostcodePopup(scriptUrl);
 
+    const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
-    const userPw = state.password;
+    const [userPw, setUserPw] = useState(state.password);
 
     const fetchUser = async (user: User) => {
         const q = query(collection(db, "users"), where("email", "==", user.email));
@@ -63,7 +63,7 @@ function Form() {
             setUserState({
                 name: user.name,
                 email: user.email,
-                phoneNumber: user.phoneNumber,
+                phoneNumber: user.phone_number,
                 postCode: user.post_code,
                 address: user.address,
                 detailAddress: user.detail_address
@@ -95,41 +95,73 @@ function Form() {
         open({ onComplete: handleComplete });
     };
 
-    // 유효성 검증 완료 후 수정 버튼 활성화
-    useEffect(() => {
-        if (isValid) {
-            setDisabled(false);
-        } else {
-            setDisabled(true);
-        }
-    }, [isValid, errors]);
-
     const onSubmit: SubmitHandler<Inputs> = async data => {
         const user = auth.currentUser;
         const credential = EmailAuthProvider.credential(user.email, userPw);
 
-        // 비밀번호 업데이트
-        reauthenticateWithCredential(user, credential).then(() => {
-            updatePassword(user, getValues("password"));
-        });
+        if (user) {
+            // 비밀번호 업데이트
+            reauthenticateWithCredential(user, credential).then(() => {
+                const updatePw = getValues("password");
 
-        // 회원정보 업데이트
-        const q = query(collection(db, "users"), where("email", "==", user.email));
-
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async document => {
-            const userRef = doc(db, "users", document.id);
-
-            await updateDoc(userRef, {
-                post_code: userState.postCode,
-                address: userState.address,
-                detail_address: userState.detailAddress
-            }).then(() => {
-                setValue("password", "");
-                setValue("confirmPw", "");
-                alert("회원정보 수정이 완료되었습니다.");
+                updatePassword(user, updatePw);
+                setUserPw(updatePw);
             });
-        });
+
+            // 회원정보 업데이트
+            const q = query(collection(db, "users"), where("email", "==", user.email));
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async document => {
+                const userRef = doc(db, "users", document.id);
+
+                await updateDoc(userRef, {
+                    post_code: userState.postCode,
+                    address: userState.address,
+                    detail_address: userState.detailAddress
+                }).then(() => {
+                    reset({
+                        password: "",
+                        confirmPw: ""
+                    });
+                    alert("회원정보 수정이 완료되었습니다.");
+                });
+            });
+        } else {
+            navigate("/", { replace: true });
+        }
+    };
+
+    const handleUserDelete = e => {
+        e.preventDefault();
+
+        const user = auth.currentUser;
+        const credential = EmailAuthProvider.credential(user.email, userPw);
+
+        if (user) {
+            reauthenticateWithCredential(user, credential).then(() => {
+                if (window.confirm("정말 탈퇴하시겠습니까?")) {
+                    const auth = getAuth();
+                    const user = auth.currentUser;
+
+                    deleteUser(user)
+                        .then(async () => {
+                            const q = query(collection(db, "users"), where("email", "==", user.email));
+
+                            const querySnapshot = await getDocs(q);
+                            querySnapshot.forEach(async document => {
+                                await deleteDoc(doc(db, "users", document.id));
+                            });
+
+                            alert("그동안 THE NATURAL을 이용해주셔서 감사합니다.");
+                            navigate("/");
+                        })
+                        .catch(error => {
+                            alert("탈퇴 과정 중에 오류가 발생했습니다.\n" + error.message);
+                        });
+                }
+            });
+        }
     };
 
     return (
@@ -188,12 +220,12 @@ function Form() {
                 />
             </div>
             <div className="btn-wrap">
-                <button className="modify-btn" disabled={disabled}>
+                <button className="modify-btn" disabled={!isValid}>
                     회원정보수정
                 </button>
             </div>
             <div className="member-leave small-txt">
-                <a href="/" onClick={event => event.preventDefault()}>
+                <a href="/" onClick={e => handleUserDelete(e)}>
                     회원탈퇴
                 </a>
             </div>
