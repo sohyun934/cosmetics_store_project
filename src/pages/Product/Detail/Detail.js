@@ -28,6 +28,7 @@ const getImage_1 = require("../../../utils/getImage");
 const firebase_1 = require("../../../firebase");
 const firestore_1 = require("firebase/firestore");
 const getFormatPrice_1 = require("../../../utils/getFormatPrice");
+const react_js_pagination_1 = __importDefault(require("react-js-pagination"));
 function ProductSection(props) {
     const productName = props.name;
     const price = Number(props.price);
@@ -144,44 +145,60 @@ function Nav(props) {
 }
 function ReviewSection(props) {
     const productName = props.productName;
+    const [page, setPage] = (0, react_1.useState)(1);
+    const [totItemsCnt, setTotItemsCnt] = (0, react_1.useState)(0);
     const [reviews, setReviews] = (0, react_1.useState)([]);
     const [totRating, setTotRating] = (0, react_1.useState)("0.0");
     const [totWidth, setTotWidth] = (0, react_1.useState)("");
+    // 페이지네이션
+    const handlePageChange = (page) => {
+        setPage(page);
+    };
     const fetchReviews = () => __awaiter(this, void 0, void 0, function* () {
-        const reviewQuery = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"));
-        const reviewSnapshot = yield (0, firestore_1.getDocs)(reviewQuery);
+        let reviewSnapshot;
         let totRating = 0;
         const reviews = [];
+        const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"));
+        const querySnapshot = yield (0, firestore_1.getDocs)(q);
+        setTotItemsCnt(querySnapshot.size);
+        // 구매자 평점
+        if (!querySnapshot.empty) {
+            querySnapshot.forEach(doc => {
+                const review = doc.data();
+                const rating = review.rate;
+                totRating += rating;
+            });
+            const fixedRating = (totRating / querySnapshot.size).toFixed(1);
+            const totWidth = String(Number(fixedRating) * 20) + "%";
+            setTotRating(fixedRating);
+            setTotWidth(totWidth);
+        }
+        // 페이지네이션
+        if (page === 1) {
+            const first = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"), (0, firestore_1.limit)(5));
+            reviewSnapshot = yield (0, firestore_1.getDocs)(first);
+        }
+        else {
+            let lastVisible = querySnapshot.docs[(page - 1) * 5 - 1];
+            const next = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "reviews"), (0, firestore_1.where)("product_name", "==", productName), (0, firestore_1.orderBy)("review_id", "desc"), (0, firestore_1.startAfter)(lastVisible), (0, firestore_1.limit)(5));
+            reviewSnapshot = yield (0, firestore_1.getDocs)(next);
+        }
         if (!reviewSnapshot.empty) {
             reviewSnapshot.forEach(doc => {
                 const review = doc.data();
                 const rating = review.rate;
-                totRating += rating;
                 const width = String(rating * 20) + "%";
                 const userName = review.user_name;
                 const maskingName = userName.slice(0, -1) + "*";
                 reviews.push((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "review-container" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: width } }) })), (0, jsx_runtime_1.jsxs)("span", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("span", Object.assign({ className: "user-name" }, { children: `${maskingName}님` })), (0, jsx_runtime_1.jsx)("span", { children: review.date })] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "content" }, { children: (0, jsx_runtime_1.jsx)("p", { children: review.content }) }))] }), doc.id));
             });
-            const fixedRating = (totRating / reviewSnapshot.size).toFixed(1);
-            const totWidth = String(Number(fixedRating) * 20) + "%";
-            setTotRating(fixedRating);
-            setTotWidth(totWidth);
             setReviews(reviews);
         }
     });
     (0, react_1.useEffect)(() => {
         fetchReviews();
-    }, []);
-    // function resize(e: React.MouseEvent<HTMLElement>) {
-    //     let a = (e.target as HTMLElement).parentNode;
-    //     (a as HTMLAnchorElement).removeAttribute("href");
-    //     let thumb: ParentNode | null = null;
-    //     if (a !== null) {
-    //         thumb = a.parentNode;
-    //         if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
-    //     }
-    // }
-    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews.length > 0 ? (reviews) : ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) })))] })) })));
+    }, [page]);
+    return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews.length > 0 ? (reviews) : ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) }))), (0, jsx_runtime_1.jsx)(react_js_pagination_1.default, { activePage: page, itemsCountPerPage: 5, totalItemsCount: totItemsCnt, pageRangeDisplayed: 5, prevPageText: "\u2039", nextPageText: "\u203A", onChange: handlePageChange })] })) })));
 }
 function Main() {
     const [tap, setTap] = (0, react_1.useState)("detail");

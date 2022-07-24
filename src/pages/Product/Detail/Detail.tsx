@@ -11,8 +11,9 @@ import "swiper/css/pagination";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getImage } from "../../../utils/getImage";
 import { db, signedInUser } from "../../../firebase";
-import { addDoc, collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { addDoc, collection, DocumentData, getDocs, limit, orderBy, query, QuerySnapshot, startAfter, where } from "firebase/firestore";
 import { getFormatPrice } from "../../../utils/getFormatPrice";
+import ReactPagination from "react-js-pagination";
 
 type ProductionProp = {
     name: string;
@@ -233,23 +234,62 @@ type ReviewProp = {
 
 function ReviewSection(props: ReviewProp) {
     const productName = props.productName;
+    const [page, setPage] = useState(1);
+    const [totItemsCnt, setTotItemsCnt] = useState(0);
     const [reviews, setReviews] = useState([]);
     const [totRating, setTotRating] = useState("0.0");
     const [totWidth, setTotWidth] = useState("");
 
-    const fetchReviews = async () => {
-        const reviewQuery = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
-        const reviewSnapshot = await getDocs(reviewQuery);
+    // 페이지네이션
+    const handlePageChange = (page: React.SetStateAction<number>) => {
+        setPage(page);
+    };
 
+    const fetchReviews = async () => {
+        let reviewSnapshot: QuerySnapshot<DocumentData>;
         let totRating = 0;
         const reviews = [];
+
+        const q = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
+        const querySnapshot = await getDocs(q);
+        setTotItemsCnt(querySnapshot.size);
+
+        // 구매자 평점
+        if (!querySnapshot.empty) {
+            querySnapshot.forEach(doc => {
+                const review = doc.data();
+                const rating = review.rate;
+                totRating += rating;
+            });
+
+            const fixedRating = (totRating / querySnapshot.size).toFixed(1);
+            const totWidth = String(Number(fixedRating) * 20) + "%";
+
+            setTotRating(fixedRating);
+            setTotWidth(totWidth);
+        }
+
+        // 페이지네이션
+        if (page === 1) {
+            const first = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"), limit(5));
+            reviewSnapshot = await getDocs(first);
+        } else {
+            let lastVisible = querySnapshot.docs[(page - 1) * 5 - 1];
+            const next = query(
+                collection(db, "reviews"),
+                where("product_name", "==", productName),
+                orderBy("review_id", "desc"),
+                startAfter(lastVisible),
+                limit(5)
+            );
+            reviewSnapshot = await getDocs(next);
+        }
 
         if (!reviewSnapshot.empty) {
             reviewSnapshot.forEach(doc => {
                 const review = doc.data();
 
                 const rating = review.rate;
-                totRating += rating;
                 const width = String(rating * 20) + "%";
 
                 const userName = review.user_name;
@@ -268,46 +308,18 @@ function ReviewSection(props: ReviewProp) {
                         </div>
                         <div className="content">
                             <p>{review.content}</p>
-                            {/* <div className="thumb">
-                                <a
-                                    href="/"
-                                    onClick={event => {
-                                        event.preventDefault();
-                                        resize(event);
-                                    }}
-                                >
-                                    <img src={require("../../../assets/product/detail/review.jpg")} alt="리뷰 이미지" />
-                                    <button className="image-more"></button>
-                                </a>
-                            </div> */}
                         </div>
                     </div>
                 );
             });
 
-            const fixedRating = (totRating / reviewSnapshot.size).toFixed(1);
-            const totWidth = String(Number(fixedRating) * 20) + "%";
-
-            setTotRating(fixedRating);
-            setTotWidth(totWidth);
             setReviews(reviews);
         }
     };
 
     useEffect(() => {
         fetchReviews();
-    }, []);
-
-    // function resize(e: React.MouseEvent<HTMLElement>) {
-    //     let a = (e.target as HTMLElement).parentNode;
-    //     (a as HTMLAnchorElement).removeAttribute("href");
-
-    //     let thumb: ParentNode | null = null;
-    //     if (a !== null) {
-    //         thumb = a.parentNode;
-    //         if (thumb !== null) (thumb as HTMLElement).classList.add("resize");
-    //     }
-    // }
+    }, [page]);
 
     return (
         <section className="review-section">
@@ -331,6 +343,15 @@ function ReviewSection(props: ReviewProp) {
                         <p style={{ textAlign: "center" }}>작성된 리뷰가 없습니다.</p>
                     </div>
                 )}
+                <ReactPagination
+                    activePage={page}
+                    itemsCountPerPage={5}
+                    totalItemsCount={totItemsCnt}
+                    pageRangeDisplayed={5}
+                    prevPageText="‹"
+                    nextPageText="›"
+                    onChange={handlePageChange}
+                />
             </div>
         </section>
     );

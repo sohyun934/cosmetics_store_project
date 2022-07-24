@@ -4,61 +4,43 @@ import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, DocumentData, getDoc, getDocs, limit, orderBy, query, QuerySnapshot, startAfter, where } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
-import { onAuthStateChanged, User } from "firebase/auth";
-
-// function SearchSection() {
-//     let onBtn: null | HTMLButtonElement = null;
-//     const btns = [];
-//     const btnTitles = ["1개월", "3개월", "6개월", "12개월"];
-
-//     function searchPeriod(e: React.MouseEvent) {
-//         if (onBtn !== null) onBtn.classList.remove("on-btn");
-//         let clickBtn = e.target as HTMLButtonElement;
-//         clickBtn.classList.add("on-btn");
-//         onBtn = clickBtn;
-//     }
-
-//     for (let i = 0; i < btnTitles.length; i++) {
-//         btns.push(
-//             <button key={i} className="radius-style-btn" onClick={searchPeriod}>
-//                 {btnTitles[i]}
-//             </button>
-//         );
-//     }
-
-//     return (
-//         <section className="search-section flex">
-//             <span className="small-txt">구매기간</span>
-//             <div className="section-inner-left">
-//                 <span className="select-month">{btns}</span>
-//             </div>
-//             <div className="section-inner-right">
-//                 <input className="history-start-date small-txt" type="date" />
-//                 ~
-//                 <input className="history-end-date small-txt" type="date" />
-//                 <span className="btn-wrap">
-//                     <button className="search-btn small-txt">조회</button>
-//                 </span>
-//             </div>
-//         </section>
-//     );
-// }
+import { onAuthStateChanged } from "firebase/auth";
+import Pagination from "react-js-pagination";
 
 function OrderTable() {
+    const [page, setPage] = useState(1);
+    const [totItemsCnt, setTotItemsCnt] = useState(0);
     const [orderItems, setOrderItems] = useState([]);
 
-    const fetchOrder = async (user: User) => {
-        const orderItems = [];
+    // 페이지네이션
+    const handlePageChange = (page: React.SetStateAction<number>) => {
+        setPage(page);
+    };
 
-        const q = query(collection(db, "order"), where("email", "==", user.email), orderBy("order_id", "desc"));
-        const orderSnapshot = await getDocs(q);
-
+    // 주문 목록 가져오기
+    const fetchOrder = async (userEmail: string) => {
+        let orderSnapshot: QuerySnapshot<DocumentData>;
         const productNames = [];
         const products = {};
+        const orderItems = [];
 
+        const q = query(collection(db, "order"), where("email", "==", userEmail), orderBy("order_id", "desc"));
+        const querySnapshot = await getDocs(q);
+        setTotItemsCnt(querySnapshot.size);
+
+        if (page === 1) {
+            const first = query(collection(db, "order"), where("email", "==", userEmail), orderBy("order_id", "desc"), limit(5));
+            orderSnapshot = await getDocs(first);
+        } else {
+            let lastVisible = querySnapshot.docs[(page - 1) * 5 - 1];
+            const next = query(collection(db, "order"), where("email", "==", userEmail), orderBy("order_id", "desc"), startAfter(lastVisible), limit(5));
+            orderSnapshot = await getDocs(next);
+        }
+
+        // 주문 상품 정보 가져오기
         orderSnapshot.forEach(doc => {
             productNames.push(...doc.data().product_name_list);
         });
@@ -77,6 +59,7 @@ function OrderTable() {
             products[productNames[i]] = [name, price, url, url2, url3, detail];
         }
 
+        // 주문 내역 가져오기
         orderSnapshot.forEach(doc => {
             const order = doc.data();
             const productNames = order.product_name_list;
@@ -95,14 +78,12 @@ function OrderTable() {
 
                 orderItems.push(
                     <tr key={doc.id + i} className="order-item">
-                        {i === 0 ? (
+                        {i === 0 && (
                             <td className="order-date" rowSpan={productNames.length}>
                                 {orderDate}
                                 <div className="order-num"></div>
                                 <Link to={`/mypage/orderDetail?orderNo=${doc.id}`}>상세보기</Link>
                             </td>
-                        ) : (
-                            ""
                         )}
                         <td className="order-item-thumb">
                             <Link to="/detail" state={state}>
@@ -130,37 +111,44 @@ function OrderTable() {
     useEffect(() => {
         onAuthStateChanged(auth, user => {
             if (user) {
-                fetchOrder(user);
+                fetchOrder(user.email);
             }
         });
-    }, []);
+    }, [page]);
 
     return (
         <>
-            {
-                <table className="order-table">
-                    <thead>
+            <table className="order-table">
+                <thead>
+                    <tr>
+                        <th>주문일자</th>
+                        <th colSpan={2}>상품</th>
+                        <th>수량</th>
+                        <th>금액</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {orderItems.length > 0 ? (
+                        orderItems
+                    ) : (
                         <tr>
-                            <th>주문일자</th>
-                            <th colSpan={2}>상품</th>
-                            <th>수량</th>
-                            <th>금액</th>
-                            <th>상태</th>
+                            <td colSpan={6} style={{ textAlign: "center" }}>
+                                <p>주문 내역이 없습니다.</p>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {orderItems.length > 0 ? (
-                            orderItems
-                        ) : (
-                            <tr>
-                                <td colSpan={6} style={{ textAlign: "center" }}>
-                                    <p>주문 내역이 없습니다.</p>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            }
+                    )}
+                </tbody>
+            </table>
+            <Pagination
+                activePage={page}
+                itemsCountPerPage={5}
+                totalItemsCount={totItemsCnt}
+                pageRangeDisplayed={5}
+                prevPageText="‹"
+                nextPageText="›"
+                onChange={handlePageChange}
+            />
         </>
     );
 }
@@ -171,7 +159,6 @@ function Main() {
             <div className="order-list big-container">
                 <h1>MYPAGE</h1>
                 <Lnb title="orderList" />
-                {/* <SearchSection /> */}
                 <OrderTable />
             </div>
         </main>

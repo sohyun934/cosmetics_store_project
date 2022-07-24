@@ -5,11 +5,26 @@ import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
+import {
+    collection,
+    deleteDoc,
+    doc,
+    DocumentData,
+    getDoc,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    QuerySnapshot,
+    startAfter,
+    updateDoc,
+    where
+} from "firebase/firestore";
 import { db, auth } from "../../../firebase";
 import { getImage } from "../../../utils/getImage";
 import { onAuthStateChanged } from "firebase/auth";
 import { getFormatPrice } from "../../../utils/getFormatPrice";
+import Pagination from "react-js-pagination";
 
 const StyledInput = styled.input`
     appearance: none;
@@ -39,6 +54,8 @@ const StyledSelect = styled.select`
 
 function CartForm() {
     const navigate = useNavigate();
+    const [page, setPage] = useState(1);
+    const [totItemsCnt, setTotItemsCnt] = useState(0);
     const [checkList, setCheckList] = useState([]);
     const [price, setPrice] = useState({ orderPrice: "0", fee: "0", totPrice: "0" });
     const [cart, setCart] = useState({ list: [], idList: [], amountList: [], priceList: [] });
@@ -75,13 +92,30 @@ function CartForm() {
         });
     };
 
+    // 페이지네이션
+    const handlePageChange = (page: React.SetStateAction<number>) => {
+        setPage(page);
+    };
+
     // 장바구니 리스트 가져오기
     const fetchCart = async (userEmail: string) => {
+        let cartSnapshot: QuerySnapshot<DocumentData>;
+
         const q = query(collection(db, "cart"), where("user_email", "==", userEmail), orderBy("cart_id", "desc"));
         const querySnapshot = await getDocs(q);
+        setTotItemsCnt(querySnapshot.size);
+
+        if (page === 1) {
+            const first = query(collection(db, "cart"), where("user_email", "==", userEmail), orderBy("cart_id", "desc"), limit(5));
+            cartSnapshot = await getDocs(first);
+        } else {
+            let lastVisible = querySnapshot.docs[(page - 1) * 5 - 1];
+            const next = query(collection(db, "cart"), where("user_email", "==", userEmail), orderBy("cart_id", "desc"), startAfter(lastVisible), limit(5));
+            cartSnapshot = await getDocs(next);
+        }
 
         // 장바구니에 담긴 product 정보 가져오기
-        const productsPromises = querySnapshot.docs.map(document => getDoc(doc(db, "product", document.data().product_name)));
+        const productsPromises = cartSnapshot.docs.map(document => getDoc(doc(db, "product", document.data().product_name)));
         const products = await Promise.all(productsPromises);
         const urlsPromises = products.map(product => getImage(product.data().product_thumb_01));
         const urls = await Promise.all(urlsPromises);
@@ -92,7 +126,7 @@ function CartForm() {
         const cartPriceList = [];
         const cartList = [];
 
-        querySnapshot.docs.forEach((doc, i) => {
+        cartSnapshot.docs.forEach((doc, i) => {
             const cartItem = doc.data();
             const product = products[i].data();
             const state = {
@@ -140,7 +174,7 @@ function CartForm() {
 
     useEffect(() => {
         getCartList();
-    }, []);
+    }, [page]);
 
     // 체크박스 단일 선택
     const handleSingleCheck = (isChecked: boolean, id: string) => {
@@ -307,6 +341,15 @@ function CartForm() {
                         전체삭제
                     </a>
                 </div>
+                <Pagination
+                    activePage={page}
+                    itemsCountPerPage={5}
+                    totalItemsCount={totItemsCnt}
+                    pageRangeDisplayed={5}
+                    prevPageText="‹"
+                    nextPageText="›"
+                    onChange={handlePageChange}
+                />
             </section>
             <section className="order-section">
                 <div className="section-inner">

@@ -23,48 +23,34 @@ const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../../firebase");
 const getImage_1 = require("../../../utils/getImage");
 const auth_1 = require("firebase/auth");
-// function SearchSection() {
-//     let onBtn: null | HTMLButtonElement = null;
-//     const btns = [];
-//     const btnTitles = ["1개월", "3개월", "6개월", "12개월"];
-//     function searchPeriod(e: React.MouseEvent) {
-//         if (onBtn !== null) onBtn.classList.remove("on-btn");
-//         let clickBtn = e.target as HTMLButtonElement;
-//         clickBtn.classList.add("on-btn");
-//         onBtn = clickBtn;
-//     }
-//     for (let i = 0; i < btnTitles.length; i++) {
-//         btns.push(
-//             <button key={i} className="radius-style-btn" onClick={searchPeriod}>
-//                 {btnTitles[i]}
-//             </button>
-//         );
-//     }
-//     return (
-//         <section className="search-section flex">
-//             <span className="small-txt">구매기간</span>
-//             <div className="section-inner-left">
-//                 <span className="select-month">{btns}</span>
-//             </div>
-//             <div className="section-inner-right">
-//                 <input className="history-start-date small-txt" type="date" />
-//                 ~
-//                 <input className="history-end-date small-txt" type="date" />
-//                 <span className="btn-wrap">
-//                     <button className="search-btn small-txt">조회</button>
-//                 </span>
-//             </div>
-//         </section>
-//     );
-// }
+const react_js_pagination_1 = __importDefault(require("react-js-pagination"));
 function OrderTable() {
+    const [page, setPage] = (0, react_1.useState)(1);
+    const [totItemsCnt, setTotItemsCnt] = (0, react_1.useState)(0);
     const [orderItems, setOrderItems] = (0, react_1.useState)([]);
-    const fetchOrder = (user) => __awaiter(this, void 0, void 0, function* () {
-        const orderItems = [];
-        const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", user.email), (0, firestore_1.orderBy)("order_id", "desc"));
-        const orderSnapshot = yield (0, firestore_1.getDocs)(q);
+    // 페이지네이션
+    const handlePageChange = (page) => {
+        setPage(page);
+    };
+    // 주문 목록 가져오기
+    const fetchOrder = (userEmail) => __awaiter(this, void 0, void 0, function* () {
+        let orderSnapshot;
         const productNames = [];
         const products = {};
+        const orderItems = [];
+        const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", userEmail), (0, firestore_1.orderBy)("order_id", "desc"));
+        const querySnapshot = yield (0, firestore_1.getDocs)(q);
+        setTotItemsCnt(querySnapshot.size);
+        if (page === 1) {
+            const first = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", userEmail), (0, firestore_1.orderBy)("order_id", "desc"), (0, firestore_1.limit)(5));
+            orderSnapshot = yield (0, firestore_1.getDocs)(first);
+        }
+        else {
+            let lastVisible = querySnapshot.docs[(page - 1) * 5 - 1];
+            const next = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", userEmail), (0, firestore_1.orderBy)("order_id", "desc"), (0, firestore_1.startAfter)(lastVisible), (0, firestore_1.limit)(5));
+            orderSnapshot = yield (0, firestore_1.getDocs)(next);
+        }
+        // 주문 상품 정보 가져오기
         orderSnapshot.forEach(doc => {
             productNames.push(...doc.data().product_name_list);
         });
@@ -80,6 +66,7 @@ function OrderTable() {
             const detail = product.product_detail;
             products[productNames[i]] = [name, price, url, url2, url3, detail];
         }
+        // 주문 내역 가져오기
         orderSnapshot.forEach(doc => {
             const order = doc.data();
             const productNames = order.product_name_list;
@@ -94,7 +81,7 @@ function OrderTable() {
                     thumb03: products[productNames[i]][4],
                     detail: products[productNames[i]][5]
                 };
-                orderItems.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [i === 0 ? ((0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-date", rowSpan: productNames.length }, { children: [orderDate, (0, jsx_runtime_1.jsx)("div", { className: "order-num" }), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: `/mypage/orderDetail?orderNo=${doc.id}`, state: { docId: doc.id } }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))) : (""), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: products[productNames[i]][2], alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [products[productNames[i]][1], "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), doc.id + i));
+                orderItems.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [i === 0 && ((0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-date", rowSpan: productNames.length }, { children: [orderDate, (0, jsx_runtime_1.jsx)("div", { className: "order-num" }), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: `/mypage/orderDetail?orderNo=${doc.id}` }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: products[productNames[i]][2], alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [products[productNames[i]][1], "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), doc.id + i));
             }
         });
         setOrderItems(orderItems);
@@ -102,11 +89,11 @@ function OrderTable() {
     (0, react_1.useEffect)(() => {
         (0, auth_1.onAuthStateChanged)(firebase_1.auth, user => {
             if (user) {
-                fetchOrder(user);
+                fetchOrder(user.email);
             }
         });
-    }, []);
-    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: (0, jsx_runtime_1.jsxs)("table", Object.assign({ className: "order-table" }, { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uBB38\uC77C\uC790" }), (0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC0C1\uD488" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: orderItems.length > 0 ? (orderItems) : ((0, jsx_runtime_1.jsx)("tr", { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ colSpan: 6, style: { textAlign: "center" } }, { children: (0, jsx_runtime_1.jsx)("p", { children: "\uC8FC\uBB38 \uB0B4\uC5ED\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." }) })) })) })] })) }));
+    }, [page]);
+    return ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)("table", Object.assign({ className: "order-table" }, { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", { children: "\uC8FC\uBB38\uC77C\uC790" }), (0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC0C1\uD488" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: orderItems.length > 0 ? (orderItems) : ((0, jsx_runtime_1.jsx)("tr", { children: (0, jsx_runtime_1.jsx)("td", Object.assign({ colSpan: 6, style: { textAlign: "center" } }, { children: (0, jsx_runtime_1.jsx)("p", { children: "\uC8FC\uBB38 \uB0B4\uC5ED\uC774 \uC5C6\uC2B5\uB2C8\uB2E4." }) })) })) })] })), (0, jsx_runtime_1.jsx)(react_js_pagination_1.default, { activePage: page, itemsCountPerPage: 5, totalItemsCount: totItemsCnt, pageRangeDisplayed: 5, prevPageText: "\u2039", nextPageText: "\u203A", onChange: handlePageChange })] }));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "order-list big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "orderList" }), (0, jsx_runtime_1.jsx)(OrderTable, {})] })) }));
