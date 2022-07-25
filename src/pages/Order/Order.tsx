@@ -28,6 +28,12 @@ type Prop = {
     state: CustomizedState;
 };
 
+declare global {
+    interface Window {
+        IMP: any;
+    }
+}
+
 function OrderForm(props: Prop) {
     const [user, setUser] = useState({
         name: "",
@@ -139,9 +145,6 @@ function OrderForm(props: Prop) {
 
                     amountList.push(cart.amount);
                     productNameList.push(cart.product_name);
-
-                    // 장바구니에서 삭제
-                    await deleteDoc(doc(db, "cart", order.orderList[i]));
                 }
             }
         } else {
@@ -150,31 +153,63 @@ function OrderForm(props: Prop) {
             productNameList.push(order.orderList[0]);
         }
 
-        // firestore에 주문 정보 등록
-        await setDoc(doc(db, "order", orderNum), {
-            order_id: orderId,
-            order_date: date.join("."),
-            order_list: order.orderList,
-            amount_list: amountList,
-            product_name_list: productNameList,
-            name: user.name,
-            email: user.email,
-            phone_number: user.phoneNumber,
-            post_code: user.postCode,
-            address: user.address,
-            detail_address: user.detailAddress,
-            delivery_msg: deliveryMsg,
-            order_price: checkOut.orderPrice,
-            fee: checkOut.fee,
-            tot_price: checkOut.totPrice
-        }).then(() => {
-            navigate("/order/orderComplete", {
-                replace: true,
-                state: {
-                    docId: orderNum
+        // 아임포트 결제 연동
+        const IMP = window.IMP;
+        IMP.init("imp78071137");
+
+        // IMP.request_pay(param, callback) 결제창 호출
+        IMP.request_pay(
+            {
+                // param
+                pg: "kcp",
+                pay_method: "card",
+                merchant_uid: orderNum,
+                name: productNameList.length === 1 ? productNameList[0] : productNameList[productNameList.length - 1] + ` 외 ${productNameList.length - 1}건`,
+                amount: checkOut.totPrice,
+                buyer_email: user.email,
+                buyer_name: user.name,
+                buyer_tel: user.phoneNumber,
+                buyer_addr: user.address + " " + user.detailAddress,
+                buyer_postcode: user.postCode
+            },
+            async rsp => {
+                if (rsp.success) {
+                    // 결제 성공 시 주문한 상품 장바구니에서 삭제
+                    order.orderList.forEach(async orderItem => {
+                        await deleteDoc(doc(db, "cart", orderItem));
+                    });
+
+                    // firestore에 주문 정보 등록
+                    await setDoc(doc(db, "order", orderNum), {
+                        order_id: orderId,
+                        order_date: date.join("."),
+                        order_list: order.orderList,
+                        amount_list: amountList,
+                        product_name_list: productNameList,
+                        name: user.name,
+                        email: user.email,
+                        phone_number: user.phoneNumber,
+                        post_code: user.postCode,
+                        address: user.address,
+                        detail_address: user.detailAddress,
+                        delivery_msg: deliveryMsg,
+                        order_price: checkOut.orderPrice,
+                        fee: checkOut.fee,
+                        tot_price: checkOut.totPrice
+                    }).then(() => {
+                        navigate("/order/orderComplete", {
+                            replace: true,
+                            state: {
+                                docId: orderNum
+                            }
+                        });
+                    });
+                } else {
+                    alert(`${rsp.error_msg}`);
+                    navigate("/", { replace: true });
                 }
-            });
-        });
+            }
+        );
     };
 
     return (

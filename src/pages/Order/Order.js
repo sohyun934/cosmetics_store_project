@@ -121,8 +121,6 @@ function OrderForm(props) {
                     const cart = cartSnap.data();
                     amountList.push(cart.amount);
                     productNameList.push(cart.product_name);
-                    // 장바구니에서 삭제
-                    yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", order.orderList[i]));
                 }
             }
         }
@@ -131,31 +129,59 @@ function OrderForm(props) {
             amountList.push(order.amount);
             productNameList.push(order.orderList[0]);
         }
-        // firestore에 주문 정보 등록
-        yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderNum), {
-            order_id: orderId,
-            order_date: date.join("."),
-            order_list: order.orderList,
-            amount_list: amountList,
-            product_name_list: productNameList,
-            name: user.name,
-            email: user.email,
-            phone_number: user.phoneNumber,
-            post_code: user.postCode,
-            address: user.address,
-            detail_address: user.detailAddress,
-            delivery_msg: deliveryMsg,
-            order_price: checkOut.orderPrice,
-            fee: checkOut.fee,
-            tot_price: checkOut.totPrice
-        }).then(() => {
-            navigate("/order/orderComplete", {
-                replace: true,
-                state: {
-                    docId: orderNum
-                }
-            });
-        });
+        // 아임포트 결제 연동
+        const IMP = window.IMP;
+        IMP.init("imp78071137");
+        // IMP.request_pay(param, callback) 결제창 호출
+        IMP.request_pay({
+            // param
+            pg: "kcp",
+            pay_method: "card",
+            merchant_uid: orderNum,
+            name: productNameList.length === 1 ? productNameList[0] : productNameList[productNameList.length - 1] + ` 외 ${productNameList.length - 1}건`,
+            amount: checkOut.totPrice,
+            buyer_email: user.email,
+            buyer_name: user.name,
+            buyer_tel: user.phoneNumber,
+            buyer_addr: user.address + " " + user.detailAddress,
+            buyer_postcode: user.postCode
+        }, (rsp) => __awaiter(this, void 0, void 0, function* () {
+            if (rsp.success) {
+                // 결제 성공 시 주문한 상품 장바구니에서 삭제
+                order.orderList.forEach((orderItem) => __awaiter(this, void 0, void 0, function* () {
+                    yield (0, firestore_1.deleteDoc)((0, firestore_1.doc)(firebase_1.db, "cart", orderItem));
+                }));
+                // firestore에 주문 정보 등록
+                yield (0, firestore_1.setDoc)((0, firestore_1.doc)(firebase_1.db, "order", orderNum), {
+                    order_id: orderId,
+                    order_date: date.join("."),
+                    order_list: order.orderList,
+                    amount_list: amountList,
+                    product_name_list: productNameList,
+                    name: user.name,
+                    email: user.email,
+                    phone_number: user.phoneNumber,
+                    post_code: user.postCode,
+                    address: user.address,
+                    detail_address: user.detailAddress,
+                    delivery_msg: deliveryMsg,
+                    order_price: checkOut.orderPrice,
+                    fee: checkOut.fee,
+                    tot_price: checkOut.totPrice
+                }).then(() => {
+                    navigate("/order/orderComplete", {
+                        replace: true,
+                        state: {
+                            docId: orderNum
+                        }
+                    });
+                });
+            }
+            else {
+                alert(`${rsp.error_msg}`);
+                navigate("/", { replace: true });
+            }
+        }));
     });
     return ((0, jsx_runtime_1.jsxs)("form", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "delivery-section" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Delivery" }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "input-container" }, { children: [(0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uBC1B\uB294 \uBD84", value: user.name, onChange: e => setUser(user => (Object.assign(Object.assign({}, user), { name: e.target.value }))) }), (0, jsx_runtime_1.jsx)("input", { type: "text", placeholder: "\uD578\uB4DC\uD3F0\uBC88\uD638", value: user.phoneNumber, onChange: e => setUser(user => (Object.assign(Object.assign({}, user), { phoneNumber: e.target.value }))) }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "postcode-wrap" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { className: "userPostcode", type: "text", placeholder: "\uC6B0\uD3B8\uBC88\uD638", value: user.postCode || "", onChange: e => setUser(user => (Object.assign(Object.assign({}, user), { postCode: e.target.value }))), readOnly: true }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "search-btn", onClick: handleSearch })] })), (0, jsx_runtime_1.jsx)(StyledInput, { className: "userAddress", type: "text", placeholder: "\uAE30\uBCF8 \uC8FC\uC18C", value: user.address || "", onChange: e => setUser(user => (Object.assign(Object.assign({}, user), { address: e.target.value }))), readOnly: true }), (0, jsx_runtime_1.jsx)("input", { className: "userDetailAddress", type: "text", placeholder: "\uC0C1\uC138 \uC8FC\uC18C", value: user.detailAddress || "", onChange: e => setUser(user => (Object.assign(Object.assign({}, user), { detailAddress: e.target.value }))) })] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-msg" }, { children: [(0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => setDeliveryMsg(e.target.value) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "" }, { children: "\uC9C1\uC811 \uC785\uB825" })), (0, jsx_runtime_1.jsx)("option", { children: "\uBC30\uC1A1 \uC804 \uC5F0\uB77D \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBD80\uC7AC \uC2DC \uACBD\uBE44\uC2E4\uC5D0 \uB9E1\uACA8\uC8FC\uC138\uC694." }), (0, jsx_runtime_1.jsx)("option", { children: "\uBB38 \uC55E \uBC30\uC1A1 \uBD80\uD0C1\uB4DC\uB9BD\uB2C8\uB2E4." })] })), (0, jsx_runtime_1.jsx)("textarea", { rows: 5, cols: 50, maxLength: 50, placeholder: "\uBC30\uC1A1\uBA54\uC2DC\uC9C0 \uC9C1\uC811 \uC785\uB825 (50\uC790 \uC774\uB0B4)", value: deliveryMsg, onChange: e => setDeliveryMsg(e.target.value), style: { fontSize: "1rem" } })] }))] })), (0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "check-out-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "Check Out" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "check-out-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uC8FC\uBB38\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [checkOut.orderPrice, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "delivery-fee flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: "\uBC30\uC1A1\uBE44" }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "fee" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [checkOut.fee, "\uC6D0"] }) }))] })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "small-txt" }, { children: "* 30,000\uC6D0 \uC774\uC0C1 \uAD6C\uB9E4 \uC2DC \uBB34\uB8CC \uBC30\uC1A1" })), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-price flex" }, { children: [(0, jsx_runtime_1.jsx)("span", { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uD569\uACC4" }) }), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [checkOut.totPrice, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "btn-container flex" }, { children: [(0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "cancel-btn border-style-btn", onClick: () => navigate(-1) }, { children: "\uCDE8\uC18C\uD558\uAE30" })), (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "pay-btn", onClick: handleOrder, disabled: disabled }, { children: "\uACB0\uC81C\uD558\uAE30" }))] }))] }))] })));
 }
