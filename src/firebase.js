@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { useState } from "react";
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
@@ -14,18 +13,12 @@ const firebaseConfig = {
     measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENTID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-export const db = getFirestore(app, {
-    experimentalForceLongPolling: true,
-    useFetchStreams: false
-});
-
+export const db = getFirestore(app);
 export const auth = getAuth();
+export const storage = getStorage();
 export let signedInUser;
 
-// Modifying the Auth state persistence
 setPersistence(auth, browserSessionPersistence).then(() => {
     onAuthStateChanged(auth, user => {
         if (user) {
@@ -35,5 +28,3 @@ setPersistence(auth, browserSessionPersistence).then(() => {
         }
     });
 });
-
-export const storage = getStorage();
