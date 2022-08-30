@@ -4,6 +4,7 @@ import { BrowserRouter, useLocation } from "react-router-dom";
 import App from "./routes/App";
 import reportWebVitals from "./reportWebVitals";
 import firebase from "./firebase";
+import "./styles/style.css";
 
 function ScrollToTop() {
     const pathname = useLocation();

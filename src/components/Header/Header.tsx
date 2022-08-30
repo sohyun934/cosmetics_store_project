@@ -1,4 +1,3 @@
-import "../../styles/style.css";
 import "./Header.css";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -94,7 +93,7 @@ function RightGnb(props: RightGnbProp) {
                     </li>
                 )}
                 <li>
-                    <Link to={isLoggedIn ? "/mypage/myPageAuthentification" : "/login"} state={{ moveTo: "/mypage/myPageAuthentification" }}>
+                    <Link to={isLoggedIn ? "/mypage/myPageAuthentification" : "/login"} state={{ moveTo: "/" }}>
                         <img src={require("../../assets/common/mypage.png")} alt="마이페이지" />
                     </Link>
                 </li>

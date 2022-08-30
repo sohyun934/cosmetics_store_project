@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
-require("../../styles/style.css");
 require("./Header.css");
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
@@ -27,7 +26,7 @@ function SideGnb(props) {
 }
 function RightGnb(props) {
     const isLoggedIn = props.isLoggedIn;
-    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "header-gnb-right" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [isLoggedIn && ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: e => props.logOut(e), style: { verticalAlign: "middle" } }, { children: "LOGOUT" })) })), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/myPageAuthentification" : "/login", state: { moveTo: "/mypage/myPageAuthentification" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/mypage.png"), alt: "\uB9C8\uC774\uD398\uC774\uC9C0" }) })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/cart" : "/login", state: { moveTo: "/mypage/cart" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/cart.png"), alt: "\uC7A5\uBC14\uAD6C\uB2C8" }) })) })] })) })));
+    return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "header-gnb-right" }, { children: (0, jsx_runtime_1.jsxs)("ul", Object.assign({ className: "flex" }, { children: [isLoggedIn && ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: e => props.logOut(e), style: { verticalAlign: "middle" } }, { children: "LOGOUT" })) })), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/myPageAuthentification" : "/login", state: { moveTo: "/" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/mypage.png"), alt: "\uB9C8\uC774\uD398\uC774\uC9C0" }) })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: isLoggedIn ? "/mypage/cart" : "/login", state: { moveTo: "/mypage/cart" } }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/cart.png"), alt: "\uC7A5\uBC14\uAD6C\uB2C8" }) })) })] })) })));
 }
 function Header() {
     const navigate = (0, react_router_dom_1.useNavigate)();
