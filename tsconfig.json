@@ -1,11 +1,10 @@
 {
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "src/*.js", "src/routes/App.js"],
+  "include": ["src/**/*", "webpack.config.js"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "es2016",
     "jsx": "react-jsx",
-    "module": "commonjs",
-    "allowJs": true,
+    "module": "CommonJS",
     "esModuleInterop": true,
     "skipLibCheck": true
   }

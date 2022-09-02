@@ -1,0 +1,89 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "cart",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "user_email",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "cart_id",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "order",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "email",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "order_id",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "product_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "product_id",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "product_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "product_price",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "product",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "product_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "product_price",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "reviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "product_name",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "review_id",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
