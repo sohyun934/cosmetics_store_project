@@ -36,23 +36,6 @@ function ProductSection(props: ProductionProp) {
         setAmount(amount === 1 ? 1 : amount - 1);
     };
 
-    const handleAmt = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const amount = Number(e.target.value);
-
-        if (amount > 3) {
-            alert("최대 주문수량은 3개 입니다.");
-            setAmount(3);
-        } else if (amount < 1) {
-            alert("최소 주문수량은 1개 입니다.");
-            setAmount(1);
-        } else if (isNaN(amount)) {
-            alert("숫자만 입력 가능합니다.");
-            setAmount(1);
-        } else {
-            setAmount(Number(e.target.value));
-        }
-    };
-
     const handlePlus = () => {
         setAmount(amount === 3 ? 3 : amount + 1);
 
@@ -150,7 +133,7 @@ function ProductSection(props: ProductionProp) {
                     <div className="cnt-container flex">
                         <span className="cnt-box">
                             <button type="button" className="minus" onClick={handleMinus}></button>
-                            <input type="text" className="cnt" value={amount} onChange={handleAmt} />
+                            <input type="text" className="cnt" value={amount} disabled />
                             <button type="button" className="plus" onClick={handlePlus}></button>
                         </span>
                         <span className="price big-txt">
@@ -343,15 +326,17 @@ function ReviewSection(props: ReviewProp) {
                         <p style={{ textAlign: "center" }}>작성된 리뷰가 없습니다.</p>
                     </div>
                 )}
-                <ReactPagination
-                    activePage={page}
-                    itemsCountPerPage={5}
-                    totalItemsCount={totItemsCnt}
-                    pageRangeDisplayed={5}
-                    prevPageText="‹"
-                    nextPageText="›"
-                    onChange={handlePageChange}
-                />
+                {reviews.length > 0 && (
+                    <ReactPagination
+                        activePage={page}
+                        itemsCountPerPage={5}
+                        totalItemsCount={totItemsCnt}
+                        pageRangeDisplayed={5}
+                        prevPageText="‹"
+                        nextPageText="›"
+                        onChange={handlePageChange}
+                    />
+                )}
             </div>
         </section>
     );
