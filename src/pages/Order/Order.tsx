@@ -161,7 +161,7 @@ function OrderForm(props: Prop) {
         IMP.request_pay(
             {
                 // param
-                pg: "kcp",
+                pg: "kakaopay",
                 pay_method: "card",
                 merchant_uid: orderNum,
                 name: productNameList.length === 1 ? productNameList[0] : productNameList[productNameList.length - 1] + ` 외 ${productNameList.length - 1}건`,
@@ -309,7 +309,20 @@ function OrderForm(props: Prop) {
     );
 }
 
-function Main() {
+function Main(props: Prop) {
+    return (
+        <main>
+            <div className="order-container big-container">
+                <h1>ORDER</h1>
+                <div className="section-container">
+                    <OrderForm state={props.state} />
+                </div>
+            </div>
+        </main>
+    );
+}
+
+function Order() {
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
@@ -325,26 +338,13 @@ function Main() {
     return (
         <>
             {state && (
-                <main>
-                    <div className="order-container big-container">
-                        <h1>ORDER</h1>
-                        <div className="section-container">
-                            <OrderForm state={state} />
-                        </div>
-                    </div>
-                </main>
+                <div>
+                    <Header />
+                    <Main state={state} />
+                    <Footer />
+                </div>
             )}
         </>
-    );
-}
-
-function Order() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 
