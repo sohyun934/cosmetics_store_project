@@ -140,15 +140,17 @@ function OrderTable() {
                     )}
                 </tbody>
             </table>
-            <Pagination
-                activePage={page}
-                itemsCountPerPage={5}
-                totalItemsCount={totItemsCnt}
-                pageRangeDisplayed={5}
-                prevPageText="‹"
-                nextPageText="›"
-                onChange={handlePageChange}
-            />
+            {orderItems.length > 0 && (
+                <Pagination
+                    activePage={page}
+                    itemsCountPerPage={5}
+                    totalItemsCount={totItemsCnt}
+                    pageRangeDisplayed={5}
+                    prevPageText="‹"
+                    nextPageText="›"
+                    onChange={handlePageChange}
+                />
+            )}
         </>
     );
 }
