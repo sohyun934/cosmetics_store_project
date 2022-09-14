@@ -85,7 +85,7 @@
 <br/>
 
 #### 7. 결제
-<img src="https://user-images.githubusercontent.com/68523204/187369754-c1cac50a-002f-47c5-ac4a-5852d09c26ec.gif"/>
+<img src="https://user-images.githubusercontent.com/68523204/190100442-f6d84b09-0738-4d85-91ad-e9f7b3d1e448.gif"/>
 <br/>
 
 #### 8. 리뷰 작성
