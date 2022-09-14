@@ -1,14 +1,14 @@
 .move-top {
-	position: fixed;
-	right: 13vw;
-	bottom: 12vh;
-	opacity: 0;
+    position: fixed;
+    right: 13vw;
+    bottom: 12vh;
+    opacity: 0;
 }
 
 .move-top button {
-	position: absolute;
-	width: 1.9rem;
-	height: 1.9rem;
-	border: none;
-	background: 0 /1.9rem url("../../assets/common/top_arrow.png");
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: 0 /32px url("../../assets/common/top_arrow.png");
 }

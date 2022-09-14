@@ -10,6 +10,19 @@ type Prop = {
     productName: string;
 };
 
+const StyledDiv = styled.div`
+    width: 590px;
+
+    @media (max-width: 900px) {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 0;
+        -moz-border-radius: 0;
+        -webkit-border-radius: 0;
+    }
+`;
+
 const StyledButton = styled.button`
     background: black;
     color: white;
@@ -110,7 +123,7 @@ function ReviewPop(props: Prop) {
 
     return (
         <div>
-            <div className="popup-container review-pop">
+            <StyledDiv className="popup-container review-pop">
                 <form method="post">
                     <h2>REVIEW</h2>
                     <hr />
@@ -151,7 +164,7 @@ function ReviewPop(props: Prop) {
                     </div>
                     <button type="button" className="pop-close-btn" onClick={() => props.close()}></button>
                 </form>
-            </div>
+            </StyledDiv>
             <div className="dim"></div>
         </div>
     );

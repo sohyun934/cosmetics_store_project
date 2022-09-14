@@ -2,24 +2,9 @@ import "./Login.css";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import { Link, To, useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-
-const StyledInput = styled.input`
-    appearance: none;
-    border: 1.5px solid #aaa;
-    width: 0.9rem;
-    height: 0.9rem;
-
-    &:checked {
-        border: transparent;
-        background: #e5e5e5
-            url("data:image/svg+xml,%3Csvg width='1.5rem' height='1.5rem' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
-            no-repeat 50% / 100%;
-    }
-`;
 
 interface CustomizedState {
     moveTo: To;
@@ -114,7 +99,7 @@ function FormAndUtil() {
             </form>
             <div className="util-container flex">
                 <div className="id-save-wrap small-txt">
-                    <StyledInput id="saveUserId" type="checkbox" value="" checked={isChecked} onChange={() => setIsChecked(!isChecked)} />
+                    <input id="saveUserId" type="checkbox" value="" checked={isChecked} onChange={() => setIsChecked(!isChecked)} />
                     <label htmlFor="saveUserId">아이디 저장</label>
                 </div>
                 <div className="find-join-wrap small-txt">

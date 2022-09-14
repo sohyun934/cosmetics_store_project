@@ -2,20 +2,20 @@
     padding: 20px 0;
 }
 
-.order-detail .detail-section .detail-container {
+.order-detail .detail-section .order-detail-container {
     position: relative;
-    border: 0.1rem solid #E6E6E6;
+    border: 0.1rem solid #e6e6e6;
     border-radius: 5px;
     height: 4.5rem;
 }
 
-.order-detail .detail-section .detail-container > span {
+.order-detail .detail-section .order-detail-container > span {
     position: absolute;
     top: 22px;
     padding: 0 16px;
 }
 
-.order-detail .detail-section .detail-container .order-num {
+.order-detail .detail-section .order-detail-container .order-num {
     left: 10.6rem;
 }
 
@@ -45,16 +45,21 @@
     width: 10%;
 }
 
-.order-detail .order-item-section .order-item .order-price, .order-detail .order-item-section .order-item .order-status {
+.order-detail .order-item-section .order-item .order-price,
+.order-detail .order-item-section .order-item .order-status {
     width: 15%;
 }
 
-.order-detail .delivery-section th, .order-detail .payment-section th, .delivery-pop th {
+.order-detail .delivery-section th,
+.order-detail .payment-section th,
+.delivery-pop th {
     width: 30%;
-    background: #F6F6F6;
+    background: #f6f6f6;
 }
 
-.order-detail .delivery-section td, .order-detail .payment-section td, .delivery-pop td {
+.order-detail .delivery-section td,
+.order-detail .payment-section td,
+.delivery-pop td {
     width: 70%;
     padding-left: 20px;
 }
@@ -72,21 +77,22 @@
     display: inline-block;
     text-align: center;
     padding: 15px 0;
-    width: calc(100%/3);
+    width: calc(100% / 3);
     font-weight: bold;
 }
 
-@media(max-width:900px) {
-    .order-detail .order-item-section .order-item .order-price, .order-status {
+@media (max-width: 900px) {
+    .order-detail .order-item-section .order-item .order-price,
+    .order-status {
         width: 25%;
     }
-    
+
     .order-detail .list-btn-wrap .order-list-btn {
         width: 100%;
         padding: 12px 0;
-    }		
+    }
 }
 
 .order-detail .review-pop input[type="file"] {
-    padding-top: 20px;	
+    padding-top: 20px;
 }

@@ -18,31 +18,31 @@ const Header_1 = __importDefault(require("../../../components/Header/Header"));
 const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
-const styled_components_1 = __importDefault(require("styled-components"));
 const PrivacyPolicy_1 = require("../../PrivacyPolicy/PrivacyPolicy");
 const TermsOfUse_1 = require("../../TermsOfUse/TermsOfUse");
 const react_hook_form_1 = require("react-hook-form");
 const firestore_1 = require("firebase/firestore");
 const firebase_1 = require("../../../firebase");
 const auth_1 = require("firebase/auth");
-const StyledInput = styled_components_1.default.input `
-    appearance: none;
-    border: 1.5px solid #aaa;
-    width: 0.9rem;
-    height: 0.9rem;
+const styled_components_1 = __importDefault(require("styled-components"));
+const StyledDiv = styled_components_1.default.div `
+    width: 590px;
+    height: 650px;
 
-    &:checked {
-        border: transparent;
-        background: #e5e5e5
-            url("data:image/svg+xml,%3Csvg width='1.5rem' height='1.5rem' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
-            no-repeat 50% / 100%;
+    @media (max-width: 900px) {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 0;
+        -moz-border-radius: 0;
+        -webkit-border-radius: 0;
     }
 `;
 function TermsPop(props) {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "popup-container terms-pop" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "\uC774\uC6A9\uC57D\uAD00" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsx)(TermsOfUse_1.TermsOfUseDetail, {}), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "pop-close-btn", onClick: () => props.closePop() })] })), (0, jsx_runtime_1.jsx)("div", { className: "dim" })] }));
+    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)(StyledDiv, Object.assign({ className: "popup-container" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "\uC774\uC6A9\uC57D\uAD00" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsx)(TermsOfUse_1.TermsOfUseDetail, {}), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "pop-close-btn", onClick: () => props.closePop() })] })), (0, jsx_runtime_1.jsx)("div", { className: "dim" })] }));
 }
 function PrivacyPop(props) {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "popup-container privacy-pop" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "\uAC1C\uC778\uC815\uBCF4 \uCC98\uB9AC\uBC29\uCE68" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsx)(PrivacyPolicy_1.PrivacyPolicyDetail, {}), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "pop-close-btn", onClick: () => props.closePop() })] })), (0, jsx_runtime_1.jsx)("div", { className: "dim" })] }));
+    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsxs)(StyledDiv, Object.assign({ className: "popup-container" }, { children: [(0, jsx_runtime_1.jsx)("h2", { children: "\uAC1C\uC778\uC815\uBCF4 \uCC98\uB9AC\uBC29\uCE68" }), (0, jsx_runtime_1.jsx)("hr", {}), (0, jsx_runtime_1.jsx)(PrivacyPolicy_1.PrivacyPolicyDetail, {}), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "pop-close-btn", onClick: () => props.closePop() })] })), (0, jsx_runtime_1.jsx)("div", { className: "dim" })] }));
 }
 function Agree(props) {
     const [checkList, setCheckList] = (0, react_1.useState)([]);
@@ -71,10 +71,10 @@ function Agree(props) {
     (0, react_1.useEffect)(() => {
         props.allChk(checkList.length === 2);
     }, [checkList, props]);
-    return ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "agree-container small-txt" }, { children: [(0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeAllChk", type: "checkbox", checked: checkList.length === 2 ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeAllChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC804\uCCB4\uC57D\uAD00 \uD56D\uBAA9\uC5D0 \uB3D9\uC758\uD569\uB2C8\uB2E4." }) }))] }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreeServiceChk", type: "checkbox", checked: checkList.includes("termsOfService") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "termsOfService") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeServiceChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC774\uC6A9\uC57D\uAD00 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "terms-pop-link", onClick: event => {
+    return ((0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "agree-container small-txt" }, { children: [(0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("input", { id: "agreeAllChk", type: "checkbox", checked: checkList.length === 2 ? true : false, onChange: e => handleAllCheck(e.target.checked) }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeAllChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC804\uCCB4\uC57D\uAD00 \uD56D\uBAA9\uC5D0 \uB3D9\uC758\uD569\uB2C8\uB2E4." }) }))] }), (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("input", { id: "agreeServiceChk", type: "checkbox", checked: checkList.includes("termsOfService") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "termsOfService") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreeServiceChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC774\uC6A9\uC57D\uAD00 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "terms-pop-link", onClick: event => {
                             event.preventDefault();
                             setTermsPop(termsPopContent);
-                        } }, { children: "\uBCF4\uAE30" }))] }), termsPop, (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(StyledInput, { id: "agreePrivacyChk", type: "checkbox", checked: checkList.includes("privacy") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "privacy") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreePrivacyChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uAC1C\uC778\uC815\uBCF4 \uC218\uC9D1 \uBC0F \uC774\uC6A9 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "privacy-pop-link", onClick: event => {
+                        } }, { children: "\uBCF4\uAE30" }))] }), termsPop, (0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)("input", { id: "agreePrivacyChk", type: "checkbox", checked: checkList.includes("privacy") ? true : false, onChange: e => handleSingleCheck(e.target.checked, "privacy") }), (0, jsx_runtime_1.jsx)("label", Object.assign({ htmlFor: "agreePrivacyChk" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uAC1C\uC778\uC815\uBCF4 \uC218\uC9D1 \uBC0F \uC774\uC6A9 \uB3D9\uC758 (\uD544\uC218)" }) })), (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", className: "privacy-pop-link", onClick: event => {
                             event.preventDefault();
                             setPrivacyPop(privacyPopContent);
                         } }, { children: "\uBCF4\uAE30" }))] }), privacyPop] })));
@@ -216,12 +216,18 @@ function Form() {
                     }))), errors.name && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC774\uB984\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "flex" }, { children: [(0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uD734\uB300\uD3F0 \uBC88\uD638" }, register("phoneNumber", {
                                 required: true,
                                 pattern: regExpPhoneNumber
-                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ id: "authCodeBtn", type: "button", className: "small-txt radius-style-btn", onClick: handlePhoneAuth }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), ((_j = errors.phoneNumber) === null || _j === void 0 ? void 0 : _j.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), ((_k = errors.phoneNumber) === null || _k === void 0 ? void 0 : _k.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uAC00 \uC720\uD6A8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), errors.phoneNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.phoneNumber.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: codeInputDisplay === "none" ? "none" : "block" } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uBC1C\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ style: { display: codeInputDisplay } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("authCode", { validate: value => value.length === 6 }))) })), ((_l = errors.authCode) === null || _l === void 0 ? void 0 : _l.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), errors.authCode && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.authCode.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: authSuccessMsg } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uC77C\uCE58\uD569\uB2C8\uB2E4." }))] }))] })), (0, jsx_runtime_1.jsx)(Agree, { allChk: (allChk) => setAllChk(allChk) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn", disabled: !isValid || !allChk }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
+                            }))), (0, jsx_runtime_1.jsx)("button", Object.assign({ id: "authCodeBtn", type: "button", className: "radius-style-btn", onClick: handlePhoneAuth }, { children: "\uC778\uC99D\uBC88\uD638 \uC694\uCCAD" }))] })), ((_j = errors.phoneNumber) === null || _j === void 0 ? void 0 : _j.type) === "required" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), ((_k = errors.phoneNumber) === null || _k === void 0 ? void 0 : _k.type) === "pattern" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uD734\uB300\uD3F0 \uBC88\uD638\uAC00 \uC720\uD6A8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), errors.phoneNumber && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.phoneNumber.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: codeInputDisplay === "none" ? "none" : "block" } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uBC1C\uC1A1\uB418\uC5C8\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ style: { display: codeInputDisplay } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "flex" }, { children: (0, jsx_runtime_1.jsx)("input", Object.assign({ type: "text", placeholder: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC \uC785\uB825" }, register("authCode", { validate: value => value.length === 6 }))) })), ((_l = errors.authCode) === null || _l === void 0 ? void 0 : _l.type) === "validate" && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uC778\uC99D\uBC88\uD638 6\uC790\uB9AC\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694." })), errors.authCode && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errors.authCode.message })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "success-msg", style: { display: authSuccessMsg } }, { children: "\uC778\uC99D\uBC88\uD638\uAC00 \uC77C\uCE58\uD569\uB2C8\uB2E4." }))] }))] })), (0, jsx_runtime_1.jsx)(Agree, { allChk: (allChk) => setAllChk(allChk) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "join-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "join-btn", disabled: !isValid || !allChk }, { children: "\uAC00\uC785\uD558\uAE30" })) }))] })));
 }
 function Main() {
     return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "join-container middle-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", Object.assign({ className: "join-title" }, { children: "SIGN UP" })), (0, jsx_runtime_1.jsx)(Form, {})] })) }));
 }
 function Join() {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
+    const navigate = (0, react_router_dom_1.useNavigate)();
+    (0, react_1.useEffect)(() => {
+        if (firebase_1.signedInUser) {
+            navigate("/");
+        }
+    }, []);
+    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: !firebase_1.signedInUser && ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] })) }));
 }
 exports.default = Join;

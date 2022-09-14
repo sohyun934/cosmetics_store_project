@@ -26,21 +26,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { getFormatPrice } from "../../../utils/getFormatPrice";
 import Pagination from "react-js-pagination";
 
-const StyledInput = styled.input`
-    appearance: none;
-    border: 1.5px solid #aaa;
-    width: 0.9rem;
-    height: 0.9rem;
-
-    &:checked {
-        border: transparent;
-        background: #e5e5e5
-            url("data:image/svg+xml,%3Csvg width='1.5rem' height='1.5rem' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' 
-	stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
-            no-repeat 50% / 100%;
-    }
-`;
-
 const StyledSelect = styled.select`
     width: 2.8rem;
     height: 1.5rem;
@@ -298,7 +283,7 @@ function CartForm() {
                                 return (
                                     <tr key={i} className="cart-item">
                                         <td className="del-chk">
-                                            <StyledInput
+                                            <input
                                                 type="checkbox"
                                                 checked={checkList.includes(cart.idList[i]) ? true : false}
                                                 onChange={e => handleSingleCheck(e.target.checked, cart.idList[i])}
@@ -328,65 +313,72 @@ function CartForm() {
                         )}
                     </tbody>
                 </table>
-                <div className="cart-del-wrap small-txt">
-                    <StyledInput
-                        type="checkbox"
-                        checked={cart.list.length !== 0 && checkList.length === cart.list.length ? true : false}
-                        onChange={e => handleAllCheck(e.target.checked)}
-                    />
-                    <a href="/" onClick={handlePartDel}>
-                        선택삭제
-                    </a>
-                    <a href="/" onClick={handleAllDel}>
-                        전체삭제
-                    </a>
-                </div>
-                <Pagination
-                    activePage={page}
-                    itemsCountPerPage={5}
-                    totalItemsCount={totItemsCnt}
-                    pageRangeDisplayed={5}
-                    prevPageText="‹"
-                    nextPageText="›"
-                    onChange={handlePageChange}
-                />
+                {cart.list.length > 0 && (
+                    <>
+                        <div className="cart-del-wrap small-txt">
+                            <input
+                                type="checkbox"
+                                checked={cart.list.length !== 0 && checkList.length === cart.list.length ? true : false}
+                                onChange={e => handleAllCheck(e.target.checked)}
+                            />
+                            <a href="/" onClick={handlePartDel}>
+                                선택삭제
+                            </a>
+                            <a href="/" onClick={handleAllDel}>
+                                전체삭제
+                            </a>
+                        </div>
+
+                        <Pagination
+                            activePage={page}
+                            itemsCountPerPage={5}
+                            totalItemsCount={totItemsCnt}
+                            pageRangeDisplayed={5}
+                            prevPageText="‹"
+                            nextPageText="›"
+                            onChange={handlePageChange}
+                        />
+                    </>
+                )}
             </section>
-            <section className="order-section">
-                <div className="section-inner">
-                    <h2>Order</h2>
-                    <hr />
-                    <div className="order-price flex">
-                        <span className="title">주문금액</span>
-                        <span className="price">
-                            <strong>{price.orderPrice}원</strong>
-                        </span>
+            {cart.list.length > 0 && (
+                <section className="order-section">
+                    <div className="section-inner">
+                        <h2>Order</h2>
+                        <hr />
+                        <div className="order-price flex">
+                            <span className="title">주문금액</span>
+                            <span className="price">
+                                <strong>{price.orderPrice}원</strong>
+                            </span>
+                        </div>
+                        <div className="delivery-fee flex">
+                            <span className="title">배송비</span>
+                            <span className="fee">
+                                <strong>{price.fee}원</strong>
+                            </span>
+                        </div>
+                        <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
+                        <hr />
+                        <div className="total-price flex">
+                            <span className="title">
+                                <strong>합계</strong>
+                            </span>
+                            <span className="price">
+                                <strong>{price.totPrice}원</strong>
+                            </span>
+                        </div>
                     </div>
-                    <div className="delivery-fee flex">
-                        <span className="title">배송비</span>
-                        <span className="fee">
-                            <strong>{price.fee}원</strong>
-                        </span>
+                    <div className="btn-wrap flex">
+                        <button type="button" className="part-order-btn gray-style-btn" onClick={handleOrder}>
+                            선택상품 구매하기
+                        </button>
+                        <button type="button" className="all-order-btn" onClick={handleAllOrder}>
+                            전체 구매하기
+                        </button>
                     </div>
-                    <p className="small-txt">* 30,000원 이상 구매 시 무료 배송</p>
-                    <hr />
-                    <div className="total-price flex">
-                        <span className="title">
-                            <strong>합계</strong>
-                        </span>
-                        <span className="price">
-                            <strong>{price.totPrice}원</strong>
-                        </span>
-                    </div>
-                </div>
-                <div className="btn-wrap flex">
-                    <button type="button" className="part-order-btn gray-style-btn" onClick={handleOrder}>
-                        선택상품 구매하기
-                    </button>
-                    <button type="button" className="all-order-btn" onClick={handleAllOrder}>
-                        전체 구매하기
-                    </button>
-                </div>
-            </section>
+                </section>
+            )}
         </form>
     );
 }

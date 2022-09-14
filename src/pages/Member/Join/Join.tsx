@@ -3,41 +3,41 @@ import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
 import { TermsOfUseDetail } from "../../TermsOfUse/TermsOfUse";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import { db, auth } from "../../../firebase";
+import { db, auth, signedInUser } from "../../../firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber, createUserWithEmailAndPassword, signOut } from "firebase/auth";
-
-const StyledInput = styled.input`
-    appearance: none;
-    border: 1.5px solid #aaa;
-    width: 0.9rem;
-    height: 0.9rem;
-
-    &:checked {
-        border: transparent;
-        background: #e5e5e5
-            url("data:image/svg+xml,%3Csvg width='1.5rem' height='1.5rem' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
-            no-repeat 50% / 100%;
-    }
-`;
+import styled from "styled-components";
 
 type PopProp = {
     closePop: Function;
 };
 
+const StyledDiv = styled.div`
+    width: 590px;
+    height: 650px;
+
+    @media (max-width: 900px) {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 0;
+        -moz-border-radius: 0;
+        -webkit-border-radius: 0;
+    }
+`;
+
 function TermsPop(props: PopProp) {
     return (
         <div>
-            <div className="popup-container terms-pop">
+            <StyledDiv className="popup-container">
                 <h2>이용약관</h2>
                 <hr />
                 <TermsOfUseDetail />
                 <button type="button" className="pop-close-btn" onClick={() => props.closePop()}></button>
-            </div>
+            </StyledDiv>
             <div className="dim"></div>
         </div>
     );
@@ -46,12 +46,12 @@ function TermsPop(props: PopProp) {
 function PrivacyPop(props: PopProp) {
     return (
         <div>
-            <div className="popup-container privacy-pop">
+            <StyledDiv className="popup-container">
                 <h2>개인정보 처리방침</h2>
                 <hr />
                 <PrivacyPolicyDetail />
                 <button type="button" className="pop-close-btn" onClick={() => props.closePop()}></button>
-            </div>
+            </StyledDiv>
             <div className="dim"></div>
         </div>
     );
@@ -94,18 +94,13 @@ function Agree(props: Prop) {
     return (
         <div className="agree-container small-txt">
             <div>
-                <StyledInput
-                    id="agreeAllChk"
-                    type="checkbox"
-                    checked={checkList.length === 2 ? true : false}
-                    onChange={e => handleAllCheck(e.target.checked)}
-                />
+                <input id="agreeAllChk" type="checkbox" checked={checkList.length === 2 ? true : false} onChange={e => handleAllCheck(e.target.checked)} />
                 <label htmlFor="agreeAllChk">
                     <strong>전체약관 항목에 동의합니다.</strong>
                 </label>
             </div>
             <div>
-                <StyledInput
+                <input
                     id="agreeServiceChk"
                     type="checkbox"
                     checked={checkList.includes("termsOfService") ? true : false}
@@ -127,7 +122,7 @@ function Agree(props: Prop) {
             </div>
             {termsPop}
             <div>
-                <StyledInput
+                <input
                     id="agreePrivacyChk"
                     type="checkbox"
                     checked={checkList.includes("privacy") ? true : false}
@@ -368,7 +363,7 @@ function Form() {
                             pattern: regExpPhoneNumber
                         })}
                     />
-                    <button id="authCodeBtn" type="button" className="small-txt radius-style-btn" onClick={handlePhoneAuth}>
+                    <button id="authCodeBtn" type="button" className="radius-style-btn" onClick={handlePhoneAuth}>
                         인증번호 요청
                     </button>
                 </div>
@@ -411,12 +406,24 @@ function Main() {
 }
 
 function Join() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (signedInUser) {
+            navigate("/");
+        }
+    }, []);
+
     return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
+        <>
+            {!signedInUser && (
+                <div>
+                    <Header />
+                    <Main />
+                    <Footer />
+                </div>
+            )}
+        </>
     );
 }
 

@@ -1,15 +1,23 @@
 import { Link } from "react-router-dom";
-import "./CartPop.css";
+import styled from "styled-components";
 
 type Prop = {
     close: Function;
     title: string;
 };
 
+const StyledDiv = styled.div`
+    width: 300px;
+
+    @media (max-width: 500px) {
+        width: 60%;
+    }
+`;
+
 function CartPop(props: Prop) {
     return (
         <div>
-            <div className="popup-container cart-pop">
+            <StyledDiv className="popup-container">
                 <h2>CART</h2>
                 <hr />
                 <p className="small-txt">
@@ -24,7 +32,7 @@ function CartPop(props: Prop) {
                     </Link>
                 </div>
                 <button type="button" className="pop-close-btn" onClick={() => props.close()}></button>
-            </div>
+            </StyledDiv>
             <div className="dim"></div>
         </div>
     );

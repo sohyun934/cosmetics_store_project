@@ -23,7 +23,7 @@ function DetailSection(props: DetailSectionProp) {
     return (
         <section className="detail-section">
             <h3>상세 정보</h3>
-            <div className="detail-container">
+            <div className="order-detail-container">
                 <span>
                     주문일자 : <strong>{orderDate}</strong>
                 </span>
