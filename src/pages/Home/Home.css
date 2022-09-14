@@ -1,63 +1,69 @@
 .main-container .bx-wrapper {
-  margin: 0;
+    margin: 0;
 }
 
 .main-container > section {
-  padding: 48px 16px;
+    padding: 48px 16px;
 }
 
 .main-container > section:nth-child(even) {
-  background: #F3F0EB;
+    background: #f3f0eb;
 }
 
 .main-container > section:nth-child(odd) {
-  background: #FAF8F4;
+    background: #faf8f4;
 }
 
-.main-container .section-inner-left, .main-container .section-inner-right .product-list .product {
-  flex: 1;
-  padding: 0 20px;
+.main-container .section-inner-left,
+.main-container .section-inner-right .product-list .product {
+    flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
+    padding: 0 20px;
 }
 
-.main-container .section-inner-left .section-title, .main-container .section-inner-left .section-desc {
-  margin: 0;
+.main-container .section-inner-left .section-title,
+.main-container .section-inner-left .section-desc {
+    margin: 0;
 }
 
 .main-container .section-inner-left .border-style-btn {
-  margin-top: 30px;
-  padding: 10px;
-  display: inline-block;
-  font-weight: bold;
-  text-align: center;	
-  width: 150px;
+    margin-top: 30px;
+    padding: 10px;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    width: 150px;
 }
 
 .main-container .section-inner-right {
-  flex: 2.5; /* section의 2.5/3.5 너비 */
+    flex: 2.5; /* section의 2.5/3.5 너비 */
+    -moz-flex: 2.5;
+    -webkit-flex: 2.5;
 }
 
-@media(max-width:900px) {
-  .main-container > section {
-      position: relative;
-      display: block;
-      padding: 30px 0;
-  }
-  
-  .main-container .section-inner-right {
-      padding: 20px;
-  }
-  
-  .main-container .section-inner-right .product-list .product {
-      padding: 5px;
-  }
-  
-  .main-container .section-inner-left .border-style-btn {
-      position: absolute;
-      bottom: 30px;
-      width: calc(100% - 60px);
-  }		
-  
-  .main-container .section-inner-right .product-list {
-      margin-bottom: 50px;
-  }
+@media (max-width: 900px) {
+    .main-container > section {
+        position: relative;
+        display: block;
+        padding: 30px 0;
+    }
+
+    .main-container .section-inner-right {
+        padding: 20px;
+    }
+
+    .main-container .section-inner-right .product-list .product {
+        padding: 5px;
+    }
+
+    .main-container .section-inner-left .border-style-btn {
+        position: absolute;
+        bottom: 30px;
+        width: calc(100% - 60px);
+    }
+
+    .main-container .section-inner-right .product-list {
+        margin-bottom: 50px;
+    }
 }

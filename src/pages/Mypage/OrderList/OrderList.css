@@ -15,6 +15,8 @@
 .order-list .section-inner-left,
 .order-list .section-inner-right {
     flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
 }
 
 .order-list .section-inner-left .select-month .radius-style-btn {
@@ -69,7 +71,7 @@
 
 .order-list .order-table .order-item .order-date {
     border-right: 1px solid #e5e5e5;
-    width: 15%;
+    width: 17%;
 }
 
 .order-list .order-table .order-item .order-date a {
@@ -91,7 +93,7 @@
 .order-list .order-table .order-item .order-item-name {
     text-align: left;
     border-left: 0;
-    width: 35%;
+    width: 33%;
 }
 
 .order-list .order-table .order-item .order-amount {

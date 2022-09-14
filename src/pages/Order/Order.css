@@ -1,6 +1,11 @@
 .order-container .delivery-section,
-.order-container .check-out-section {
+.order-container .check-out-section,
+.order-container .check-out-section .section-inner > div > span,
+.order-container .check-out-section .btn-container .cancel-btn,
+.order-container .check-out-section .btn-container .pay-btn {
     flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
 }
 
 .order-container .delivery-section,
@@ -51,10 +56,6 @@
     padding: 14px 0;
 }
 
-.order-container .check-out-section .section-inner > div > span {
-    flex: 1;
-}
-
 .order-container .check-out-section .section-inner .price,
 .fee {
     text-align: right;
@@ -62,11 +63,6 @@
 
 .order-container .check-out-section .btn-container {
     margin-top: 40px;
-}
-
-.order-container .check-out-section .btn-container .cancel-btn,
-.order-container .check-out-section .btn-container .pay-btn {
-    flex: 1;
 }
 
 .order-container .check-out-section .btn-container .cancel-btn {

@@ -8,6 +8,8 @@
 
 .util-container > div {
     flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
 }
 
 .util-container .find-join-wrap {

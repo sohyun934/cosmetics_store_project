@@ -1,6 +1,10 @@
 .cart-section,
-.order-section {
+.order-section,
+.order-section .section-inner > div > span,
+.order-section .btn-wrap button {
     flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
 }
 
 .cart-section,
@@ -19,12 +23,13 @@
 
 .cart-list td {
     vertical-align: top;
-    padding-top: 22px;
+    padding: 20px 0;
 }
 
 .cart-list .empty {
     text-align: center;
     line-height: 16;
+    border-bottom: hidden;
 }
 
 .cart-list .del-chk {
@@ -117,10 +122,6 @@
     padding: 14px 0;
 }
 
-.order-section .section-inner > div > span {
-    flex: 1;
-}
-
 .order-section .section-inner .price,
 .fee {
     text-align: right;
@@ -128,8 +129,4 @@
 
 .order-section .btn-wrap {
     margin-top: 40px;
-}
-
-.order-section .btn-wrap button {
-    flex: 1;
 }

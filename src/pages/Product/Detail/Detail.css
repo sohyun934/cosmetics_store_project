@@ -8,6 +8,8 @@
 .util-btn-container > div,
 .menu-lnb li {
     flex: 1;
+    -moz-flex: 1;
+    -webkit-flex: 1;
 }
 
 .detail-container .product-section .info {
@@ -122,12 +124,8 @@
 
     .detail-container .product-section {
         display: block;
-        padding-bottom: 20px;
+        padding: 0 0 35px 0;
         border-bottom: 10px solid #e5e5e5;
-    }
-
-    .detail-container .product-section .info {
-        padding: 0 20px;
     }
 
     .detail-container .product-section .thumb {
