@@ -31,7 +31,7 @@ function CartPop(props: Prop) {
                         <button className="radius-style-btn">장바구니 이동</button>
                     </Link>
                 </div>
-                <button type="button" className="pop-close-btn" onClick={() => props.close()}></button>
+                <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => props.close()}></button>
             </StyledDiv>
             <div className="dim"></div>
         </div>

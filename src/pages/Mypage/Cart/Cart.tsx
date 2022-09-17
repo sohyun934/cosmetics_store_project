@@ -285,6 +285,7 @@ function CartForm() {
                                         <td className="del-chk">
                                             <input
                                                 type="checkbox"
+                                                aria-label="select item checkbox"
                                                 checked={checkList.includes(cart.idList[i]) ? true : false}
                                                 onChange={e => handleSingleCheck(e.target.checked, cart.idList[i])}
                                             />
@@ -301,7 +302,12 @@ function CartForm() {
                                             </StyledSelect>
                                         </td>
                                         <td className="del-util">
-                                            <button type="button" className="del-btn" onClick={() => handleDel(cart.idList[i])}></button>
+                                            <button
+                                                type="button"
+                                                className="del-btn"
+                                                aria-label="remove cart item button"
+                                                onClick={() => handleDel(cart.idList[i])}
+                                            ></button>
                                         </td>
                                     </tr>
                                 );
@@ -318,6 +324,7 @@ function CartForm() {
                         <div className="cart-del-wrap small-txt">
                             <input
                                 type="checkbox"
+                                aria-label="select all checkbox"
                                 checked={cart.list.length !== 0 && checkList.length === cart.list.length ? true : false}
                                 onChange={e => handleAllCheck(e.target.checked)}
                             />

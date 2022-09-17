@@ -162,7 +162,7 @@ function ReviewPop(props: Prop) {
                             등록
                         </StyledButton>
                     </div>
-                    <button type="button" className="pop-close-btn" onClick={() => props.close()}></button>
+                    <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => props.close()}></button>
                 </form>
             </StyledDiv>
             <div className="dim"></div>

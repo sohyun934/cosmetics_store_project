@@ -36,7 +36,7 @@ function TermsPop(props: PopProp) {
                 <h2>이용약관</h2>
                 <hr />
                 <TermsOfUseDetail />
-                <button type="button" className="pop-close-btn" onClick={() => props.closePop()}></button>
+                <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => props.closePop()}></button>
             </StyledDiv>
             <div className="dim"></div>
         </div>
@@ -50,7 +50,7 @@ function PrivacyPop(props: PopProp) {
                 <h2>개인정보 처리방침</h2>
                 <hr />
                 <PrivacyPolicyDetail />
-                <button type="button" className="pop-close-btn" onClick={() => props.closePop()}></button>
+                <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => props.closePop()}></button>
             </StyledDiv>
             <div className="dim"></div>
         </div>

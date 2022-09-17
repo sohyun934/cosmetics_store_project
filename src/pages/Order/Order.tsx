@@ -233,7 +233,7 @@ function OrderForm(props: Prop) {
                             onChange={e => setUser(user => ({ ...user, postCode: e.target.value }))}
                             readOnly
                         />
-                        <button type="button" className="search-btn" onClick={handleSearch}></button>
+                        <button type="button" className="search-btn" aria-label="search postcode button" onClick={handleSearch}></button>
                     </div>
                     <StyledInput
                         className="userAddress"

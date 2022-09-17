@@ -132,9 +132,9 @@ function ProductSection(props: ProductionProp) {
                     <hr />
                     <div className="cnt-container flex">
                         <span className="cnt-box">
-                            <button type="button" className="minus" onClick={handleMinus}></button>
+                            <button type="button" className="minus" aria-label="minus button for quantity" onClick={handleMinus}></button>
                             <input type="text" className="cnt" value={amount} disabled />
-                            <button type="button" className="plus" onClick={handlePlus}></button>
+                            <button type="button" className="plus" aria-label="plus button for quantity" onClick={handlePlus}></button>
                         </span>
                         <span className="price big-txt">
                             <strong>{totPrice}원</strong>

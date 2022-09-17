@@ -201,7 +201,7 @@ function Form() {
                         onChange={e => setUserState(userState => ({ ...userState, postCode: e.target.value }))}
                         readOnly
                     />
-                    <button type="button" className="search-btn" onClick={handleClick}></button>
+                    <button type="button" className="search-btn" aria-label="search postcode button" onClick={handleClick}></button>
                 </div>
                 <StyledInput
                     className="userAddress"

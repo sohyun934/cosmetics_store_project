@@ -28,7 +28,7 @@ type Prop = {
 
 function SideGnbBtn(props: Prop) {
     return (
-        <button className="side-gnb-btn" onClick={() => props.activeSideGnb()}>
+        <button className="side-gnb-btn" aria-label="navigation menu" onClick={() => props.activeSideGnb()}>
             <div className="line1"></div>
             <div className="line2"></div>
             <div className="line3"></div>

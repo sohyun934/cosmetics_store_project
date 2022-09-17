@@ -10,7 +10,7 @@ function LeftGnb() {
     return ((0, jsx_runtime_1.jsx)("nav", Object.assign({ className: "header-gnb-left" }, { children: (0, jsx_runtime_1.jsxs)("ul", { children: [(0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/hair" }, { children: "\uD5E4\uC5B4\uCF00\uC5B4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/skin" }, { children: "\uC2A4\uD0A8\uCF00\uC5B4" })) }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/body" }, { children: "\uBC14\uB514\uCF00\uC5B4" })) })] }) })));
 }
 function SideGnbBtn(props) {
-    return ((0, jsx_runtime_1.jsxs)("button", Object.assign({ className: "side-gnb-btn", onClick: () => props.activeSideGnb() }, { children: [(0, jsx_runtime_1.jsx)("div", { className: "line1" }), (0, jsx_runtime_1.jsx)("div", { className: "line2" }), (0, jsx_runtime_1.jsx)("div", { className: "line3" })] })));
+    return ((0, jsx_runtime_1.jsxs)("button", Object.assign({ className: "side-gnb-btn", "aria-label": "navigation menu", onClick: () => props.activeSideGnb() }, { children: [(0, jsx_runtime_1.jsx)("div", { className: "line1" }), (0, jsx_runtime_1.jsx)("div", { className: "line2" }), (0, jsx_runtime_1.jsx)("div", { className: "line3" })] })));
 }
 function SideGnb(props) {
     const isLoggedIn = props.isLoggedIn;
