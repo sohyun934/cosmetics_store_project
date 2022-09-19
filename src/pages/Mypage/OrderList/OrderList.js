@@ -32,11 +32,9 @@ function OrderTable() {
     const handlePageChange = (page) => {
         setPage(page);
     };
-    // 주문 목록 가져오기
+    // 주문 내역 리스트 가져오기
     const fetchOrder = (userEmail) => __awaiter(this, void 0, void 0, function* () {
         let orderSnapshot;
-        const productNames = [];
-        const products = {};
         const orderItems = [];
         const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", userEmail), (0, firestore_1.orderBy)("order_id", "desc"));
         const querySnapshot = yield (0, firestore_1.getDocs)(q);
@@ -50,40 +48,33 @@ function OrderTable() {
             const next = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "order"), (0, firestore_1.where)("email", "==", userEmail), (0, firestore_1.orderBy)("order_id", "desc"), (0, firestore_1.startAfter)(lastVisible), (0, firestore_1.limit)(5));
             orderSnapshot = yield (0, firestore_1.getDocs)(next);
         }
-        // 주문 상품 정보 가져오기
-        orderSnapshot.forEach(doc => {
-            productNames.push(...doc.data().product_name_list);
-        });
-        for (let i = 0; i < productNames.length; i++) {
-            const docRef = (0, firestore_1.doc)(firebase_1.db, "product", productNames[i]);
-            const docSnap = yield (0, firestore_1.getDoc)(docRef);
-            const product = docSnap.data();
-            const url = yield (0, getImage_1.getImage)(product.product_thumb_01);
-            const url2 = product.product_thumb_02;
-            const url3 = product.product_thumb_03;
-            const price = product.product_price;
-            const name = product.product_name;
-            const detail = product.product_detail;
-            products[productNames[i]] = [name, price, url, url2, url3, detail];
-        }
-        // 주문 내역 가져오기
-        orderSnapshot.forEach(doc => {
-            const order = doc.data();
+        for (let document of orderSnapshot.docs) {
+            const order = document.data();
             const productNames = order.product_name_list;
-            const amountList = order.amount_list;
             const orderDate = order.order_date;
+            const amountList = order.amount_list;
+            // 주문 상품 정보 가져오기
             for (let i = 0; i < productNames.length; i++) {
+                const docRef = (0, firestore_1.doc)(firebase_1.db, "product", productNames[i]);
+                const docSnap = yield (0, firestore_1.getDoc)(docRef);
+                const product = docSnap.data();
+                const name = product.product_name;
+                const price = product.product_price;
+                const thumb01 = yield (0, getImage_1.getImage)(product.product_thumb_01);
+                const thumb02 = product.product_thumb_02;
+                const thumb03 = product.product_thumb_03;
+                const detail = product.product_detail;
                 const state = {
-                    name: products[productNames[i]][0],
-                    price: products[productNames[i]][1],
-                    thumb01: products[productNames[i]][2],
-                    thumb02: products[productNames[i]][3],
-                    thumb03: products[productNames[i]][4],
-                    detail: products[productNames[i]][5]
+                    name: name,
+                    price: price,
+                    thumb01: thumb01,
+                    thumb02: thumb02,
+                    thumb03: thumb03,
+                    detail: detail
                 };
-                orderItems.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [i === 0 && ((0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-date", rowSpan: productNames.length }, { children: [orderDate, (0, jsx_runtime_1.jsx)("div", { className: "order-num" }), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: `/mypage/orderDetail?orderNo=${doc.id}` }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: products[productNames[i]][2], alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [products[productNames[i]][1], "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), doc.id + i));
+                orderItems.push((0, jsx_runtime_1.jsxs)("tr", Object.assign({ className: "order-item" }, { children: [i === 0 && ((0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-date", rowSpan: productNames.length }, { children: [orderDate, (0, jsx_runtime_1.jsx)("div", { className: "order-num" }), (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: `/mypage/orderDetail?orderNo=${document.id}` }, { children: "\uC0C1\uC138\uBCF4\uAE30" }))] }))), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-thumb" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: (0, jsx_runtime_1.jsx)("img", { src: thumb01, alt: productNames[i] }) })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-item-name" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/detail", state: state }, { children: productNames[i] })) })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-amount" }, { children: amountList[i] })), (0, jsx_runtime_1.jsxs)("td", Object.assign({ className: "order-price" }, { children: [price, "\uC6D0"] })), (0, jsx_runtime_1.jsx)("td", Object.assign({ className: "order-status" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: "\uC8FC\uBB38\uC644\uB8CC" }) }))] }), document.id + docSnap.id));
             }
-        });
+        }
         setOrderItems(orderItems);
     });
     (0, react_1.useEffect)(() => {

@@ -20,11 +20,9 @@ function OrderTable() {
         setPage(page);
     };
 
-    // 주문 목록 가져오기
+    // 주문 내역 리스트 가져오기
     const fetchOrder = async (userEmail: string) => {
         let orderSnapshot: QuerySnapshot<DocumentData>;
-        const productNames = [];
-        const products = {};
         const orderItems = [];
 
         const q = query(collection(db, "order"), where("email", "==", userEmail), orderBy("order_id", "desc"));
@@ -40,54 +38,46 @@ function OrderTable() {
             orderSnapshot = await getDocs(next);
         }
 
-        // 주문 상품 정보 가져오기
-        orderSnapshot.forEach(doc => {
-            productNames.push(...doc.data().product_name_list);
-        });
-
-        for (let i = 0; i < productNames.length; i++) {
-            const docRef = doc(db, "product", productNames[i]);
-            const docSnap = await getDoc(docRef);
-            const product = docSnap.data();
-
-            const url = await getImage(product.product_thumb_01);
-            const url2 = product.product_thumb_02;
-            const url3 = product.product_thumb_03;
-            const price = product.product_price;
-            const name = product.product_name;
-            const detail = product.product_detail;
-            products[productNames[i]] = [name, price, url, url2, url3, detail];
-        }
-
-        // 주문 내역 가져오기
-        orderSnapshot.forEach(doc => {
-            const order = doc.data();
+        for (let document of orderSnapshot.docs) {
+            const order = document.data();
             const productNames = order.product_name_list;
-            const amountList = order.amount_list;
             const orderDate = order.order_date;
+            const amountList = order.amount_list;
 
+            // 주문 상품 정보 가져오기
             for (let i = 0; i < productNames.length; i++) {
+                const docRef = doc(db, "product", productNames[i]);
+                const docSnap = await getDoc(docRef);
+                const product = docSnap.data();
+
+                const name = product.product_name;
+                const price = product.product_price;
+                const thumb01 = await getImage(product.product_thumb_01);
+                const thumb02 = product.product_thumb_02;
+                const thumb03 = product.product_thumb_03;
+                const detail = product.product_detail;
+
                 const state = {
-                    name: products[productNames[i]][0],
-                    price: products[productNames[i]][1],
-                    thumb01: products[productNames[i]][2],
-                    thumb02: products[productNames[i]][3],
-                    thumb03: products[productNames[i]][4],
-                    detail: products[productNames[i]][5]
+                    name: name,
+                    price: price,
+                    thumb01: thumb01,
+                    thumb02: thumb02,
+                    thumb03: thumb03,
+                    detail: detail
                 };
 
                 orderItems.push(
-                    <tr key={doc.id + i} className="order-item">
+                    <tr key={document.id + docSnap.id} className="order-item">
                         {i === 0 && (
                             <td className="order-date" rowSpan={productNames.length}>
                                 {orderDate}
                                 <div className="order-num"></div>
-                                <Link to={`/mypage/orderDetail?orderNo=${doc.id}`}>상세보기</Link>
+                                <Link to={`/mypage/orderDetail?orderNo=${document.id}`}>상세보기</Link>
                             </td>
                         )}
                         <td className="order-item-thumb">
                             <Link to="/detail" state={state}>
-                                <img src={products[productNames[i]][2]} alt={productNames[i]} />
+                                <img src={thumb01} alt={productNames[i]} />
                             </Link>
                         </td>
                         <td className="order-item-name">
@@ -96,14 +86,14 @@ function OrderTable() {
                             </Link>
                         </td>
                         <td className="order-amount">{amountList[i]}</td>
-                        <td className="order-price">{products[productNames[i]][1]}원</td>
+                        <td className="order-price">{price}원</td>
                         <td className="order-status">
                             <strong>주문완료</strong>
                         </td>
                     </tr>
                 );
             }
-        });
+        }
 
         setOrderItems(orderItems);
     };
