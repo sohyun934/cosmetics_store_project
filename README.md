@@ -1,6 +1,6 @@
 # Cosmetics-Store Project
 호스팅 URL : https://cosmetics-52ab7.web.app/  
-블로그 URL : https://www.notion.so/b6a9999714414c97bbb339617e671242  
+블로그 URL : https://hazel-leader-f94.notion.site/49fb6f0b7c6f411b98355938ee194c0f  
 <br/>
 
 ## 프로젝트 기간
