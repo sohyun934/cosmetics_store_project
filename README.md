@@ -1,9 +1,11 @@
 # Cosmetics-Store Project
 호스팅 URL : https://cosmetics-52ab7.web.app/  
-블로그 URL : https://www.notion.so/b6a9999714414c97bbb339617e671242
+블로그 URL : https://www.notion.so/b6a9999714414c97bbb339617e671242  
+<br/>
 
 ## 프로젝트 기간
-2022-05-26 ~ 2022-07-25 (2개월)
+2022.05.26 ~ 2022.07.25 (2개월)  
+<br/>
 
 ## 기술 스택
 <img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=React&logoColor=white"/> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=TypeScript&logoColor=white"/>
@@ -12,7 +14,8 @@
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=CSS3&logoColor=white"/>
 <img src="https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=Firebase&logoColor=white"/>
 <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=flat&logo=Webpack&logoColor=white"/>
-<img src="https://img.shields.io/badge/Babel-F9DC3E?style=flat&logo=Babel&logoColor=white"/>
+<img src="https://img.shields.io/badge/Babel-F9DC3E?style=flat&logo=Babel&logoColor=white"/>  
+<br/>
 
 ## 폴더 구조
 ```
