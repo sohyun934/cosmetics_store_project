@@ -1,10 +1,11 @@
-# Cosmetics-Store Project
-호스팅 URL : https://cosmetics-52ab7.web.app/  
-블로그 URL : https://hazel-leader-f94.notion.site/49fb6f0b7c6f411b98355938ee194c0f  
+# Cosmetics Store
+>  코스메틱 쇼핑 서비스  
+https://cosmetics-52ab7.web.app/
 <br/>
 
-## 프로젝트 기간
-2022.05.26 ~ 2022.07.25 (2개월)  
+## 프로젝트 기간 & 참여 인원
+- 2022.05.26 ~ 2022.07.25 (2개월)  
+- 개인 프로젝트
 <br/>
 
 ## 기술 스택
@@ -62,37 +63,47 @@
 <br/>
 
 ## 미리 보기
+<details>
+<summary><strong>구현 기능 미리 보기</strong></summary>
+<div markdown="1">
+<br/>
 
-#### 1. 회원가입
+### 1. 회원가입
 <img src="https://user-images.githubusercontent.com/68523204/187366345-944a1e85-c13f-4e89-905d-1a0426ca6974.gif"/>
-<br/>
+<br/><br/>
 
-#### 2. 로그인
+### 2. 로그인
 <img src="https://user-images.githubusercontent.com/68523204/187612454-327bc9b7-9b6c-456b-8580-27bf082602b1.gif"/>
-<br/>
+<br/><br/>
 
-#### 3. 메인 페이지
+### 3. 메인 페이지
 <img src="https://user-images.githubusercontent.com/68523204/187371609-bee33115-f833-4b36-a8ad-735599b696cd.png"/>
-<br/>
+<br/><br/>
 
-#### 4. 상품 리스트 페이지
+### 4. 상품 리스트 페이지
 <img src="https://user-images.githubusercontent.com/68523204/187371263-ad5996ea-0bfe-425f-9558-4a9d3b6ceadf.png"/>
-<br/>
+<br/><br/>
 
-#### 5. 장바구니 추가
+### 5. 장바구니 추가
 <img src="https://user-images.githubusercontent.com/68523204/187369762-91e8a2d1-fadc-4e79-99c5-75ff8b858430.gif"/>
-<br/>
+<br/><br/>
 
-#### 6. 장바구니 수량 변경
+### 6. 장바구니 수량 변경
 <img src="https://user-images.githubusercontent.com/68523204/187369770-1b4983d7-17f1-487e-b020-d7900bd551f5.gif"/>
-<br/>
+<br/><br/>
 
-#### 7. 결제
+### 7. 결제
 <img src="https://user-images.githubusercontent.com/68523204/190100442-f6d84b09-0738-4d85-91ad-e9f7b3d1e448.gif"/>
+<br/><br/>
+
+### 8. 리뷰 작성
+<img src="https://user-images.githubusercontent.com/68523204/187369760-d7b18fcc-7a7a-4d48-a88a-9747ee1b5dbf.gif"/>
+</div>
+</details>
 <br/>
 
-#### 8. 리뷰 작성
-<img src="https://user-images.githubusercontent.com/68523204/187369760-d7b18fcc-7a7a-4d48-a88a-9747ee1b5dbf.gif"/>
+## 트러블 슈팅
+https://hazel-leader-f94.notion.site/b6a9999714414c97bbb339617e671242  
 <br/>
 
 ## License
