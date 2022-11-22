@@ -3,6 +3,11 @@
 https://cosmetics-52ab7.web.app/
 <br/>
 
+>  테스트 계정  
+ID : test@test.com  
+PW : admin01!
+<br/>
+
 ## 프로젝트 기간 & 참여 인원
 - 2022.05.26 ~ 2022.07.25 (2개월)  
 - 개인 프로젝트
