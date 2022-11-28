@@ -39,6 +39,10 @@
     padding: 0 16px;
 }
 
+.header-gnb-left li a:hover {
+    font-weight: bold;
+}
+
 .side-active .header-gnb-left {
     display: none;
 }

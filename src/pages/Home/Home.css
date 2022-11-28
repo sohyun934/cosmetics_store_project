@@ -1,5 +1,33 @@
-.main-container .bx-wrapper {
-    margin: 0;
+.main-container .swiper-slide {
+    height: 70vh;
+}
+
+@media (max-width: 1600px) {
+    .main-container .swiper-slide {
+        height: 50vh;
+    }
+}
+
+@media (max-width: 1400px) {
+    .main-container .swiper-slide {
+        height: 40vh;
+    }
+}
+
+@media (max-width: 1000px) {
+    .main-container .swiper-slide {
+        height: 30vh;
+    }
+}
+
+@media (max-width: 700px) {
+    .main-container .swiper-slide {
+        height: 20vh;
+    }
+}
+
+.main-container .swiper-slide img {
+    height: 100%;
 }
 
 .main-container > section {

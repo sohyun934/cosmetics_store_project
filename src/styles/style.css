@@ -363,6 +363,10 @@ button:disabled {
     font-family: "Nanum Myeongjo", serif;
 }
 
+.product img {
+    border-radius: 5px;
+}
+
 .product-section .product-list .product .thumb {
     position: relative;
 }
@@ -439,32 +443,6 @@ button:disabled {
     background: rgba(0, 0, 0, 0.5);
     z-index: 5;
     transition: all 0.4s ease-in-out;
-}
-
-/* bx-slider */
-
-.bx-wrapper {
-    border: none;
-    box-shadow: none;
-    background: none;
-}
-
-.bx-wrapper .bx-controls {
-    position: relative;
-}
-
-.bx-wrapper .bx-controls .bx-controls-direction {
-    display: none;
-}
-
-.bx-wrapper .bx-pager {
-    position: absolute;
-    bottom: 10px;
-}
-
-.bx-wrapper .bx-pager.bx-default-pager a {
-    width: 0.6rem;
-    height: 0.6rem;
 }
 
 /* media query */
