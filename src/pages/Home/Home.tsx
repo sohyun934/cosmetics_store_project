@@ -11,8 +11,18 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { getImage } from "../../utils/getImage";
+import { getFormatPrice } from "../../utils/getFormatPrice";
 
 function Slider() {
+    const slideList = [];
+    for (let i = 1; i <= 3; i++) {
+        slideList.push(
+            <SwiperSlide>
+                <img src={require(`../../assets/main/main0${i}.jpg`)} alt={`메인0${i}`} />
+            </SwiperSlide>
+        );
+    }
+
     return (
         <div>
             <Swiper
@@ -23,79 +33,56 @@ function Slider() {
                 loop={true}
                 autoplay={{ delay: 3000 }}
             >
-                <SwiperSlide>
-                    <img src={require("../../assets/main/main01.jpg")} alt="메인01" />
-                </SwiperSlide>
-                <SwiperSlide>
-                    <img src={require("../../assets/main/main02.jpg")} alt="메인02" />
-                </SwiperSlide>
-                <SwiperSlide>
-                    <img src={require("../../assets/main/main03.jpg")} alt="메인03" />
-                </SwiperSlide>
+                {slideList}
             </Swiper>
         </div>
     );
 }
 
 type SectionProp = {
-    products: any[];
+    sections: {};
 };
 
-function HairSection(props: SectionProp) {
-    return (
-        <section className="hair-section flex">
-            <div className="section-inner-left">
-                <h1 className="section-title">HAIR CARE</h1>
-                <p className="section-desc small-txt">다양한 헤어케어를 경험해보세요</p>
-                <Link to="/hair" className="border-style-btn small-txt">
-                    헤어케어 제품 더보기
-                </Link>
-            </div>
-            <div className="section-inner-right">
-                <ul className="product-list flex">{props.products}</ul>
-            </div>
-        </section>
-    );
-}
+function Section(props: SectionProp) {
+    const sections = props.sections;
+    const sectionsList = [];
 
-function SkinSection(props: SectionProp) {
-    return (
-        <section className="skin-section flex">
-            <div className="section-inner-left">
-                <h1 className="section-title">SKIN CARE</h1>
-                <p className="section-desc small-txt">건강한 피부를 만드는 스킨케어를 만나보세요</p>
-                <Link to="/skin" className="border-style-btn small-txt">
-                    스킨케어 제품 더보기
-                </Link>
-            </div>
-            <div className="section-inner-right">
-                <ul className="product-list flex">{props.products}</ul>
-            </div>
-        </section>
-    );
-}
+    for (let key in sections) {
+        const section = sections[key];
 
-function BodySection(props: SectionProp) {
-    return (
-        <section className="body-section flex">
-            <div className="section-inner-left">
-                <h1 className="section-title">BODY CARE</h1>
-                <p className="section-desc small-txt">일상의 무게를 줄여주는 아로마테라피 바디케어를 경험해보세요</p>
-                <Link to="/body" className="border-style-btn small-txt">
-                    바디케어 제품 더보기
-                </Link>
-            </div>
-            <div className="section-inner-right">
-                <ul className="product-list flex">{props.products}</ul>
-            </div>
-        </section>
-    );
+        sectionsList.push(
+            <section key={section.title} className="flex">
+                <div className="section-inner-left">
+                    <h1 className="section-title">{section.title}</h1>
+                    <p className="section-desc small-txt">{section.desc}</p>
+                    <Link to={section.link_to} className="border-style-btn small-txt">
+                        {section.link_content}
+                    </Link>
+                </div>
+                <div className="section-inner-right">
+                    <ul className="product-list flex">{section.products}</ul>
+                </div>
+            </section>
+        );
+    }
+
+    return <>{sectionsList}</>;
 }
 
 function Main() {
-    const [hairProducts, setHairProducts] = useState<any[]>([]);
-    const [skinProducts, setSkinProducts] = useState<any[]>([]);
-    const [bodyProducts, setBodyProducts] = useState<any[]>([]);
+    const [sections, setSections] = useState({
+        hair: { title: "HAIR CARE", desc: "다양한 헤어케어를 경험해보세요", link_to: "/hair", link_content: "헤어케어 제품 더보기", products: [] },
+        skin: { title: "SKIN CARE", desc: "건강한 피부를 만드는 스킨케어를 만나보세요", link_to: "/skin", link_content: "스킨케어 제품 더보기", products: [] },
+        body: {
+            title: "BODY CARE",
+            desc: "일상의 무게를 줄여주는 아로마테라피 바디케어를 경험해보세요",
+            link_to: "/body",
+            link_content: "바디케어 제품 더보기",
+            products: []
+        }
+    });
+
+    const copiedSections = { ...sections };
 
     const fetchProducts = async (section: string) => {
         const q = query(collection(db, "product"), where("product_type", "==", section), orderBy("product_id", "desc"), limit(3));
@@ -106,11 +93,10 @@ function Main() {
         const urls = await Promise.all(promises);
 
         // firestore 데이터 가져와서 리스트 만들기
-        const productList = [];
-        productSnapshot.docs.forEach((doc, i) => {
+        const products = productSnapshot.docs.map((doc, i) => {
             const data = doc.data();
 
-            productList.push(
+            return (
                 <li key={doc.id} className="product">
                     <Link
                         to="/detail"
@@ -131,7 +117,7 @@ function Main() {
                                 <strong>{data.product_name}</strong>
                             </div>
                             <div className="price">
-                                <strong>{data.product_price}원</strong>
+                                <strong>{getFormatPrice(data.product_price)}원</strong>
                             </div>
                         </div>
                     </Link>
@@ -139,27 +125,19 @@ function Main() {
             );
         });
 
-        if (section === "hair") {
-            setHairProducts(productList);
-        } else if (section === "skin") {
-            setSkinProducts(productList);
-        } else if (section === "body") {
-            setBodyProducts(productList);
-        }
+        copiedSections[section].products = products;
     };
 
     useEffect(() => {
-        fetchProducts("hair");
-        fetchProducts("skin");
-        fetchProducts("body");
+        Promise.all([fetchProducts("hair"), fetchProducts("skin"), fetchProducts("body")]).then(() => {
+            setSections(copiedSections);
+        });
     }, []);
 
     return (
         <main className="main-container">
             <Slider />
-            <HairSection products={hairProducts} />
-            <SkinSection products={skinProducts} />
-            <BodySection products={bodyProducts} />
+            <Section sections={sections} />
             <MoveTop />
         </main>
     );
