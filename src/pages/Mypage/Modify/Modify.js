@@ -15,8 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
 require("./Modify.css");
 const react_1 = require("react");
-const Header_1 = __importDefault(require("../../../components/Header/Header"));
-const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const Lnb_1 = __importDefault(require("../../../components/Lnb/Lnb"));
 const react_hook_form_1 = require("react-hook-form");
 const firestore_1 = require("firebase/firestore");
@@ -151,9 +149,6 @@ function Form() {
                         validate: value => value === getValues("password")
                     }))), errors.confirmPw && (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: "\uBE44\uBC00\uBC88\uD638\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." })), (0, jsx_runtime_1.jsx)(StyledInput, { type: "text", value: userState.name, readOnly: true }), (0, jsx_runtime_1.jsx)(StyledInput, { type: "text", value: userState.phoneNumber, readOnly: true }), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "postcode-wrap" }, { children: [(0, jsx_runtime_1.jsx)(StyledInput, { className: "userPostcode", type: "text", placeholder: "\uC6B0\uD3B8\uBC88\uD638", value: userState.postCode || "", onChange: e => setUserState(userState => (Object.assign(Object.assign({}, userState), { postCode: e.target.value }))), readOnly: true }), (0, jsx_runtime_1.jsx)("button", { type: "button", className: "search-btn", "aria-label": "search postcode button", onClick: handleClick })] })), (0, jsx_runtime_1.jsx)(StyledInput, { className: "userAddress", type: "text", placeholder: "\uAE30\uBCF8 \uC8FC\uC18C", value: userState.address || "", onChange: e => setUserState(userState => (Object.assign(Object.assign({}, userState), { address: e.target.value }))), readOnly: true }), (0, jsx_runtime_1.jsx)("input", { className: "userDetailAddress", type: "text", placeholder: "\uC0C1\uC138 \uC8FC\uC18C", value: userState.detailAddress || "", onChange: e => setUserState(userState => (Object.assign(Object.assign({}, userState), { detailAddress: e.target.value }))) })] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "modify-btn", disabled: !isValid }, { children: "\uD68C\uC6D0\uC815\uBCF4\uC218\uC815" })) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "member-leave small-txt" }, { children: (0, jsx_runtime_1.jsx)("a", Object.assign({ href: "/", onClick: e => handleUserDelete(e) }, { children: "\uD68C\uC6D0\uD0C8\uD1F4" })) }))] })));
 }
-function Main() {
-    return ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "modify" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "modify-wrap" }, { children: (0, jsx_runtime_1.jsx)(Form, {}) }))] })) }));
-}
 function Modify() {
     const navigate = (0, react_router_dom_1.useNavigate)();
     const location = (0, react_router_dom_1.useLocation)();
@@ -164,6 +159,6 @@ function Modify() {
             navigate("/mypage/myPageAuthentification");
         }
     });
-    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] })) }));
+    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsx)("main", { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "big-container" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: "MYPAGE" }), (0, jsx_runtime_1.jsx)(Lnb_1.default, { title: "modify" }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "modify-wrap" }, { children: (0, jsx_runtime_1.jsx)(Form, {}) }))] })) })) }));
 }
 exports.default = Modify;

@@ -1,7 +1,5 @@
 import "./Modify.css";
 import { useEffect, useState } from "react";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { collection, deleteDoc, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
@@ -9,7 +7,7 @@ import { auth, db } from "../../../firebase";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import styled from "styled-components";
 import { deleteUser, EmailAuthProvider, getAuth, onAuthStateChanged, reauthenticateWithCredential, updatePassword, User } from "firebase/auth";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Inputs {
     password: string;
@@ -233,20 +231,6 @@ function Form() {
     );
 }
 
-function Main() {
-    return (
-        <main>
-            <div className="big-container">
-                <h1>MYPAGE</h1>
-                <Lnb title="modify" />
-                <div className="modify-wrap">
-                    <Form />
-                </div>
-            </div>
-        </main>
-    );
-}
-
 function Modify() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -262,11 +246,15 @@ function Modify() {
     return (
         <>
             {state && (
-                <div>
-                    <Header />
-                    <Main />
-                    <Footer />
-                </div>
+                <main>
+                    <div className="big-container">
+                        <h1>MYPAGE</h1>
+                        <Lnb title="modify" />
+                        <div className="modify-wrap">
+                            <Form />
+                        </div>
+                    </div>
+                </main>
             )}
         </>
     );

@@ -67,7 +67,7 @@ function Section(props: SectionProp) {
     return <>{sectionsList}</>;
 }
 
-function Main() {
+function Home() {
     const [sections, setSections] = useState({
         hair: { title: "HAIR CARE", desc: "다양한 헤어케어를 경험해보세요", link_to: "/hair", link_content: "헤어케어 제품 더보기", products: [] },
         skin: { title: "SKIN CARE", desc: "건강한 피부를 만드는 스킨케어를 만나보세요", link_to: "/skin", link_content: "스킨케어 제품 더보기", products: [] },
@@ -139,10 +139,6 @@ function Main() {
             <MoveTop />
         </main>
     );
-}
-
-function Home() {
-    return <Main />;
 }
 
 export default Home;

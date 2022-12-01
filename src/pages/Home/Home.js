@@ -41,7 +41,7 @@ function Section(props) {
     }
     return (0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: sectionsList });
 }
-function Main() {
+function Home() {
     const [sections, setSections] = (0, react_2.useState)({
         hair: { title: "HAIR CARE", desc: "다양한 헤어케어를 경험해보세요", link_to: "/hair", link_content: "헤어케어 제품 더보기", products: [] },
         skin: { title: "SKIN CARE", desc: "건강한 피부를 만드는 스킨케어를 만나보세요", link_to: "/skin", link_content: "스킨케어 제품 더보기", products: [] },
@@ -80,8 +80,5 @@ function Main() {
         });
     }, []);
     return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "main-container" }, { children: [(0, jsx_runtime_1.jsx)(Slider, {}), (0, jsx_runtime_1.jsx)(Section, { sections: sections }), (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] })));
-}
-function Home() {
-    return (0, jsx_runtime_1.jsx)(Main, {});
 }
 exports.default = Home;
