@@ -1,5 +1,5 @@
 import MoveTop from "../MoveTop/MoveTop";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     addDoc,
@@ -26,6 +26,48 @@ const StyledButton = styled.button`
     }
 `;
 
+const SelectBox = styled.div`
+    position: relative;
+    text-align: right;
+    padding-right: 16px;
+`;
+
+const SelectBtn = styled.button`
+    width: 100px;
+    height: 40px;
+    text-align: left;
+    background: white;
+    color: black;
+    font-size: 14px;
+    background: right
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath d='M18.71 8.21a1 1 0 0 0-1.42 0l-4.58 4.58a1 1 0 0 1-1.42 0L6.71 8.21a1 1 0 0 0-1.42 0 1 1 0 0 0 0 1.41l4.59 4.59a3 3 0 0 0 4.24 0l4.59-4.59a1 1 0 0 0 0-1.41Z'/%3E%3C/svg%3E")
+        no-repeat;
+`;
+
+const SelectList = styled.ul`
+    width: 100px;
+    position: absolute;
+    top: 40px;
+    right: 16px;
+    border: 1px solid rgb(237, 237, 237);
+    background-color: rgb(255, 255, 255);
+    z-index: 102;
+`;
+
+const SelectItem = styled.li`
+    text-align: center;
+    font-family: NotoSansCJKkr;
+    font-size: 14px;
+    line-height: 40px;
+    height: 40px;
+    letter-spacing: -0.5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #e5e5e5;
+    }
+`;
+
 interface Order {
     field: string | FieldPath;
     direction: OrderByDirection;
@@ -37,10 +79,12 @@ function ProductMain() {
     const [moreBtn, setMoreBtn] = useState(false);
     const [lastVisible, setLastVisible] = useState(null);
     const [order, setOrder] = useState<Order>({ field: "product_id", direction: "desc" });
+    const [selectItem, setSelectItem] = useState("등록순");
 
+    const selectListRef = useRef(null);
+    const selectBtnRef = useRef(null);
     const navigate = useNavigate();
     const pathname = useLocation().pathname.substring(1);
-    const limitNum = 9;
 
     const category = {
         hair: {
@@ -56,6 +100,13 @@ function ProductMain() {
             desc: "일상의 무게를 줄여주는 바디케어를 경험해보세요"
         }
     };
+
+    const selectItemList = ["등록순", "낮은가격순", "높은가격순"];
+    const selectItems = selectItemList.map(item => (
+        <SelectItem key={item} onClick={e => handleSort(e)} className={item === selectItem ? "active" : ""}>
+            {item}
+        </SelectItem>
+    ));
 
     const closePop = () => {
         setPop(pop => ({ ...pop, state: "", content: null }));
@@ -94,6 +145,7 @@ function ProductMain() {
 
     // 상품 리스트 가져오기
     const fetchProducts = async (field: string | FieldPath, direction: OrderByDirection, isClicked: boolean) => {
+        const limitNum = 9;
         let productSnapshot: QuerySnapshot<DocumentData>;
         let productList: any[];
 
@@ -185,23 +237,35 @@ function ProductMain() {
         fetchProducts("product_id", "desc", false);
     }, []);
 
+    const handleSelect = () => {
+        const selectList = selectListRef.current;
+        const selectBtn = selectBtnRef.current;
+        selectList.classList.toggle("display-none");
+        selectBtn.classList.toggle("unactive");
+    };
+
     // 상품 리스트 정렬
-    const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleSort = (e: React.MouseEvent<HTMLElement>) => {
+        const selectList = selectListRef.current;
+        const selectItemContent = (e.target as HTMLElement).innerText;
         let field: string | FieldPath = "product_id";
         let direction: OrderByDirection = "desc";
 
-        if (e.target.value === "new") {
+        selectList.classList.toggle("display-none");
+
+        if (selectItemContent === "등록순") {
             field = "product_id";
             direction = "desc";
-        } else if (e.target.value === "low-price") {
+        } else if (selectItemContent === "낮은가격순") {
             field = "product_price";
             direction = "asc";
-        } else if (e.target.value === "high-price") {
+        } else if (selectItemContent === "높은가격순") {
             field = "product_price";
             direction = "desc";
         }
 
         fetchProducts(field, direction, false);
+        setSelectItem(selectItemContent);
         setOrder(orderBy => ({ ...orderBy, field: field, direction: direction }));
     };
 
@@ -212,14 +276,14 @@ function ProductMain() {
                     <h1>{category[pathname].title}</h1>
                     <p style={{ wordBreak: "keep-all" }}>{category[pathname].desc}</p>
                 </div>
-                <div className="list-filter">
-                    <select onChange={e => handleSort(e)}>
-                        <option value="new">등록순</option>
-                        {/* <option value="rank">판매순</option> */}
-                        <option value="low-price">낮은가격순</option>
-                        <option value="high-price">높은가격순</option>
-                    </select>
-                </div>
+                <SelectBox>
+                    <SelectBtn className="unactive" onClick={handleSelect} ref={selectBtnRef}>
+                        {selectItem}
+                    </SelectBtn>
+                    <SelectList className="display-none" ref={selectListRef}>
+                        {selectItems}
+                    </SelectList>
+                </SelectBox>
                 <ul className="product-list flex">{products}</ul>
                 {moreBtn && (
                     <div style={{ textAlign: "center", padding: "0 20px" }}>

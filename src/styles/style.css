@@ -159,6 +159,16 @@ button {
     cursor: pointer;
 }
 
+/* common */
+
+.display-none {
+    display: none;
+}
+
+.active {
+    font-weight: bold;
+}
+
 /* container */
 
 .middle-container {
@@ -339,9 +349,10 @@ button:disabled {
     margin-top: 0;
 }
 
-.product-section .list-filter {
-    text-align: right;
-    padding-right: 20px;
+.product-section .unactive {
+    background: right
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' data-name='Layer 1' viewBox='0 0 24 24'%3E%3Cpath d='M17.293 15.207 12 9.914l-5.293 5.293-1.414-1.414L10.586 8.5a2 2 0 0 1 2.828 0l5.293 5.293Z'/%3E%3C/svg%3E")
+        no-repeat;
 }
 
 .product-section .product-list {

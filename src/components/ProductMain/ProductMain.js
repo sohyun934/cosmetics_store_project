@@ -26,12 +26,53 @@ const StyledButton = styled_components_1.default.button `
         width: 30%;
     }
 `;
+const SelectBox = styled_components_1.default.div `
+    position: relative;
+    text-align: right;
+    padding-right: 16px;
+`;
+const SelectBtn = styled_components_1.default.button `
+    width: 100px;
+    height: 40px;
+    text-align: left;
+    background: white;
+    color: black;
+    font-size: 14px;
+    background: right
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath d='M18.71 8.21a1 1 0 0 0-1.42 0l-4.58 4.58a1 1 0 0 1-1.42 0L6.71 8.21a1 1 0 0 0-1.42 0 1 1 0 0 0 0 1.41l4.59 4.59a3 3 0 0 0 4.24 0l4.59-4.59a1 1 0 0 0 0-1.41Z'/%3E%3C/svg%3E")
+        no-repeat;
+`;
+const SelectList = styled_components_1.default.ul `
+    width: 100px;
+    position: absolute;
+    top: 40px;
+    right: 16px;
+    border: 1px solid rgb(237, 237, 237);
+    background-color: rgb(255, 255, 255);
+    z-index: 102;
+`;
+const SelectItem = styled_components_1.default.li `
+    text-align: center;
+    font-family: NotoSansCJKkr;
+    font-size: 14px;
+    line-height: 40px;
+    height: 40px;
+    letter-spacing: -0.5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #e5e5e5;
+    }
+`;
 function ProductMain() {
     const [pop, setPop] = (0, react_1.useState)({ state: "", content: null });
     const [products, setProducts] = (0, react_1.useState)([]);
     const [moreBtn, setMoreBtn] = (0, react_1.useState)(false);
     const [lastVisible, setLastVisible] = (0, react_1.useState)(null);
     const [order, setOrder] = (0, react_1.useState)({ field: "product_id", direction: "desc" });
+    const [selectItem, setSelectItem] = (0, react_1.useState)("등록순");
+    const selectListRef = (0, react_1.useRef)(null);
+    const selectBtnRef = (0, react_1.useRef)(null);
     const navigate = (0, react_router_dom_1.useNavigate)();
     const pathname = (0, react_router_dom_1.useLocation)().pathname.substring(1);
     const limitNum = 9;
@@ -49,6 +90,8 @@ function ProductMain() {
             desc: "일상의 무게를 줄여주는 바디케어를 경험해보세요"
         }
     };
+    const selectItemList = ["등록순", "낮은가격순", "높은가격순"];
+    const selectItems = selectItemList.map(item => ((0, jsx_runtime_1.jsx)(SelectItem, Object.assign({ onClick: e => handleSort(e), className: item === selectItem ? "active" : "" }, { children: item }), item)));
     const closePop = () => {
         setPop(pop => (Object.assign(Object.assign({}, pop), { state: "", content: null })));
     };
@@ -136,26 +179,36 @@ function ProductMain() {
     (0, react_1.useEffect)(() => {
         fetchProducts("product_id", "desc", false);
     }, []);
+    const handleSelect = () => {
+        const selectList = selectListRef.current;
+        const selectBtn = selectBtnRef.current;
+        selectList.classList.toggle("display-none");
+        selectBtn.classList.toggle("unactive");
+    };
     // 상품 리스트 정렬
     const handleSort = (e) => {
+        const selectList = selectListRef.current;
+        const selectItemContent = e.target.innerText;
         let field = "product_id";
         let direction = "desc";
-        if (e.target.value === "new") {
+        selectList.classList.toggle("display-none");
+        if (selectItemContent === "등록순") {
             field = "product_id";
             direction = "desc";
         }
-        else if (e.target.value === "low-price") {
+        else if (selectItemContent === "낮은가격순") {
             field = "product_price";
             direction = "asc";
         }
-        else if (e.target.value === "high-price") {
+        else if (selectItemContent === "높은가격순") {
             field = "product_price";
             direction = "desc";
         }
         fetchProducts(field, direction, false);
+        setSelectItem(selectItemContent);
         setOrder(orderBy => (Object.assign(Object.assign({}, orderBy), { field: field, direction: direction })));
     };
-    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { wordBreak: "keep-all" } }, { children: category[pathname].desc }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-filter" }, { children: (0, jsx_runtime_1.jsxs)("select", Object.assign({ onChange: e => handleSort(e) }, { children: [(0, jsx_runtime_1.jsx)("option", Object.assign({ value: "new" }, { children: "\uB4F1\uB85D\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "low-price" }, { children: "\uB0AE\uC740\uAC00\uACA9\uC21C" })), (0, jsx_runtime_1.jsx)("option", Object.assign({ value: "high-price" }, { children: "\uB192\uC740\uAC00\uACA9\uC21C" }))] })) })), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), moreBtn && ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
+    return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "product-section" }, { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-title" }, { children: [(0, jsx_runtime_1.jsx)("h1", { children: category[pathname].title }), (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { wordBreak: "keep-all" } }, { children: category[pathname].desc }))] })), (0, jsx_runtime_1.jsxs)(SelectBox, { children: [(0, jsx_runtime_1.jsx)(SelectBtn, Object.assign({ className: "unactive", onClick: handleSelect, ref: selectBtnRef }, { children: selectItem })), (0, jsx_runtime_1.jsx)(SelectList, Object.assign({ className: "display-none", ref: selectListRef }, { children: selectItems }))] }), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), moreBtn && ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
                                 fetchProducts(order.field, order.direction, true);
                             } }, { children: "\uB354\uBCF4\uAE30" })) })))] })), pop.content, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
 }
