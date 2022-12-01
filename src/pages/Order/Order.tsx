@@ -338,11 +338,11 @@ function Order() {
     return (
         <>
             {state && (
-                <div>
+                <>
                     <Header />
                     <Main state={state} />
                     <Footer />
-                </div>
+                </>
             )}
         </>
     );

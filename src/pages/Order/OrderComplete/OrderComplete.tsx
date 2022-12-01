@@ -169,7 +169,7 @@ interface CustomizedState {
     docId: string;
 }
 
-function Main() {
+function OrderDetail() {
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as CustomizedState;
@@ -198,26 +198,20 @@ function Main() {
     return (
         <>
             {state && Object.keys(orderDetail).length > 0 && (
-                <main>
-                    <div className="order-detail big-container">
-                        <NoticeSection />
-                        <OrderItemSection orderDetail={orderDetail} />
-                        <DeliverySection orderDetail={orderDetail} />
-                        <PaySection orderDetail={orderDetail} />
-                    </div>
-                </main>
+                <>
+                    <Header />
+                    <main>
+                        <div className="order-detail big-container">
+                            <NoticeSection />
+                            <OrderItemSection orderDetail={orderDetail} />
+                            <DeliverySection orderDetail={orderDetail} />
+                            <PaySection orderDetail={orderDetail} />
+                        </div>
+                    </main>
+                    <Footer />
+                </>
             )}
         </>
-    );
-}
-
-function OrderDetail() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

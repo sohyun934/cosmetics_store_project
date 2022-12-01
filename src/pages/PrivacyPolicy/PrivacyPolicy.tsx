@@ -1,6 +1,4 @@
 import "./privacyPolicy.css";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
 
 export function PrivacyPolicyDetail() {
     return (
@@ -75,7 +73,7 @@ export function PrivacyPolicyDetail() {
     );
 }
 
-function Main() {
+function PrivacyPolicy() {
     return (
         <main>
             <div className="policy-wrap">
@@ -85,16 +83,6 @@ function Main() {
                 </div>
             </div>
         </main>
-    );
-}
-
-function PrivacyPolicy() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

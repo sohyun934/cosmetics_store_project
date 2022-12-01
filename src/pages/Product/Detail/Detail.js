@@ -14,8 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
 require("./Detail.css");
-const Header_1 = __importDefault(require("../../../components/Header/Header"));
-const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const MoveTop_1 = __importDefault(require("../../../components/MoveTop/MoveTop"));
 const CartPop_1 = __importDefault(require("../../Mypage/Cart/CartPop/CartPop"));
 const react_1 = require("react");
@@ -182,7 +180,7 @@ function ReviewSection(props) {
     }, [page]);
     return ((0, jsx_runtime_1.jsx)("section", Object.assign({ className: "review-section" }, { children: (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "section-inner" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "section-top" }, { children: (0, jsx_runtime_1.jsx)("h1", { children: "REVIEW" }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "total-point" }, { children: [(0, jsx_runtime_1.jsx)("p", Object.assign({ style: { margin: "0" } }, { children: "\uAD6C\uB9E4\uC790 \uD3C9\uC810" })), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "rating" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: totRating }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-point" }, { children: (0, jsx_runtime_1.jsx)("span", { className: "point", style: { width: totWidth } }) }))] })), reviews.length > 0 ? (reviews) : ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "review-container" }, { children: (0, jsx_runtime_1.jsx)("p", Object.assign({ style: { textAlign: "center" } }, { children: "\uC791\uC131\uB41C \uB9AC\uBDF0\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4." })) }))), reviews.length > 0 && ((0, jsx_runtime_1.jsx)(react_js_pagination_1.default, { activePage: page, itemsCountPerPage: 5, totalItemsCount: totItemsCnt, pageRangeDisplayed: 5, prevPageText: "\u2039", nextPageText: "\u203A", onChange: handlePageChange }))] })) })));
 }
-function Main() {
+function Detail() {
     const [tap, setTap] = (0, react_1.useState)("detail");
     const [pop, setPop] = (0, react_1.useState)({ state: "", content: null });
     const [urls, setUrls] = (0, react_1.useState)([]);
@@ -211,8 +209,5 @@ function Main() {
         getImageUrls();
     }, []);
     return ((0, jsx_runtime_1.jsxs)("main", { children: [(0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "detail-container big-container" }, { children: [(0, jsx_runtime_1.jsx)(ProductSection, { name: name, price: price, urls: urls, open: (_pop) => setPop(pop => (Object.assign(Object.assign({}, pop), { state: _pop }))) }), (0, jsx_runtime_1.jsx)(Nav, { onChangeTap: (_tap) => setTap(_tap), productName: name }), tap === "detail" ? ((0, jsx_runtime_1.jsx)("div", Object.assign({ className: "detail-wrap" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[3], alt: "\uC0C1\uC138\uC815\uBCF4" }) }))) : ((0, jsx_runtime_1.jsx)(ReviewSection, { productName: name }))] })), pop.content, (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] }));
-}
-function Detail() {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
 }
 exports.default = Detail;

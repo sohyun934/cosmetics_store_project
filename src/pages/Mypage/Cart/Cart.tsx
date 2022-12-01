@@ -1,6 +1,4 @@
 import "./Cart.css";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
@@ -390,7 +388,7 @@ function CartForm() {
     );
 }
 
-function Main() {
+function Cart() {
     return (
         <main>
             <div className="big-container">
@@ -401,16 +399,6 @@ function Main() {
                 </div>
             </div>
         </main>
-    );
-}
-
-function Cart() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

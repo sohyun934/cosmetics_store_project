@@ -199,6 +199,6 @@ function Order() {
             navigate("/");
         }
     });
-    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, { state: state }), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] })) }));
+    return ((0, jsx_runtime_1.jsx)(jsx_runtime_1.Fragment, { children: state && ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, { state: state }), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] })) }));
 }
 exports.default = Order;

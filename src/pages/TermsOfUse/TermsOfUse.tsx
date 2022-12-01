@@ -1,6 +1,3 @@
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
-
 export function TermsOfUseDetail() {
     return (
         <div>
@@ -56,7 +53,7 @@ export function TermsOfUseDetail() {
     );
 }
 
-function Main() {
+function TermsOfUse() {
     return (
         <main>
             <div className="policy-wrap">
@@ -66,16 +63,6 @@ function Main() {
                 </div>
             </div>
         </main>
-    );
-}
-
-function TermsOfUse() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

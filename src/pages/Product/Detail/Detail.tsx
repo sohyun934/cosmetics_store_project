@@ -1,6 +1,4 @@
 import "./Detail.css";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import MoveTop from "../../../components/MoveTop/MoveTop";
 import CartPop from "../../Mypage/Cart/CartPop/CartPop";
 import React, { useEffect, useState } from "react";
@@ -351,7 +349,7 @@ interface CustomizedState {
     detail: string;
 }
 
-function Main() {
+function Detail() {
     const [tap, setTap] = useState("detail");
     const [pop, setPop] = useState({ state: "", content: null });
     const [urls, setUrls] = useState<string[]>([]);
@@ -400,16 +398,6 @@ function Main() {
             {pop.content}
             <MoveTop />
         </main>
-    );
-}
-
-function Detail() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

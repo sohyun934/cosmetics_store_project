@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "../components/MainLayout/MainLayout";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import FindPw from "../pages/Member/FindPw/FindPw";
@@ -35,27 +36,29 @@ function App() {
         <>
             {user !== undefined && (
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/member/findPw" element={<FindPw />} />
-                    <Route path="/member/join" element={<Join />} />
+                    <Route element={<MainLayout />}>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/member/findPw" element={<FindPw />} />
+                        <Route path="/member/join" element={<Join />} />
+                        <Route path="/mypage/modify" element={<Modify />} />
+                        <Route path="/mypage/cart" element={user !== null ? <Cart /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
+                        <Route
+                            path="/mypage/myPageAuthentification"
+                            element={user !== null ? <MyPageAuthentification /> : <Navigate to="/login" state={{ moveTo: -1 }} />}
+                        />
+                        <Route path="/mypage/orderDetail" element={user !== null ? <OrderDetail /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
+                        <Route path="/mypage/orderList" element={user !== null ? <OrderList /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
+                        <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
+                        <Route path="/termsOfUse" element={<TermsOfUse />} />
+                        <Route path="/body" element={<Body />} />
+                        <Route path="/detail" element={<Detail />} />
+                        <Route path="/hair" element={<Hair />} />
+                        <Route path="/skin" element={<Skin />} />
+                    </Route>
                     <Route path="/member/welcome" element={<Welcome />} />
-                    <Route path="/mypage/cart" element={user !== null ? <Cart /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
-                    <Route path="/mypage/modify" element={<Modify />} />
-                    <Route
-                        path="/mypage/myPageAuthentification"
-                        element={user !== null ? <MyPageAuthentification /> : <Navigate to="/login" state={{ moveTo: -1 }} />}
-                    />
-                    <Route path="/mypage/orderDetail" element={user !== null ? <OrderDetail /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
-                    <Route path="/mypage/orderList" element={user !== null ? <OrderList /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
                     <Route path="/order" element={<Order />} />
                     <Route path="/order/orderComplete" element={<OrderComplete />} />
-                    <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
-                    <Route path="/termsOfUse" element={<TermsOfUse />} />
-                    <Route path="/body" element={<Body />} />
-                    <Route path="/detail" element={<Detail />} />
-                    <Route path="/hair" element={<Hair />} />
-                    <Route path="/skin" element={<Skin />} />
                     <Route path="/*" element={<NotFound />} />
                 </Routes>
             )}

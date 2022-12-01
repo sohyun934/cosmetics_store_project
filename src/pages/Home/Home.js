@@ -14,8 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
 require("./Home.css");
-const Header_1 = __importDefault(require("../../components/Header/Header"));
-const Footer_1 = __importDefault(require("../../components/Footer/Footer"));
 const MoveTop_1 = __importDefault(require("../../components/MoveTop/MoveTop"));
 const react_1 = require("swiper/react");
 const swiper_1 = require("swiper");
@@ -30,7 +28,7 @@ const getFormatPrice_1 = require("../../utils/getFormatPrice");
 function Slider() {
     const slideList = [];
     for (let i = 1; i <= 3; i++) {
-        slideList.push((0, jsx_runtime_1.jsx)(react_1.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: require(`../../assets/main/main0${i}.jpg`), alt: `메인0${i}` }) }));
+        slideList.push((0, jsx_runtime_1.jsx)(react_1.SwiperSlide, { children: (0, jsx_runtime_1.jsx)("img", { src: require(`../../assets/main/main0${i}.jpg`), alt: `메인0${i}` }) }, i));
     }
     return ((0, jsx_runtime_1.jsx)("div", { children: (0, jsx_runtime_1.jsx)(react_1.Swiper, Object.assign({ modules: [swiper_1.Pagination, swiper_1.A11y, swiper_1.Autoplay], spaceBetween: 0, slidesPerView: 1, pagination: { clickable: true }, loop: true, autoplay: { delay: 3000 } }, { children: slideList })) }));
 }
@@ -84,6 +82,6 @@ function Main() {
     return ((0, jsx_runtime_1.jsxs)("main", Object.assign({ className: "main-container" }, { children: [(0, jsx_runtime_1.jsx)(Slider, {}), (0, jsx_runtime_1.jsx)(Section, { sections: sections }), (0, jsx_runtime_1.jsx)(MoveTop_1.default, {})] })));
 }
 function Home() {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
+    return (0, jsx_runtime_1.jsx)(Main, {});
 }
 exports.default = Home;

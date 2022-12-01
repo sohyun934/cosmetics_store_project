@@ -1,6 +1,4 @@
 import "./Join.css";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PrivacyPolicyDetail } from "../../PrivacyPolicy/PrivacyPolicy";
@@ -394,17 +392,6 @@ function Form() {
     );
 }
 
-function Main() {
-    return (
-        <main>
-            <div className="join-container middle-container">
-                <h1 className="join-title">SIGN UP</h1>
-                <Form></Form>
-            </div>
-        </main>
-    );
-}
-
 function Join() {
     const navigate = useNavigate();
 
@@ -417,11 +404,12 @@ function Join() {
     return (
         <>
             {!signedInUser && (
-                <div>
-                    <Header />
-                    <Main />
-                    <Footer />
-                </div>
+                <main>
+                    <div className="join-container middle-container">
+                        <h1 className="join-title">SIGN UP</h1>
+                        <Form></Form>
+                    </div>
+                </main>
             )}
         </>
     );

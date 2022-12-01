@@ -1,16 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
-const Header_1 = __importDefault(require("../../../components/Header/Header"));
-const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const react_router_dom_1 = require("react-router-dom");
 const react_1 = require("react");
 const auth_1 = require("firebase/auth");
 const firebase_1 = require("../../../firebase");
-function Main() {
+function MyPageAuthentification() {
     const navigate = (0, react_router_dom_1.useNavigate)();
     const [password, setPassword] = (0, react_1.useState)("");
     const [errorMsg, setErrorMsg] = (0, react_1.useState)("");
@@ -39,8 +34,5 @@ function Main() {
                                             setPassword(e.target.value);
                                             setErrorMsg("");
                                         }, onKeyPress: handleKeyPress }), (0, jsx_runtime_1.jsx)("p", Object.assign({ className: "error-msg" }, { children: errorMsg }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "btn-wrap" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ type: "button", className: "auth-btn", onClick: handleAuth }, { children: "\uD655\uC778" })) }))] }))] })) })) }));
-}
-function MyPageAuthentification() {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
 }
 exports.default = MyPageAuthentification;

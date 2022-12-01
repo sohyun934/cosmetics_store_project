@@ -1,6 +1,4 @@
 import "./OrderDetail.css";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import ReviewPop from "./ReviewPop/ReviewPop";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -131,7 +129,7 @@ function OrderItemSection(props: OrderItemSectionProp) {
     );
 }
 
-function Main() {
+function OrderDetail() {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const docId = query.get("orderNo");
@@ -190,16 +188,6 @@ function Main() {
                 </main>
             )}
         </>
-    );
-}
-
-function OrderDetail() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

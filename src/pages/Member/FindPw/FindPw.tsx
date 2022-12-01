@@ -1,11 +1,9 @@
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useState } from "react";
 import { db, auth } from "../../../firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
 
-function Main() {
+function FindId() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [successMsg, setSuccessMsg] = useState("none");
@@ -59,16 +57,6 @@ function Main() {
                 </form>
             </div>
         </main>
-    );
-}
-
-function FindId() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

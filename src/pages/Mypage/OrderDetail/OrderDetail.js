@@ -14,8 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsx_runtime_1 = require("react/jsx-runtime");
 require("./OrderDetail.css");
-const Header_1 = __importDefault(require("../../../components/Header/Header"));
-const Footer_1 = __importDefault(require("../../../components/Footer/Footer"));
 const ReviewPop_1 = __importDefault(require("./ReviewPop/ReviewPop"));
 const react_1 = require("react");
 const react_router_dom_1 = require("react-router-dom");
@@ -68,7 +66,7 @@ function OrderItemSection(props) {
     }, [orderDetail, reviewId]);
     return ((0, jsx_runtime_1.jsxs)("section", Object.assign({ className: "order-item-section" }, { children: [(0, jsx_runtime_1.jsx)("h3", { children: "\uC8FC\uBB38 \uC0C1\uD488" }), (0, jsx_runtime_1.jsxs)("table", { children: [(0, jsx_runtime_1.jsx)("thead", { children: (0, jsx_runtime_1.jsxs)("tr", { children: [(0, jsx_runtime_1.jsx)("th", Object.assign({ colSpan: 2 }, { children: "\uC8FC\uBB38 \uC815\uBCF4" })), (0, jsx_runtime_1.jsx)("th", { children: "\uC218\uB7C9" }), (0, jsx_runtime_1.jsx)("th", { children: "\uAE08\uC561" }), (0, jsx_runtime_1.jsx)("th", { children: "\uC0C1\uD0DC" })] }) }), (0, jsx_runtime_1.jsx)("tbody", { children: products })] })] })));
 }
-function Main() {
+function OrderDetail() {
     const location = (0, react_router_dom_1.useLocation)();
     const query = new URLSearchParams(location.search);
     const docId = query.get("orderNo");
@@ -94,8 +92,5 @@ function Main() {
                                     if (reviewId)
                                         setReviewId(reviewId);
                                 }, productName: productName })), orderDetail: orderDetail.data, reviewId: reviewId }), (0, jsx_runtime_1.jsx)(OrderComplete_1.DeliverySection, { orderDetail: orderDetail.data }), (0, jsx_runtime_1.jsx)(OrderComplete_1.PaySection, { orderDetail: orderDetail.data }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "list-btn-wrap" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/mypage/orderList", className: "order-list-btn border-style-btn" }, { children: "\uBAA9\uB85D" })) }))] })), reviewPop] }))) }));
-}
-function OrderDetail() {
-    return ((0, jsx_runtime_1.jsxs)("div", { children: [(0, jsx_runtime_1.jsx)(Header_1.default, {}), (0, jsx_runtime_1.jsx)(Main, {}), (0, jsx_runtime_1.jsx)(Footer_1.default, {})] }));
 }
 exports.default = OrderDetail;

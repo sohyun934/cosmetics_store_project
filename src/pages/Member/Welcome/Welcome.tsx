@@ -40,11 +40,11 @@ function Welcome() {
     return (
         <>
             {state && (
-                <div>
+                <>
                     <Header />
                     <Main />
                     <Footer />
-                </div>
+                </>
             )}
         </>
     );

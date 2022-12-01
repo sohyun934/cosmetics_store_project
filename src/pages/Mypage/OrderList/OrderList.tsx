@@ -1,6 +1,4 @@
 import "./OrderList.css";
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import Lnb from "../../../components/Lnb/Lnb";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -145,7 +143,7 @@ function OrderTable() {
     );
 }
 
-function Main() {
+function OrderList() {
     return (
         <main>
             <div className="order-list big-container">
@@ -154,16 +152,6 @@ function Main() {
                 <OrderTable />
             </div>
         </main>
-    );
-}
-
-function OrderList() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

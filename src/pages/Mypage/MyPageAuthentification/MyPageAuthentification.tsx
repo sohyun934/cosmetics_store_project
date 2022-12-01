@@ -1,11 +1,9 @@
-import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth, signedInUser } from "../../../firebase";
 
-function Main() {
+function MyPageAuthentification() {
     const navigate = useNavigate();
     const [password, setPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -63,16 +61,6 @@ function Main() {
                 </div>
             </main>
         </>
-    );
-}
-
-function MyPageAuthentification() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 

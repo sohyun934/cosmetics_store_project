@@ -1,6 +1,4 @@
 import "./Home.css";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
 import MoveTop from "../../components/MoveTop/MoveTop";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, A11y, Autoplay } from "swiper";
@@ -17,7 +15,7 @@ function Slider() {
     const slideList = [];
     for (let i = 1; i <= 3; i++) {
         slideList.push(
-            <SwiperSlide>
+            <SwiperSlide key={i}>
                 <img src={require(`../../assets/main/main0${i}.jpg`)} alt={`메인0${i}`} />
             </SwiperSlide>
         );
@@ -144,13 +142,7 @@ function Main() {
 }
 
 function Home() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
-    );
+    return <Main />;
 }
 
 export default Home;

@@ -1,6 +1,4 @@
 import "./Login.css";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
 import { Link, To, useLocation, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -113,7 +111,7 @@ function FormAndUtil() {
     );
 }
 
-function Main() {
+function Login() {
     return (
         <main className="middle-main">
             <div className="middle-container">
@@ -121,16 +119,6 @@ function Main() {
                 <FormAndUtil />
             </div>
         </main>
-    );
-}
-
-function Login() {
-    return (
-        <div>
-            <Header />
-            <Main />
-            <Footer />
-        </div>
     );
 }
 
