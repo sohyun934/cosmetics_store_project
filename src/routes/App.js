@@ -41,7 +41,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/member/findPw" element={<FindPw />} />
                         <Route path="/member/join" element={<Join />} />
-                        <Route path="/mypage/modify" element={<Modify />} />
+                        <Route path="/mypage/modify" element={user !== null ? <Modify /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
                         <Route path="/mypage/cart" element={user !== null ? <Cart /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
                         <Route
                             path="/mypage/myPageAuthentification"
