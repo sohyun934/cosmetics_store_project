@@ -12,10 +12,8 @@ import OrderDetail from "../pages/Mypage/OrderDetail/OrderDetail";
 import OrderList from "../pages/Mypage/OrderList/OrderList";
 import Order from "../pages/Order/Order";
 import OrderComplete from "../pages/Order/OrderComplete/OrderComplete";
-import Body from "../pages/Product/Body/Body";
+import ProductMain from "../components/ProductMain/ProductMain";
 import Detail from "../pages/Product/Detail/Detail";
-import Hair from "../pages/Product/Hair/Hair";
-import Skin from "../pages/Product/Skin/Skin";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import TermsOfUse from "../pages/TermsOfUse/TermsOfUse";
 import NotFound from "../pages/NotFound/NotFound";
@@ -30,7 +28,7 @@ function App() {
         onAuthStateChanged(auth, user => {
             setUser(user);
         });
-    }, [user]);
+    }, []);
 
     return (
         <>
@@ -51,10 +49,10 @@ function App() {
                         <Route path="/mypage/orderList" element={user !== null ? <OrderList /> : <Navigate to="/login" state={{ moveTo: -1 }} />} />
                         <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
                         <Route path="/termsOfUse" element={<TermsOfUse />} />
-                        <Route path="/body" element={<Body />} />
+                        <Route path="/hair" element={<ProductMain />} />
+                        <Route path="/skin" element={<ProductMain />} />
+                        <Route path="/body" element={<ProductMain />} />
                         <Route path="/detail" element={<Detail />} />
-                        <Route path="/hair" element={<Hair />} />
-                        <Route path="/skin" element={<Skin />} />
                     </Route>
                     <Route path="/member/welcome" element={<Welcome />} />
                     <Route path="/order" element={<Order />} />
