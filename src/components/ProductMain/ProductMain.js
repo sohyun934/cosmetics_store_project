@@ -189,8 +189,6 @@ function ProductList(props) {
     };
     const handleSort = (e) => {
         const selectItem = e.target.innerText;
-        const selectList = selectListRef.current;
-        selectList.classList.toggle("display-none");
         let field = "product_id";
         let direction = "desc";
         if (selectItem === "등록순") {
@@ -205,9 +203,12 @@ function ProductList(props) {
             field = "product_price";
             direction = "desc";
         }
+        // 셀렉트 박스 제어
+        handleSelect();
         setSelectItem(selectItem);
-        setOrder(orderBy => (Object.assign(Object.assign({}, orderBy), { field: field, direction: direction })));
+        // 상품 정렬
         fetchProducts(field, direction, false);
+        setOrder(orderBy => (Object.assign(Object.assign({}, orderBy), { field: field, direction: direction })));
     };
     return ((0, jsx_runtime_1.jsxs)(jsx_runtime_1.Fragment, { children: [(0, jsx_runtime_1.jsxs)(SelectBox, { children: [(0, jsx_runtime_1.jsx)(SelectBtn, Object.assign({ className: "unactive", onClick: handleSelect, ref: selectBtnRef }, { children: selectItem })), (0, jsx_runtime_1.jsx)(SelectList, Object.assign({ className: "display-none", ref: selectListRef }, { children: selectItems }))] }), (0, jsx_runtime_1.jsx)("ul", Object.assign({ className: "product-list flex" }, { children: products })), moreBtn && ((0, jsx_runtime_1.jsx)("div", Object.assign({ style: { textAlign: "center", padding: "0 20px" } }, { children: (0, jsx_runtime_1.jsx)(StyledButton, Object.assign({ className: "border-style-btn", onClick: () => {
                         fetchProducts(order.field, order.direction, true);

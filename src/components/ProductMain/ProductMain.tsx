@@ -1,5 +1,5 @@
 import MoveTop from "../MoveTop/MoveTop";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     addDoc,
@@ -274,9 +274,6 @@ function ProductList(props: ListProps) {
 
     const handleSort = (e: React.MouseEvent<HTMLElement>) => {
         const selectItem = (e.target as HTMLElement).innerText;
-        const selectList = selectListRef.current;
-        selectList.classList.toggle("display-none");
-
         let field: string | FieldPath = "product_id";
         let direction: OrderByDirection = "desc";
 
@@ -291,9 +288,13 @@ function ProductList(props: ListProps) {
             direction = "desc";
         }
 
+        // 셀렉트 박스 제어
+        handleSelect();
         setSelectItem(selectItem);
-        setOrder(orderBy => ({ ...orderBy, field: field, direction: direction }));
+
+        // 상품 정렬
         fetchProducts(field, direction, false);
+        setOrder(orderBy => ({ ...orderBy, field: field, direction: direction }));
     };
 
     return (
