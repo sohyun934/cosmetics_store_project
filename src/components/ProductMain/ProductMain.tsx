@@ -1,5 +1,5 @@
 import MoveTop from "../MoveTop/MoveTop";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     addDoc,
@@ -188,12 +188,14 @@ function ProductList(props: ListProps) {
             productSnapshot = await getDocs(first);
             productList = [];
 
-            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
+            // 전체 상품 갯수에 따라 더보기 버튼 보이기 or 감추기
             const q = query(collection(db, "product"), where("product_type", "==", pathname));
             const totProducts = await getDocs(q);
 
             if (totProducts.size > limitNum) {
                 setMoreBtn(true);
+            } else {
+                setMoreBtn(false);
             }
         }
 
@@ -249,9 +251,18 @@ function ProductList(props: ListProps) {
     };
 
     useEffect(() => {
+        // 셀렉트 박스 초기화
+        const selectList = selectListRef.current;
+
+        if (!selectList.classList.contains("display-none")) {
+            selectList.classList.add("display-none");
+        }
+
+        setSelectItem("등록순");
+
         // 상품 리스트 출력
         fetchProducts("product_id", "desc", false);
-    }, []);
+    }, [pathname]);
 
     // 상품 리스트 정렬 제어
     const handleSelect = () => {

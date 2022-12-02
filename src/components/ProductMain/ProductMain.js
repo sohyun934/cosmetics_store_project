@@ -137,11 +137,14 @@ function ProductList(props) {
             const first = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname), (0, firestore_1.orderBy)(field, direction), (0, firestore_1.limit)(limitNum));
             productSnapshot = yield (0, firestore_1.getDocs)(first);
             productList = [];
-            // 전체 상품 갯수가 limit을 초과하는 경우 더보기 버튼 노출
+            // 전체 상품 갯수에 따라 더보기 버튼 보이기 or 감추기
             const q = (0, firestore_1.query)((0, firestore_1.collection)(firebase_1.db, "product"), (0, firestore_1.where)("product_type", "==", pathname));
             const totProducts = yield (0, firestore_1.getDocs)(q);
             if (totProducts.size > limitNum) {
                 setMoreBtn(true);
+            }
+            else {
+                setMoreBtn(false);
             }
         }
         setLastVisible(productSnapshot.docs[productSnapshot.docs.length - 1]);
@@ -168,9 +171,15 @@ function ProductList(props) {
         setProducts(productList);
     });
     (0, react_1.useEffect)(() => {
+        // 셀렉트 박스 초기화
+        const selectList = selectListRef.current;
+        if (!selectList.classList.contains("display-none")) {
+            selectList.classList.add("display-none");
+        }
+        setSelectItem("등록순");
         // 상품 리스트 출력
         fetchProducts("product_id", "desc", false);
-    }, []);
+    }, [pathname]);
     // 상품 리스트 정렬 제어
     const handleSelect = () => {
         const selectBtn = selectBtnRef.current;
