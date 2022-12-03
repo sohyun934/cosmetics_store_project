@@ -1,16 +1,17 @@
 import "./Login.css";
 import { Link, To, useLocation, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth } from "../../firebase";
 
 interface CustomizedState {
     moveTo: To;
 }
 
-function FormAndUtil() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+const FormAndUtil = () => {
+    const emailRef = useRef(null);
+    const passwordRef = useRef(null);
+
     const [errorMsg, setErrorMsg] = useState("");
     const [isChecked, setIsChecked] = useState(false);
 
@@ -21,7 +22,9 @@ function FormAndUtil() {
 
     useEffect(() => {
         if (getCookie("email")) {
-            setEmail(getCookie("email"));
+            const email = emailRef.current;
+            email.value = getCookie("email");
+
             setIsChecked(true);
         }
     }, []);
@@ -46,6 +49,9 @@ function FormAndUtil() {
     };
 
     const logIn = () => {
+        const email = emailRef.current.value;
+        const password = passwordRef.current.value;
+
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 // Signed in
@@ -82,10 +88,10 @@ function FormAndUtil() {
             <form className="login-form">
                 <div className="input-container">
                     <div className="input-wrap">
-                        <input type="text" placeholder="이메일" value={email} onChange={e => setEmail(e.target.value)} onKeyPress={handleKeyPress} />
+                        <input type="text" placeholder="이메일" onKeyPress={handleKeyPress} ref={emailRef} />
                     </div>
                     <div className="input-wrap">
-                        <input type="password" placeholder="비밀번호" onChange={e => setPassword(e.target.value)} onKeyPress={handleKeyPress} />
+                        <input type="password" placeholder="비밀번호" onKeyPress={handleKeyPress} ref={passwordRef} />
                     </div>
                     <p className="error-msg">{errorMsg}</p>
                 </div>
@@ -109,9 +115,9 @@ function FormAndUtil() {
             </div>
         </div>
     );
-}
+};
 
-function Login() {
+const Login = () => {
     return (
         <main className="middle-main">
             <div className="middle-container">
@@ -120,6 +126,6 @@ function Login() {
             </div>
         </main>
     );
-}
+};
 
 export default Login;

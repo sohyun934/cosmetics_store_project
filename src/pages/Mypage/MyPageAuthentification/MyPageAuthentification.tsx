@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth, signedInUser } from "../../../firebase";
 
-function MyPageAuthentification() {
+const MyPageAuthentification = () => {
     const navigate = useNavigate();
-    const [password, setPassword] = useState("");
+    const passwordRef = useRef(null);
     const [errorMsg, setErrorMsg] = useState("");
 
     const handleAuth = () => {
         const user = auth.currentUser;
+        const password = passwordRef.current.value;
         const credential = EmailAuthProvider.credential(signedInUser, password);
 
         reauthenticateWithCredential(user, credential)
@@ -29,6 +30,8 @@ function MyPageAuthentification() {
         if (e.key === "Enter") {
             e.preventDefault();
             handleAuth();
+        } else if (errorMsg) {
+            setErrorMsg("");
         }
     };
 
@@ -40,16 +43,7 @@ function MyPageAuthentification() {
                     <form className="auth-form">
                         <p>개인 정보를 보호하기 위해 비밀번호를 다시 입력해 주세요.</p>
                         <div className="input-wrap" style={{ padding: "24px 0" }}>
-                            <input
-                                id="userPw"
-                                type="password"
-                                placeholder="비밀번호"
-                                onChange={e => {
-                                    setPassword(e.target.value);
-                                    setErrorMsg("");
-                                }}
-                                onKeyPress={handleKeyPress}
-                            />
+                            <input id="userPw" type="password" placeholder="비밀번호" onKeyPress={handleKeyPress} ref={passwordRef} />
                             <p className="error-msg">{errorMsg}</p>
                         </div>
                         <div className="btn-wrap">
@@ -62,6 +56,6 @@ function MyPageAuthentification() {
             </main>
         </>
     );
-}
+};
 
 export default MyPageAuthentification;
