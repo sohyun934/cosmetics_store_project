@@ -5,11 +5,6 @@ import { db, signedInUser } from "../../../../firebase";
 import styled from "styled-components";
 import { getDate } from "../../../../utils/getDate";
 
-type Prop = {
-    close: Function;
-    productName: string;
-};
-
 const StyledDiv = styled.div`
     width: 590px;
 
@@ -30,13 +25,23 @@ const StyledButton = styled.button`
     border: none;
 `;
 
+type Prop = {
+    close: Function;
+    reviewId: string;
+    productName: string;
+};
+
 function ReviewPop(props: Prop) {
     const lis = [];
-    const [mode, setMode] = useState("write");
-    const [docId, setDocId] = useState("");
-    const [reviewId, setReviewId] = useState(0);
+
+    const close = props.close;
+    const reviewId = props.reviewId;
+    const productName = props.productName;
+
+    const [newReviewId, setNewReviewId] = useState(0);
     const [reviewState, setReviewState] = useState({ rate: 0, content: "", letters: 0 });
 
+    // 별점 제어
     const handleRate = (e: React.MouseEvent<HTMLButtonElement>) => {
         const target = (e.target as HTMLElement).parentNode as HTMLElement;
         target.classList.add("on");
@@ -50,7 +55,7 @@ function ReviewPop(props: Prop) {
             <li
                 key={i}
                 value={5 - i}
-                className={mode === "update" && 5 - i === reviewState.rate ? "on" : ""}
+                className={5 - i === reviewState.rate ? "on" : ""}
                 onClick={() => setReviewState(reviewState => ({ ...reviewState, rate: 5 - i }))}
             >
                 <button type="button" onClick={handleRate}></button>
@@ -58,26 +63,17 @@ function ReviewPop(props: Prop) {
         );
     }
 
-    const handleCount = (letters: number) => {
-        setReviewState(reviewState => ({ ...reviewState, letters: letters }));
-    };
-
+    // 리뷰 데이터 가져오기
     const fetchReview = async () => {
-        const reviewsSnapshot = await getDocs(collection(db, "reviews"));
-
-        const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", props.productName));
+        const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", productName));
         const reviewSnapshot = await getDocs(reviewQuery);
 
         if (reviewSnapshot.empty) {
-            setReviewId(reviewsSnapshot.size + 1);
+            const reviewsSnapshot = await getDocs(collection(db, "reviews"));
+            setNewReviewId(reviewsSnapshot.size + 1);
         } else {
-            setMode("update");
-            reviewSnapshot.forEach(doc => {
-                const review = doc.data();
-
-                setDocId(doc.id);
-                setReviewState(reviewState => ({ ...reviewState, rate: review.rate, content: review.content, letters: review.content.length }));
-            });
+            const review = reviewSnapshot.docs[0].data();
+            setReviewState(reviewState => ({ ...reviewState, rate: review.rate, content: review.content, letters: review.content.length }));
         }
     };
 
@@ -85,10 +81,11 @@ function ReviewPop(props: Prop) {
         fetchReview();
     }, []);
 
+    // 리뷰 작성
     const handleWrite = async () => {
         const date = getDate().join(".");
 
-        if (mode === "write") {
+        if (!reviewId) {
             const usersQuery = query(collection(db, "users"), where("email", "==", signedInUser));
             const userSnapshot = await getDocs(usersQuery);
 
@@ -96,8 +93,8 @@ function ReviewPop(props: Prop) {
                 const user = doc.data();
 
                 await addDoc(collection(db, "reviews"), {
-                    review_id: reviewId,
-                    product_name: props.productName,
+                    review_id: newReviewId,
+                    product_name: productName,
                     rate: reviewState.rate,
                     user_name: user.name,
                     email: user.email,
@@ -105,20 +102,25 @@ function ReviewPop(props: Prop) {
                     date: date
                 }).then(() => {
                     alert("리뷰 등록이 완료되었습니다.");
-                    props.close(reviewId);
+                    close(true);
                 });
             });
-        } else if (mode === "update") {
-            const reviewRef = doc(db, "reviews", docId);
+        } else {
+            const updatedReview = doc(db, "reviews", reviewId);
 
-            await updateDoc(reviewRef, {
+            await updateDoc(updatedReview, {
                 rate: reviewState.rate,
                 content: reviewState.content
             }).then(() => {
                 alert("리뷰 수정이 완료되었습니다.");
-                props.close();
+                close();
             });
         }
+    };
+
+    // 글자수 세기
+    const handleCount = (letters: number) => {
+        setReviewState(reviewState => ({ ...reviewState, letters: letters }));
     };
 
     return (
@@ -128,7 +130,7 @@ function ReviewPop(props: Prop) {
                     <h2>REVIEW</h2>
                     <hr />
                     <p className="small-txt">
-                        <strong>{props.productName}</strong>
+                        <strong>{productName}</strong>
                     </p>
                     <div className="total-point">
                         <ul className="flex">{lis}</ul>
@@ -150,7 +152,7 @@ function ReviewPop(props: Prop) {
                         </p>
                     </div>
                     <div className="pop-btn-container flex">
-                        <button type="button" className="cancel-btn radius-style-btn" onClick={() => props.close()}>
+                        <button type="button" className="cancel-btn radius-style-btn" onClick={() => close()}>
                             취소
                         </button>
                         <StyledButton
@@ -162,7 +164,7 @@ function ReviewPop(props: Prop) {
                             등록
                         </StyledButton>
                     </div>
-                    <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => props.close()}></button>
+                    <button type="button" className="pop-close-btn" aria-label="close button" onClick={() => close()}></button>
                 </form>
             </StyledDiv>
             <div className="dim"></div>

@@ -1,6 +1,6 @@
 import "./OrderDetail.css";
 import ReviewPop from "./ReviewPop/ReviewPop";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { auth, db, signedInUser } from "../../../firebase";
@@ -14,7 +14,7 @@ type DetailSectionProp = {
     orderNum: string;
 };
 
-function DetailSection(props: DetailSectionProp) {
+const DetailSection = (props: DetailSectionProp) => {
     const orderDate = props.orderDetail.order_date;
     const orderNum = props.orderNum;
 
@@ -31,85 +31,102 @@ function DetailSection(props: DetailSectionProp) {
             </div>
         </section>
     );
-}
+};
 
 type OrderItemSectionProp = {
     orderDetail: any;
-    reviewId: string;
-    open: Function;
 };
 
-function OrderItemSection(props: OrderItemSectionProp) {
+const OrderItemSection = (props: OrderItemSectionProp) => {
     const orderDetail = props.orderDetail;
     const orderList = orderDetail.order_list;
-    const reviewId = props.reviewId;
+
+    const reviewId = useRef(null);
+    const reviewBtnRef = useRef(null);
+
     const [products, setProducts] = useState([]);
+    const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
+
+    const handleClick = (productName: string) => {
+        setReviewPop(
+            <ReviewPop
+                reviewId={reviewId.current}
+                close={(isWrite: boolean | undefined) => {
+                    setReviewPop(null);
+                    if (isWrite) {
+                        reviewBtnRef.current.innerText = "리뷰수정";
+                    }
+                }}
+                productName={productName}
+            />
+        );
+    };
 
     const fetchProducts = async () => {
         const products = [];
 
-        if (orderList) {
-            for (let i = 0; i < orderList.length; i++) {
-                const amount = orderDetail.amount_list[i];
+        for (let i = 0; i < orderList.length; i++) {
+            // 주문 상품 데이터
+            const amount = orderDetail.amount_list[i];
+            const productName = orderDetail.product_name_list[i];
+            const productRef = doc(db, "product", productName);
+            const productSnap = await getDoc(productRef);
+            const product = productSnap.data();
+            const thumb = await getImage(product.product_thumb_01);
+            const price = getFormatPrice(product.product_price);
+            const state = {
+                name: product.product_name,
+                price: product.product_price,
+                thumb01: product.product_thumb_01,
+                thumb02: product.product_thumb_02,
+                thumb03: product.product_thumb_03,
+                detail: product.product_detail
+            };
 
-                const productName = orderDetail.product_name_list[i];
-                const productRef = doc(db, "product", productName);
-                const productSnap = await getDoc(productRef);
-                const product = productSnap.data();
+            // 리뷰 데이터
+            const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", productName));
+            const reviewSnapshot = await getDocs(reviewQuery);
 
-                const thumb = await getImage(product.product_thumb_01);
-                const price = getFormatPrice(product.product_price);
-                const state = {
-                    name: product.product_name,
-                    price: product.product_price,
-                    thumb01: product.product_thumb_01,
-                    thumb02: product.product_thumb_02,
-                    thumb03: product.product_thumb_03,
-                    detail: product.product_detail
-                };
-
-                const reviewQuery = query(collection(db, "reviews"), where("email", "==", signedInUser), where("product_name", "==", productName));
-                const reviewSnapshot = await getDocs(reviewQuery);
-
-                if (productSnap.exists()) {
-                    products.push(
-                        <tr key={i} className="order-item">
-                            <td className="order-item-thumb">
-                                <Link to="/detail" state={state}>
-                                    <img src={thumb} alt={productName} />
-                                </Link>
-                            </td>
-                            <td className="order-item-name">
-                                <Link to="/detail" state={state}>
-                                    {productName}
-                                </Link>
-                            </td>
-                            <td className="order-amount">{amount}</td>
-                            <td className="order-price">{price}원</td>
-                            <td className="order-status">
-                                <div>
-                                    <strong>주문완료</strong>
-                                </div>
-                                <div>
-                                    <div>
-                                        <button className="review-pop-btn radius-style-btn" onClick={() => props.open(productName)}>
-                                            {reviewSnapshot.empty ? "리뷰작성" : "리뷰수정"}
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    );
-                }
+            if (!reviewSnapshot.empty) {
+                reviewId.current = reviewSnapshot.docs[0].id;
             }
 
-            setProducts(products);
+            products.push(
+                <tr key={i} className="order-item">
+                    <td className="order-item-thumb">
+                        <Link to="/detail" state={state}>
+                            <img src={thumb} alt={productName} />
+                        </Link>
+                    </td>
+                    <td className="order-item-name">
+                        <Link to="/detail" state={state}>
+                            {productName}
+                        </Link>
+                    </td>
+                    <td className="order-amount">{amount}</td>
+                    <td className="order-price">{price}원</td>
+                    <td className="order-status">
+                        <div>
+                            <strong>주문완료</strong>
+                        </div>
+                        <div>
+                            <div>
+                                <button className="review-pop-btn radius-style-btn" onClick={() => handleClick(productName)} ref={reviewBtnRef}>
+                                    {reviewSnapshot.empty ? "리뷰작성" : "리뷰수정"}
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            );
         }
+
+        setProducts(products);
     };
 
     useEffect(() => {
         fetchProducts();
-    }, [orderDetail, reviewId]);
+    }, [orderDetail]);
 
     return (
         <section className="order-item-section">
@@ -125,18 +142,16 @@ function OrderItemSection(props: OrderItemSectionProp) {
                 </thead>
                 <tbody>{products}</tbody>
             </table>
+            {reviewPop}
         </section>
     );
-}
+};
 
-function OrderDetail() {
+const OrderDetail = () => {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const docId = query.get("orderNo");
-
     const [orderDetail, setOrderDetail] = useState({ id: "", data: {} });
-    const [reviewId, setReviewId] = useState("");
-    const [reviewPop, setReviewPop] = useState<null | JSX.Element>(null);
 
     const fetchOrder = async () => {
         const docRef = doc(db, "order", docId);
@@ -161,21 +176,7 @@ function OrderDetail() {
                 <main className="wrap">
                     <div className="order-detail big-container">
                         <DetailSection orderDetail={orderDetail.data} orderNum={orderDetail.id} />
-                        <OrderItemSection
-                            open={(productName: string) =>
-                                setReviewPop(
-                                    <ReviewPop
-                                        close={(reviewId: string) => {
-                                            setReviewPop(null);
-                                            if (reviewId) setReviewId(reviewId);
-                                        }}
-                                        productName={productName}
-                                    />
-                                )
-                            }
-                            orderDetail={orderDetail.data}
-                            reviewId={reviewId}
-                        />
+                        <OrderItemSection orderDetail={orderDetail.data} />
                         <DeliverySection orderDetail={orderDetail.data} />
                         <PaySection orderDetail={orderDetail.data} />
                         <div className="list-btn-wrap">
@@ -184,11 +185,10 @@ function OrderDetail() {
                             </Link>
                         </div>
                     </div>
-                    {reviewPop}
                 </main>
             )}
         </>
     );
-}
+};
 
 export default OrderDetail;
