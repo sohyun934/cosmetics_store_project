@@ -114,9 +114,10 @@ function Home() {
                             <div className="name">
                                 <strong>{data.product_name}</strong>
                             </div>
-                            <div className="price">
-                                <strong>{getFormatPrice(data.product_price)}원</strong>
-                            </div>
+                            <span className="price">
+                                <strong>{getFormatPrice(data.product_price)}</strong>
+                            </span>
+                            <span>원</span>
                         </div>
                     </Link>
                 </li>

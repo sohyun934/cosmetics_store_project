@@ -1,6 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans+KR:wght@300&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Marcellus&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hahmlet:wght@500&family=Marcellus&family=Nanum+Myeongjo&family=Noto+Sans+KR:wght@300&display=swap");
+
+:root {
+    --swiper-theme-color: black !important;
+}
+
+@media (max-width: 900px) {
+    html {
+        font-size: 13px;
+    }
+}
 
 body {
     font-family: "Noto Sans KR", Malgun Gothic, sans-serif;
@@ -177,6 +185,13 @@ button {
     padding: 10vh 20px;
 }
 
+@media (max-width: 900px) {
+    .middle-container {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
 .big-container {
     max-width: 880px;
     min-height: 80vh;
@@ -229,9 +244,10 @@ button:disabled {
 }
 
 .flex {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
-    display: -moz-flex;
-    display: -webkit-flex;
 }
 
 /* msg */
@@ -302,9 +318,10 @@ button:disabled {
 /* pagination */
 
 .pagination {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
-    display: -moz-flex;
-    display: -webkit-flex;
     margin-top: 40px;
     justify-content: center;
 }
@@ -364,22 +381,48 @@ button:disabled {
     position: relative;
     width: calc((100%) / 3);
     padding: 20px;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -moz-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: justify;
+    -moz-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
 }
 
 .product .name {
     margin: 10px 0;
 }
 
-.product .price {
-    font-family: "Nanum Myeongjo", serif;
+.price {
+    font-family: "Hahmlet", serif;
 }
 
 .product img {
-    border-radius: 5px;
+    height: 100%;
+    display: block;
+}
+
+.product img:hover {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    transform: scale(1.1);
+    transition: transform 0.2s ease 0s;
+}
+
+.thumb {
+    border-radius: 4px;
 }
 
 .product-section .product-list .product .thumb {
     position: relative;
+    overflow: hidden;
 }
 
 .product-section .product-list .product .info {
@@ -391,6 +434,32 @@ button:disabled {
     margin: 0 auto;
     box-sizing: border-box;
     padding: 0 20px;
+}
+
+@media (max-width: 900px) {
+    .product-section {
+        padding: 48px 0;
+    }
+
+    .product-section .product-list {
+        display: block;
+    }
+
+    .product-section .product-list .product {
+        max-width: 60vw;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .product-section .more-btn-wrap {
+        width: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+    .product-section .product-list .product {
+        max-width: none;
+    }
 }
 
 /* member */
@@ -454,33 +523,4 @@ button:disabled {
     background: rgba(0, 0, 0, 0.5);
     z-index: 5;
     transition: all 0.4s ease-in-out;
-}
-
-/* media query */
-
-@media (max-width: 900px) {
-    html {
-        font-size: 13px;
-    }
-
-    /* container */
-
-    .middle-container {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* product */
-
-    .product-section {
-        padding: 48px 0;
-    }
-
-    .product-section .product-list .product {
-        width: 100%;
-    }
-
-    .product-section .more-btn-wrap {
-        width: 100%;
-    }
 }

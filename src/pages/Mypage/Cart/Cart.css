@@ -2,9 +2,10 @@
 .order-section,
 .order-section .section-inner > div > span,
 .order-section .btn-wrap button {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-flex: 1;
     flex: 1;
-    -moz-flex: 1;
-    -webkit-flex: 1;
 }
 
 .cart-section,
@@ -37,11 +38,11 @@
     padding-right: 10px;
 }
 
-.cart-list .thumb {
+.cart-list .cart-item-thumb {
     width: 20%;
 }
 
-.cart-list .thumb a {
+.cart-list .cart-item-thumb a {
     width: 90%;
     max-width: 100px;
     display: block;
@@ -50,6 +51,9 @@
 .cart-list .info {
     width: 67%;
     padding-left: 10px;
+    -webkit-box-orient: vertical;
+    -moz-flex-direction: column;
+    -ms-flex-direction: column;
     flex-direction: column;
 }
 

@@ -128,7 +128,7 @@ function CartForm() {
             cartPriceList.push(product.product_price);
             cartList.push(
                 <>
-                    <td className="thumb">
+                    <td className="cart-item-thumb">
                         <Link to="/detail" state={state}>
                             <img src={urls[i]} alt={cartItem.product_name} />
                         </Link>

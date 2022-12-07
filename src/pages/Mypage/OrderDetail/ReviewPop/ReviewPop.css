@@ -11,6 +11,10 @@
 }
 
 .review-pop .total-point ul {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: reverse;
+    -moz-flex-direction: row-reverse;
+    -ms-flex-direction: row-reverse;
     flex-direction: row-reverse;
     justify-content: center;
 }

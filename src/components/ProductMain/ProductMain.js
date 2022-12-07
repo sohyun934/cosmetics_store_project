@@ -21,6 +21,7 @@ const firebase_1 = require("../../firebase");
 const getImage_1 = require("../../utils/getImage");
 const styled_components_1 = __importDefault(require("styled-components"));
 const CartPop_1 = __importDefault(require("../../pages/Mypage/Cart/CartPop/CartPop"));
+const getFormatPrice_1 = require("../../utils/getFormatPrice");
 const Category = (props) => {
     const category = props.category;
     const pathname = props.pathname;
@@ -165,7 +166,7 @@ function ProductList(props) {
                                 thumb02: data.product_thumb_02,
                                 thumb03: data.product_thumb_03,
                                 detail: data.product_detail
-                            } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [data.product_price, "\uC6D0"] }) }))] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "util-btn-container" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn", onClick: () => handleAddCart(data.product_name) }, { children: (0, jsx_runtime_1.jsx)("span", { children: "CART" }) })) }))] }), doc.id));
+                            } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: (0, getFormatPrice_1.getFormatPrice)(data.product_price) }) })), (0, jsx_runtime_1.jsx)("span", { children: "\uC6D0" })] }))] })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "util-btn-container" }, { children: (0, jsx_runtime_1.jsx)("button", Object.assign({ className: "cart-btn gray-style-btn", onClick: () => handleAddCart(data.product_name) }, { children: (0, jsx_runtime_1.jsx)("span", { children: "CART" }) })) }))] }), doc.id));
             });
         }
         setProducts(productList);

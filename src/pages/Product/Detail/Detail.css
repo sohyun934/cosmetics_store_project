@@ -1,15 +1,12 @@
 /* product */
 
-:root {
-    --swiper-theme-color: black !important;
-}
-
 .detail-container .product-section > div,
 .util-btn-container > div,
 .menu-lnb li {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-flex: 1;
     flex: 1;
-    -moz-flex: 1;
-    -webkit-flex: 1;
 }
 
 .detail-container .product-section .info {
@@ -19,10 +16,6 @@
 .detail-container .product-section .info h2 {
     font-family: "Noto Sans KR", Malgun Gothic, sans-serif;
     margin-top: 0px;
-}
-
-.detail-container .product-section .price {
-    font-family: "Nanum Myeongjo", serif;
 }
 
 .detail-container .product-section .info .cnt-container,

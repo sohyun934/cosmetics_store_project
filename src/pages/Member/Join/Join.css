@@ -3,16 +3,18 @@
 }
 
 .join-container .input-container .flex input {
+    -webkit-box-flex: 7.5 1;
+    -moz-box-flex: 7.5 1;
+    -ms-flex: 7.5 1;
     flex: 7.5 1;
-    -moz-flex: 7.5 1;
-    -webkit-flex: 7.5 1;
     margin-right: 10px;
 }
 
 .join-container .input-container .flex button {
+    -webkit-box-flex: 2 1;
+    -moz-box-flex: 2 1;
+    -ms-flex: 2 1;
     flex: 2 1;
-    -moz-flex: 2 1;
-    -webkit-flex: 2 1;
     height: 2.3rem;
     min-width: 6.5rem;
 }

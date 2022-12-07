@@ -70,7 +70,7 @@ function Home() {
                         thumb02: data.product_thumb_02,
                         thumb03: data.product_thumb_03,
                         detail: data.product_detail
-                    } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsxs)("strong", { children: [(0, getFormatPrice_1.getFormatPrice)(data.product_price), "\uC6D0"] }) }))] }))] })) }), doc.id));
+                    } }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "thumb" }, { children: (0, jsx_runtime_1.jsx)("img", { src: urls[i], alt: data.product_name }) })), (0, jsx_runtime_1.jsxs)("div", Object.assign({ className: "info" }, { children: [(0, jsx_runtime_1.jsx)("div", Object.assign({ className: "name" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: data.product_name }) })), (0, jsx_runtime_1.jsx)("span", Object.assign({ className: "price" }, { children: (0, jsx_runtime_1.jsx)("strong", { children: (0, getFormatPrice_1.getFormatPrice)(data.product_price) }) })), (0, jsx_runtime_1.jsx)("span", { children: "\uC6D0" })] }))] })) }), doc.id));
         });
         copiedSections[section].products = products;
     });

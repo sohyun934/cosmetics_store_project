@@ -122,10 +122,11 @@ function ProductSection(props: ProductionProp) {
                     <h2>
                         <strong>{productName}</strong>
                     </h2>
-                    <div className="price-container flex">
+                    <div className="price-container">
                         <span className="price big-txt">
-                            <strong>{strPrice}원</strong>
+                            <strong>{strPrice}</strong>
                         </span>
+                        <span className="big-txt">원</span>
                     </div>
                     <hr />
                     <div className="cnt-container flex">
@@ -134,8 +135,11 @@ function ProductSection(props: ProductionProp) {
                             <input type="text" className="cnt" value={amount} disabled />
                             <button type="button" className="plus" aria-label="plus button for quantity" onClick={handlePlus}></button>
                         </span>
-                        <span className="price big-txt">
-                            <strong>{totPrice}원</strong>
+                        <span>
+                            <span className="price big-txt">
+                                <strong>{totPrice}</strong>
+                            </span>
+                            <span className="big-txt">원</span>
                         </span>
                     </div>
                     <p>30,000원 이상 구매 시 무료 배송</p>

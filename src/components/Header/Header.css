@@ -31,6 +31,9 @@
 }
 
 .header-gnb-left ul {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
     display: flex;
     padding-bottom: 10px;
 }

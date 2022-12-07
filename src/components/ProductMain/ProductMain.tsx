@@ -19,6 +19,7 @@ import { db, signedInUser } from "../../firebase";
 import { getImage } from "../../utils/getImage";
 import styled from "styled-components";
 import CartPop from "../../pages/Mypage/Cart/CartPop/CartPop";
+import { getFormatPrice } from "../../utils/getFormatPrice";
 
 type CategoryProp = {
     category: {};
@@ -232,9 +233,10 @@ function ProductList(props: ListProps) {
                                 <div className="name">
                                     <strong>{data.product_name}</strong>
                                 </div>
-                                <div className="price">
-                                    <strong>{data.product_price}원</strong>
-                                </div>
+                                <span className="price">
+                                    <strong>{getFormatPrice(data.product_price)}</strong>
+                                </span>
+                                <span>원</span>
                             </div>
                         </Link>
                         <div className="util-btn-container">

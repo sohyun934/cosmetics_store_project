@@ -6,6 +6,7 @@ import { auth } from "../../firebase";
 
 type LeftNavBarProp = {
     navList: any[];
+    pathname: string;
     isLogined: boolean;
     logOut: Function;
     closeGnb: Function;
@@ -15,10 +16,14 @@ type LeftNavBarProp = {
 const LeftNavBar = (props: LeftNavBarProp) => {
     const navigate = useNavigate();
 
+    const pathname = props.pathname;
     const navList = props.navList;
+
     const navItems = navList.map(navItem => (
         <li key={navItem.title}>
-            <Link to={navItem.link_to}>{navItem.title}</Link>
+            <Link to={navItem.link_to} className={pathname === navItem.link_to ? "active" : ""} onClick={() => closeGnb()}>
+                {navItem.title}
+            </Link>
         </li>
     ));
 
@@ -33,6 +38,7 @@ const LeftNavBar = (props: LeftNavBarProp) => {
         } else {
             navigate("/login", { state: { moveTo: -1 } });
         }
+
         closeGnb();
     };
 
@@ -138,7 +144,14 @@ const Header = () => {
 
     return (
         <header className={toggle ? "header side-active" : "header"}>
-            <LeftNavBar navList={navList} isLogined={isLogined} logOut={logOut} closeGnb={() => setToggle(false)} toggleSideGnb={() => setToggle(!toggle)} />
+            <LeftNavBar
+                navList={navList}
+                pathname={pathname}
+                isLogined={isLogined}
+                logOut={logOut}
+                closeGnb={() => setToggle(false)}
+                toggleSideGnb={() => setToggle(!toggle)}
+            />
             <div className="logo">
                 <Link to="/">
                     <img src={require("../../assets/common/logo.png")} alt="로고" />

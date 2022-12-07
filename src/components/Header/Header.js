@@ -8,8 +8,9 @@ const auth_1 = require("firebase/auth");
 const firebase_1 = require("../../firebase");
 const LeftNavBar = (props) => {
     const navigate = (0, react_router_dom_1.useNavigate)();
+    const pathname = props.pathname;
     const navList = props.navList;
-    const navItems = navList.map(navItem => ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: navItem.link_to }, { children: navItem.title })) }, navItem.title)));
+    const navItems = navList.map(navItem => ((0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: navItem.link_to, className: pathname === navItem.link_to ? "active" : "", onClick: () => closeGnb() }, { children: navItem.title })) }, navItem.title)));
     const isLogined = props.isLogined;
     const logOut = props.logOut;
     const closeGnb = props.closeGnb;
@@ -68,6 +69,6 @@ const Header = () => {
             alert("로그아웃 과정 중에 오류가 발생했습니다.\n" + error.message);
         });
     };
-    return ((0, jsx_runtime_1.jsxs)("header", Object.assign({ className: toggle ? "header side-active" : "header" }, { children: [(0, jsx_runtime_1.jsx)(LeftNavBar, { navList: navList, isLogined: isLogined, logOut: logOut, closeGnb: () => setToggle(false), toggleSideGnb: () => setToggle(!toggle) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "logo" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/" }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/logo.png"), alt: "\uB85C\uACE0" }) })) })), (0, jsx_runtime_1.jsx)(RightNavBar, { isLogined: isLogined, logOut: logOut })] })));
+    return ((0, jsx_runtime_1.jsxs)("header", Object.assign({ className: toggle ? "header side-active" : "header" }, { children: [(0, jsx_runtime_1.jsx)(LeftNavBar, { navList: navList, pathname: pathname, isLogined: isLogined, logOut: logOut, closeGnb: () => setToggle(false), toggleSideGnb: () => setToggle(!toggle) }), (0, jsx_runtime_1.jsx)("div", Object.assign({ className: "logo" }, { children: (0, jsx_runtime_1.jsx)(react_router_dom_1.Link, Object.assign({ to: "/" }, { children: (0, jsx_runtime_1.jsx)("img", { src: require("../../assets/common/logo.png"), alt: "\uB85C\uACE0" }) })) })), (0, jsx_runtime_1.jsx)(RightNavBar, { isLogined: isLogined, logOut: logOut })] })));
 };
 exports.default = Header;
