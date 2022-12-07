@@ -89,19 +89,19 @@ PW : admin01!
 <img src="https://user-images.githubusercontent.com/68523204/187371263-ad5996ea-0bfe-425f-9558-4a9d3b6ceadf.png" width="600px"/>
 <br/><br/>
 
-### 5. 장바구니 추가
+### 5.1. 장바구니 추가
 <img src="https://user-images.githubusercontent.com/68523204/206130383-0d28994b-7116-430c-87bb-79b73f58068a.gif"/>
 <br/><br/>
 
-### 6. 장바구니 수량 변경
+### 5.2. 장바구니 수량 변경
 <img src="https://user-images.githubusercontent.com/68523204/206130841-279bd92f-8346-4911-8b68-b84ab976b041.gif"/>
 <br/><br/>
 
-### 7. 결제
+### 6. 결제
 <img src="https://user-images.githubusercontent.com/68523204/206133158-fec335c8-57cf-4bda-bcf1-d0a78201ad1e.gif"/>
 <br/><br/>
 
-### 8. 리뷰 작성
+### 7. 리뷰 작성
 <img src="https://user-images.githubusercontent.com/68523204/206132440-6cdd8e98-3107-4fe0-9af1-d29a92cec105.gif"/>
 </div>
 </details>
