@@ -74,35 +74,35 @@ PW : admin01!
 <br/>
 
 ### 1. 회원가입
-<img src="https://user-images.githubusercontent.com/68523204/187366345-944a1e85-c13f-4e89-905d-1a0426ca6974.gif"/>
+<img src="https://user-images.githubusercontent.com/68523204/206130152-5c432568-bb0b-4cc6-85af-4711997fa0e7.gif"/>
 <br/><br/>
 
 ### 2. 로그인
-<img src="https://user-images.githubusercontent.com/68523204/187612454-327bc9b7-9b6c-456b-8580-27bf082602b1.gif"/>
+<img src="https://user-images.githubusercontent.com/68523204/206135258-3b4925dc-3fa7-4b18-8982-c660c03f25e2.gif"/>
 <br/><br/>
 
 ### 3. 메인 페이지
-<img src="https://user-images.githubusercontent.com/68523204/187371609-bee33115-f833-4b36-a8ad-735599b696cd.png"/>
+<img src="https://user-images.githubusercontent.com/68523204/187371609-bee33115-f833-4b36-a8ad-735599b696cd.png" width="600px"/>
 <br/><br/>
 
 ### 4. 상품 리스트 페이지
-<img src="https://user-images.githubusercontent.com/68523204/187371263-ad5996ea-0bfe-425f-9558-4a9d3b6ceadf.png"/>
+<img src="https://user-images.githubusercontent.com/68523204/187371263-ad5996ea-0bfe-425f-9558-4a9d3b6ceadf.png" width="600px"/>
 <br/><br/>
 
-### 5. 장바구니 추가
-<img src="https://user-images.githubusercontent.com/68523204/187369762-91e8a2d1-fadc-4e79-99c5-75ff8b858430.gif"/>
+### 5.1. 장바구니 추가
+<img src="https://user-images.githubusercontent.com/68523204/206130383-0d28994b-7116-430c-87bb-79b73f58068a.gif"/>
 <br/><br/>
 
-### 6. 장바구니 수량 변경
-<img src="https://user-images.githubusercontent.com/68523204/187369770-1b4983d7-17f1-487e-b020-d7900bd551f5.gif"/>
+### 5.2. 장바구니 수량 변경
+<img src="https://user-images.githubusercontent.com/68523204/206130841-279bd92f-8346-4911-8b68-b84ab976b041.gif"/>
 <br/><br/>
 
-### 7. 결제
-<img src="https://user-images.githubusercontent.com/68523204/190100442-f6d84b09-0738-4d85-91ad-e9f7b3d1e448.gif"/>
+### 6. 결제
+<img src="https://user-images.githubusercontent.com/68523204/206133158-fec335c8-57cf-4bda-bcf1-d0a78201ad1e.gif"/>
 <br/><br/>
 
-### 8. 리뷰 작성
-<img src="https://user-images.githubusercontent.com/68523204/187369760-d7b18fcc-7a7a-4d48-a88a-9747ee1b5dbf.gif"/>
+### 7. 리뷰 작성
+<img src="https://user-images.githubusercontent.com/68523204/206132440-6cdd8e98-3107-4fe0-9af1-d29a92cec105.gif"/>
 </div>
 </details>
 <br/>
