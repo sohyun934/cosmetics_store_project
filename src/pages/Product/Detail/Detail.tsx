@@ -1,7 +1,7 @@
 import "./Detail.css";
 import MoveTop from "../../../components/MoveTop/MoveTop";
 import CartPop from "../../Mypage/Cart/CartPop/CartPop";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, A11y, Autoplay } from "swiper";
 import "swiper/css";
@@ -20,13 +20,14 @@ type ProductionProp = {
     open: Function;
 };
 
-function ProductSection(props: ProductionProp) {
+const ProductSection = React.memo((props: ProductionProp) => {
     const productName = props.name;
     const price = Number(props.price);
     const strPrice = getFormatPrice(props.price);
+    const open = props.open;
+
     const [totPrice, setTotPrice] = useState(strPrice);
     const [amount, setAmount] = useState(1);
-
     const navigate = useNavigate();
 
     // 수량 변경
@@ -64,9 +65,9 @@ function ProductSection(props: ProductionProp) {
                     amount: amount
                 });
 
-                props.open("cart");
+                open("cart");
             } else {
-                props.open("overlap");
+                open("overlap");
             }
         }
     };
@@ -159,28 +160,46 @@ function ProductSection(props: ProductionProp) {
             </div>
         </section>
     );
-}
+});
 
 type NavProp = {
     onChangeTap: Function;
     productName: string;
 };
 
-function Nav(props: NavProp) {
+const Nav = React.memo((props: NavProp) => {
     const productName = props.productName;
-    const [detailClass, setDetailClass] = useState(" on");
-    const [reviewClass, setReviewClass] = useState("");
+    const onChangeTap = props.onChangeTap;
+
+    const detailTapRef = useRef(null);
+    const reviewTapRef = useRef(null);
     const [reviewCnt, setReviewCnt] = useState(0);
 
-    const handleContent = (tap: string) => {
-        if (tap === "detail") {
-            props.onChangeTap("detail");
-            setDetailClass(" on");
-            setReviewClass("");
-        } else {
-            props.onChangeTap("review");
-            setDetailClass("");
-            setReviewClass(" on");
+    const navList = [
+        { title: "상세정보", ref: detailTapRef },
+        { title: "구매후기", ref: reviewTapRef }
+    ];
+
+    const navItems = navList.map(navItem => (
+        <li key={navItem.title}>
+            <button
+                className={"border-style-btn" + (navItem.title === "상세정보" ? " on" : "")}
+                onClick={e => handleContent(e, navItem.title)}
+                ref={navItem.ref}
+            >
+                {navItem.title + (navItem.title === "구매후기" ? " (" + reviewCnt + ")" : "")}
+            </button>
+        </li>
+    ));
+
+    const handleContent = (e: React.MouseEvent<HTMLButtonElement>, tap: string) => {
+        const isActive = (e.target as HTMLElement).classList.contains("on");
+
+        if (!isActive) {
+            onChangeTap(tap);
+
+            detailTapRef.current.classList.toggle("on");
+            reviewTapRef.current.classList.toggle("on");
         }
     };
 
@@ -193,37 +212,28 @@ function Nav(props: NavProp) {
 
     useEffect(() => {
         fetchReviews();
-    });
+    }, []);
 
     return (
         <nav className="menu-lnb">
-            <ul className="flex">
-                <li>
-                    <button className={"border-style-btn" + detailClass} onClick={() => handleContent("detail")}>
-                        상세정보
-                    </button>
-                </li>
-                <li>
-                    <button className={"border-style-btn" + reviewClass} onClick={() => handleContent("review")}>
-                        구매후기 ({reviewCnt})
-                    </button>
-                </li>
-            </ul>
+            <ul className="flex">{navItems}</ul>
         </nav>
     );
-}
+});
 
 type ReviewProp = {
     productName: string;
 };
 
-function ReviewSection(props: ReviewProp) {
+const ReviewSection = (props: ReviewProp) => {
     const productName = props.productName;
+
     const [page, setPage] = useState(1);
     const [totItemsCnt, setTotItemsCnt] = useState(0);
     const [reviews, setReviews] = useState([]);
     const [totRating, setTotRating] = useState("0.0");
-    const [totWidth, setTotWidth] = useState("");
+
+    const pointRef = useRef(null);
 
     // 페이지네이션
     const handlePageChange = (page: React.SetStateAction<number>) => {
@@ -233,7 +243,6 @@ function ReviewSection(props: ReviewProp) {
     const fetchReviews = async () => {
         let reviewSnapshot: QuerySnapshot<DocumentData>;
         let totRating = 0;
-        const reviews = [];
 
         const q = query(collection(db, "reviews"), where("product_name", "==", productName), orderBy("review_id", "desc"));
         const querySnapshot = await getDocs(q);
@@ -251,7 +260,7 @@ function ReviewSection(props: ReviewProp) {
             const totWidth = String(Number(fixedRating) * 20) + "%";
 
             setTotRating(fixedRating);
-            setTotWidth(totWidth);
+            pointRef.current.style.width = totWidth;
         }
 
         // 페이지네이션
@@ -270,36 +279,32 @@ function ReviewSection(props: ReviewProp) {
             reviewSnapshot = await getDocs(next);
         }
 
-        if (!reviewSnapshot.empty) {
-            reviewSnapshot.forEach(doc => {
-                const review = doc.data();
+        const reviews = reviewSnapshot.docs.map(doc => {
+            const review = doc.data();
+            const rating = review.rate;
+            const width = String(rating * 20) + "%";
+            const userName = review.user_name;
+            const maskingName = userName.slice(0, -1) + "*";
 
-                const rating = review.rate;
-                const width = String(rating * 20) + "%";
-
-                const userName = review.user_name;
-                const maskingName = userName.slice(0, -1) + "*";
-
-                reviews.push(
-                    <div key={doc.id} className="review-container">
-                        <div className="flex">
-                            <span className="review-point">
-                                <span className="point" style={{ width: width }}></span>
-                            </span>
-                            <span className="info">
-                                <span className="user-name">{`${maskingName}님`}</span>
-                                <span>{review.date}</span>
-                            </span>
-                        </div>
-                        <div className="content">
-                            <p>{review.content}</p>
-                        </div>
+            return (
+                <div key={doc.id} className="review-container">
+                    <div className="flex">
+                        <span className="review-point">
+                            <span className="point" style={{ width: width }}></span>
+                        </span>
+                        <span className="info">
+                            <span className="user-name">{`${maskingName}님`}</span>
+                            <span>{review.date}</span>
+                        </span>
                     </div>
-                );
-            });
+                    <div className="content">
+                        <p>{review.content}</p>
+                    </div>
+                </div>
+            );
+        });
 
-            setReviews(reviews);
-        }
+        setReviews(reviews);
     };
 
     useEffect(() => {
@@ -318,7 +323,7 @@ function ReviewSection(props: ReviewProp) {
                         <strong>{totRating}</strong>
                     </p>
                     <div className="review-point">
-                        <span className="point" style={{ width: totWidth }}></span>
+                        <span className="point" ref={pointRef}></span>
                     </div>
                 </div>
                 {reviews.length > 0 ? (
@@ -342,7 +347,7 @@ function ReviewSection(props: ReviewProp) {
             </div>
         </section>
     );
-}
+};
 
 interface CustomizedState {
     name: string;
@@ -353,8 +358,8 @@ interface CustomizedState {
     detail: string;
 }
 
-function Detail() {
-    const [tap, setTap] = useState("detail");
+const Detail = () => {
+    const [tap, setTap] = useState("상세정보");
     const [pop, setPop] = useState({ state: "", content: null });
     const [urls, setUrls] = useState<string[]>([]);
 
@@ -363,15 +368,16 @@ function Detail() {
     const name = state.name;
     const price = state.price;
 
-    function closePop() {
+    const closePop = () => {
         setPop({ state: "", content: null });
-    }
+    };
 
     useEffect(() => {
-        if (pop.state === "cart") {
-            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="상품이 장바구니에 담겼습니다." /> }));
-        } else if (pop.state === "overlap") {
-            setPop(pop => ({ ...pop, content: <CartPop close={closePop} title="이미 장바구니에 담겨있는 상품입니다." /> }));
+        if (pop.state) {
+            setPop(pop => ({
+                ...pop,
+                content: <CartPop close={closePop} title={pop.state === "cart" ? "상품이 장바구니에 담겼습니다." : "이미 장바구니에 담겨있는 상품입니다."} />
+            }));
         }
     }, [pop.state]);
 
@@ -386,12 +392,15 @@ function Detail() {
         getImageUrls();
     }, []);
 
+    const openPop = useCallback((_pop: string) => setPop(pop => ({ ...pop, state: _pop })), []);
+    const onChangeTap = useCallback((_tap: string) => setTap(_tap), []);
+
     return (
         <main>
             <div className="detail-container big-container">
-                <ProductSection name={name} price={price} urls={urls} open={(_pop: string) => setPop(pop => ({ ...pop, state: _pop }))} />
-                <Nav onChangeTap={(_tap: string) => setTap(_tap)} productName={name}></Nav>
-                {tap === "detail" ? (
+                <ProductSection name={name} price={price} urls={urls} open={openPop} />
+                <Nav onChangeTap={onChangeTap} productName={name}></Nav>
+                {tap === "상세정보" ? (
                     <div className="detail-wrap">
                         <img src={urls[3]} alt="상세정보" />
                     </div>
@@ -403,6 +412,6 @@ function Detail() {
             <MoveTop />
         </main>
     );
-}
+};
 
 export default Detail;
